@@ -43,3 +43,21 @@ def plot_energy(energy_POD, energy_AE, i_AE_energy):
         axis.set_major_formatter(formatter)
     ax.legend()
     plt.show()
+
+def plot_corr_matrix(Rij, detR):
+
+    nr = np.shape(Rij)[0]
+
+    fig, ax = plt.subplots(1, 1)
+
+    cp0 = ax.imshow(Rij, cmap='magma_r', vmin=0, vmax=1)
+
+    ax.set_xticks(np.arange(nr))
+    ax.set_yticks(np.arange(nr))
+    ax.set_xticklabels(np.arange(1, nr + 1))
+    ax.set_yticklabels(np.arange(1, nr + 1))
+
+    ax.set_title('$detR = ' + '{0:.2f}'.format((detR * 100)) + ' \% $')
+    fig.colorbar(cp0, ticks=[0, 0.5, 1])
+
+    plt.show()

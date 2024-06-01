@@ -4,6 +4,7 @@ import matplotlib.animation as animation
 import numpy as np
 
 from utils.plt.plt_config import plot_body
+from utils.plt.plt_control import plot_rotation, generate_rotation
 
 def plot_mean(grid, D):
 
@@ -64,7 +65,7 @@ def plot_mean(grid, D):
     plt.show()
     plt.tight_layout()
 
-def plot_snp(grid, D, limits = [-0.5, 0.5], make_axis_visible = [1, 1], show_title = 1, show_colorbar = 1, flag_type = 'SC'):
+def plot_snp(grid, D, limits = [-0.5, 0.5], make_axis_visible = [1, 1], show_title = 1, show_colorbar = 1, flag_flow = 'SC'):
 
     X = grid['X']
     Y = grid['Y']
@@ -122,7 +123,7 @@ def plot_snp(grid, D, limits = [-0.5, 0.5], make_axis_visible = [1, 1], show_tit
                 ax[j].set_yticks([])
                 ax[j].set_ylabel('')
 
-            plot_body(ax[j], flag_type)
+            plot_body(ax[j], flag_flow)
     else:
         cp0 = ax.pcolormesh(X, Y, M[:, :, 0].reshape(m, n), cmap='jet', vmin=clevels[0], vmax=clevels[1])
         cp00 = ax.contourf(X, Y, B, colors='k')
@@ -147,10 +148,10 @@ def plot_snp(grid, D, limits = [-0.5, 0.5], make_axis_visible = [1, 1], show_tit
             ax.set_yticks([])
             ax.set_ylabel('')
 
-        plot_body(ax, flag_type)
+        plot_body(ax, flag_flow)
     plt.show()
     plt.tight_layout()
-def plot_video_snp(grid, D, limits = [-0.5, 0.5], make_axis_visible = [1, 1], show_title = 1, show_colorbar = 1, flag_type = 'SC'):
+def plot_video_snp(grid, D, limits = [-0.5, 0.5], make_axis_visible = [1, 1], show_title = 1, show_colorbar = 1, flag_flow = 'SC', flag_control = 0, u = [], t = []):
 
     X = grid['X']
     Y = grid['Y']
@@ -170,6 +171,9 @@ def plot_video_snp(grid, D, limits = [-0.5, 0.5], make_axis_visible = [1, 1], sh
     M = np.zeros((m, n, nt, k))
     for i in range(k):
         M[:, :, :, i] = np.reshape(D[( (n * m)*i ):( (n * m)*(i + 1) ), :], (m, n, nt), order='F')
+
+    if flag_control:
+        xc, yc = generate_rotation(flag_flow, u, t)
 
     cticks = np.linspace(limits[0], limits[1], 3)
     clevels = limits
@@ -218,8 +222,13 @@ def plot_video_snp(grid, D, limits = [-0.5, 0.5], make_axis_visible = [1, 1], sh
                     ax[j].set_yticks([])
                     ax[j].set_ylabel('')
 
-                plot_body(ax[j], flag_type)
+                plot_body(ax[j], flag_flow)
+                if flag_control:
+                    plot_rotation(ax[j], it, xc, yc, flag_flow)
+
         else:
+            ax.cla()
+            
             cp0 = ax.pcolormesh(X, Y, M[:, :, it, 0].reshape(m, n), cmap='jet', vmin=clevels[0], vmax=clevels[1])
             cp00 = ax.contourf(X, Y, B, colors='k')
 
@@ -243,7 +252,9 @@ def plot_video_snp(grid, D, limits = [-0.5, 0.5], make_axis_visible = [1, 1], sh
                 ax.set_yticks([])
                 ax.set_ylabel('')
 
-            plot_body(ax, flag_type)
+            plot_body(ax, flag_flow)
+            if flag_control:
+                plot_rotation(ax, it, xc, yc, flag_flow)
 
         plt.tight_layout()
 

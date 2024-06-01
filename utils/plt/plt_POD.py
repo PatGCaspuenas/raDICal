@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.animation as animation
+from matplotlib.ticker import FuncFormatter
+
+from utils.POD.obtain_basis import get_cumenergy
 
 def plot_phi(grid, Phi):
 
@@ -57,3 +60,19 @@ def plot_phi(grid, Phi):
 
     plt.show()
     plt.tight_layout()
+
+def plot_cum_energy_POD(Sigma):
+
+    E = get_cumenergy(Sigma)
+
+    nr = len(E)
+
+    fig, ax = plt.subplots(1,1, subplot_kw=dict(box_aspect=1))
+    ax.loglog(np.arange(1,nr+1),E, 'bo-', label='POD')
+    ax.set_xlabel('$r$')
+    ax.set_ylabel('CEA')
+
+    ax.axis([1, nr, E[0], 1])
+
+    ax.legend()
+    plt.show()

@@ -1,11 +1,10 @@
 # PACKAGES
 import numpy as np
 from sklearn.model_selection import train_test_split
-import array
 
-def raw2CNNAE(grid, D, flag_split=0):
+def raw2CNNAE(grid, D, flag_split=0, flag_control=0, u=0):
 
-    # Read and transform data
+    # FLOW PARAMETERS
     X = grid['X']
     Y = grid['Y']
 
@@ -20,28 +19,53 @@ def raw2CNNAE(grid, D, flag_split=0):
     else:
         k = 3
 
+    # CONTROL PARAMETERS
+    if flag_control:
+        nc = np.shape(u)[1]
+
+    # RESHAPE FLOW (control is already reshaped)
     U = np.zeros((nt, n, m, k))
     for i in range(k):
         U[:, :, :, i] = np.reshape(D[( (n * m)*i ):( (n * m)*(i + 1) ), :], (m, n, nt), order='F').T
 
-    if flag_split:
-        X_train, X_test, y_train, y_test = train_test_split(U, U, test_size=0.3, random_state=1, shuffle=False)
-        return X_train, X_test, y_train, y_test
+    # SPLIT AND RETURN
+    if flag_split and flag_control:
+        X_train, X_test, u_train, u_test = train_test_split(U, u, test_size=0.3, shuffle=False)
+        return X_train, X_test, u_train, u_test
+    elif flag_split and ~flag_control:
+        X_train, X_test = train_test_split(U, test_size=0.3, shuffle=False)
+        return X_train, X_test, 0, 0
     else:
-        return U, U
+        return U
 
 def CNNAE2raw(U):
 
+    # PARAMETERS
     m = np.shape(U)[1]
     n = np.shape(U)[2]
     nt = np.shape(U)[0]
     k = np.shape(U)[3]
 
+    # INITIALIZATION
     u = np.array(U).T # (k, m, n, nt)
     D = np.zeros((k*m*n, nt))
 
+    # RESHAPE
     for i in range(k):
 
         D[( (n * m)*i ):( (n * m)*(i + 1) ), :] = np.reshape(u[i, :, :, :], (m*n, nt), order='F')
 
     return D
+
+def get_control_vector(flow, flag_flow, flag_control):
+
+    if flag_flow=='FP':
+        if flag_control:
+            u = np.concatenate((flow['vF'], flow['vT'], flow['vB']), axis=1)
+        else:
+            u = 0
+    else:
+        u = 0
+
+    return u
+

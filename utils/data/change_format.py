@@ -1,6 +1,8 @@
 import numpy as np
 import h5py
 import scipy.io as sio
+import os
+import pandas as pd
 
 def mat2hdf5_FP_flow(path_flow, path_grid, path_save):
 
@@ -12,8 +14,8 @@ def mat2hdf5_FP_flow(path_flow, path_grid, path_save):
 
     U = M_flow['u']
     V = M_flow['v']
-    dUdt = M_flow['du']
-    dVdt = M_flow['dv']
+    # dUdt = M_flow['du']
+    # dVdt = M_flow['dv']
 
     t = M_flow['t'].T
 
@@ -37,20 +39,32 @@ def mat2hdf5_FP_flow(path_flow, path_grid, path_save):
 
     U[np.reshape(B, (m * n), order='F') == 1, :] = 0
     V[np.reshape(B, (m * n), order='F') == 1, :] = 0
-    dUdt[np.reshape(B, (m * n), order='F') == 1, :] = 0
-    dVdt[np.reshape(B, (m * n), order='F') == 1, :] = 0
+    # dUdt[np.reshape(B, (m * n), order='F') == 1, :] = 0
+    # dVdt[np.reshape(B, (m * n), order='F') == 1, :] = 0
 
     U = np.reshape(U, (m * n, nt), order='F')
     V = np.reshape(V, (m * n, nt), order='F')
-    dUdt = np.reshape(dUdt, (m * n, nt), order='F')
-    dVdt = np.reshape(dVdt, (m * n, nt), order='F')
+    # dUdt = np.reshape(dUdt, (m * n, nt), order='F')
+    # dVdt = np.reshape(dVdt, (m * n, nt), order='F')
 
-    flow = {'U': U, 'V': V, 'dUdt': dUdt, 'dVdt': dVdt, 't': t, 'Re': Re}
+    # flow = {'U': U, 'V': V, 'dUdt': dUdt, 'dVdt': dVdt, 't': t, 'Re': Re}
+    flow = {'U': U, 'V': V, 't': t, 'Re': Re}
 
     with h5py.File(path_save, 'w') as h5file:
         for key, item in flow.items():
             h5file.create_dataset(key, data=item)
+def add_control_FP(path_input, path_save):
 
+    M_input = sio.loadmat(path_input)
+
+    vF = M_input['vF']
+    vT = M_input['vT']
+    vB = M_input['vB']
+
+    with h5py.File(path_save, 'a') as h5file:
+        h5file.create_dataset('vF', data=vF)
+        h5file.create_dataset('vT', data=vT)
+        h5file.create_dataset('vB', data=vB)
 
 def mat2hdf5_FP_grid(path, path_save):
 
@@ -83,6 +97,5 @@ def mat2hdf5_FP_grid(path, path_save):
 
 
 
-mat2hdf5_FP_flow(r'F:\AEs_wControl\utils\data\FP_14k_24k_AE.mat', r'F:\AEs_wControl\utils\data\FP_grid_AE.mat', \
-                 r'F:\AEs_wControl\utils\data\FP_14k_24k.h5')
+
 

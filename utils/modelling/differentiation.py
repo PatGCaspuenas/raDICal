@@ -2,23 +2,25 @@ import numpy as np
 
 def diff_time(D,t):
 
+    # PARAMETERS AND INITIALIZATION
     dt = t[1] - t[0]
     nt = np.shape(D)[1]
     dDdt = np.zeros(np.shape(D))
 
-    # Central difference
+    # CENTRAL DIFFERENCE
     dDdt[:, 1:-1] = (D[:, 2:] - D[:, 0:-2]) / (2 * dt)
 
-    # Forward difference
+    # FORWARD DIFFERENCE
     dDdt[:, 0] = ( - 3*D[:, 0] + 4*D[:, 1] - D[:, 2] ) / (2 * dt)
 
-    # Backward difference
+    # BACKWARD DIFFERENCE
     dDdt[:, -1] = -(- 3 * D[:, -1] + 4 * D[:, -2] - D[:, -3]) / (2 * dt)
 
     return dDdt
 
 def diff_1st_2Dspace(X,Y,D):
 
+    # PARAMETERS AND INITIALIZATION
     m = np.shape(X)[0]
     n = np.shape(X)[1]
     nt = np.shape(D)[1]
@@ -31,6 +33,7 @@ def diff_1st_2Dspace(X,Y,D):
 
     Ux, Uy, Vx, Vy = np.zeros((4, m, n, nt))
 
+    # GRADIENTS
     Ux[:, 1:-1, :] = (U[:, 2:, :] - U[:, 0:-2, :]) / (2 * dx)
     Ux[:, 0, :] = (-3 * U[:, 0, :] + 4 * U[:, 1, :] - U[:, 2, :]) / (2 * dx)
     Ux[:, -1, :] = (3 * U[:, -1, :] - 4 * U[:, -2, :] + U[:, -3, :]) / (2 * dx)
@@ -47,6 +50,7 @@ def diff_1st_2Dspace(X,Y,D):
     Vy[0, :, :] = (-3 * V[0, :, :] + 4 * V[1, :, :] - V[2, :, :]) / (2 * dy)
     Vy[-1, :, :] = (3 * V[-1, :, :] - 4 * V[-2, :, :] + V[-3, :, :]) / (2 * dy)
 
+    # RESHAPE
     Dx = np.concatenate((np.reshape(Ux, (m * n, nt), order='F'), np.reshape(Vx, (m * n, nt), order='F')), axis=0)
     Dy = np.concatenate((np.reshape(Uy, (m * n, nt), order='F'), np.reshape(Vy, (m * n, nt), order='F')), axis=0)
 
@@ -54,14 +58,17 @@ def diff_1st_2Dspace(X,Y,D):
 
 def get_2Dvorticity(X,Y,D):
 
+    # PARAMETERS
     m = np.shape(X)[0]
     n = np.shape(X)[1]
 
+    # GRADIENTS
     Dx, Dy = diff_1st_2Dspace(X,Y,D)
 
     Vx = Dx[m * n:2 * m * n, :]
     Uy = Dy[0:m * n, :]
 
+    # PLANAR VORTICITY
     w = Vx - Uy
 
     return w

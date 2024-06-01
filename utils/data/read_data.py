@@ -2,13 +2,15 @@ import numpy as np
 import scipy.io as sio
 import h5py
 
-def read_SC(path):
+def read_SC(path_grid, path_flow):
 
 
-    M = sio.loadmat(path)
+    M = sio.loadmat(path_grid)
 
     X = M['X']
     Y = M['Y']
+
+    M = sio.loadmat(path_flow)
 
     U = M['u']
     V = M['v']

@@ -21,9 +21,9 @@ def plotConfig():
     mpl.rcParams['legend.fontsize'] = 12
     mpl.rcParams['axes.titlecolor'] = 'black'
 
-def plot_body(ax, flag_type):
+def plot_body(ax, flag_flow):
 
-    if flag_type == 'FP':
+    if flag_flow == 'FP':
 
         R = 0.5
 

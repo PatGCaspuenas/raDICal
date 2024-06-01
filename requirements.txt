@@ -4,3 +4,5 @@ matplotlib
 tensorflow
 scikit-learn
 optht
+pandas
+

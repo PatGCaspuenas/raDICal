@@ -10,8 +10,8 @@ from utils.POD.fits import elbow_fit, energy_truncation
 from utils.POD.obtain_basis import get_cumenergy
 
 # PARAMETERS
-path_flow = r'F:\AEs_wControl\utils\data\FP_14k_24k.h5'
-path_grid = r'F:\AEs_wControl\utils\data\FP_grid.h5'
+path_flow = r'/utils/data/FPc_00k_80k.h5'
+path_grid = r'/utils/data/FP_grid.h5'
 warnings.filterwarnings("ignore")
 
 # LOAD DATA
@@ -24,7 +24,7 @@ Ddt = D - Dmean
 del D, flow
 
 nt = np.shape(Ddt)[1]
-n_modes = [50, 100, 500, 1000, 3000, 5000]
+n_modes = [50, 100, 500, 1000, 1500, 3000, 5000]
 energies = [50, 60, 70, 80, 90, 95, 99]
 energy_nr = {'e50': [], 'e60': [], 'e70': [], 'e80': [], 'e90': [], 'e95': [], 'e99': [], 'elbow': []}
 elbow_energy = []
@@ -47,15 +47,16 @@ for i in n_modes:
 colors_plot = ['mediumblue', 'darkorchid', 'deeppink', 'coral', 'sienna', 'seagreen', 'teal', 'lightslategray']
 fig, ax = plt.subplots(1, 1, subplot_kw=dict(box_aspect=1))
 
-for j,k in energies,colors_plot[:-1]:
+for j,k in zip(energies,colors_plot[:-1]):
     ax.loglog(n_modes, energy_nr['e' + str(j)], 'o-', color=k, label=str(j)+'%')
 ax.loglog(n_modes, energy_nr['elbow'], 'o-', color=colors_plot[-1], label='elbow')
 
 ax.set_xlabel('$n_t$')
 ax.set_ylabel('$n_r$')
 
-ax.axis([n_modes[0], n_modes[-1], 1, 10000])
+ax.axis([n_modes[0], n_modes[-1], 1, 100])
 
 ax.legend()
 plt.show()
 
+a=0
