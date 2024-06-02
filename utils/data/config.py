@@ -8,7 +8,6 @@ def log_initial_config(logging, params, flags, paths):
     logging.info(f'\nPATHS \n grid: {path_grid}, flow: {path_flow}, flow_test: {path_flow_test}\n')
 
     # FLAGS
-    flag_loss = flags['loss']
     flag_AE = flags['AE']
     flag_struct = flags['struct']
     flag_flow = flags['flow']
@@ -22,7 +21,7 @@ def log_initial_config(logging, params, flags, paths):
 
     logging.info(f'\n FLAGS \n' + \
                  f'flow type: {flag_flow}, with control? {flag_control}, error type: {flag_error_type} \n' + \
-                 f'AE loss: {flag_loss}, AE type: {flag_AE}, AE structure: {flag_struct} \n' + \
+                 f'AE loss: mse, AE type: {flag_AE}, AE structure: {flag_struct} \n' + \
                  f'POD? {flag_POD}, Modal? {flag_get_modal}, Reconstruction? {flag_get_reconstruction}, save model? {flag_save_model}, save out? {flag_save_out}\n')
 
     # PARAMS
