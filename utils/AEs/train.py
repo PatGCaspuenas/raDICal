@@ -75,10 +75,7 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
             opt = tf.keras.optimizers.Adam(learning_rate=lr)
 
             # LOSS
-            if flag_loss == 'mse':
-                AE['m' + str(i + 1)].compile(optimizer=opt, loss='mse', metrics=[energy_loss])
-            elif flag_loss == 'energy':
-                AE['m' + str(i + 1)].compile(optimizer=opt, loss=energy_loss)
+            AE['m' + str(i + 1)].compile(optimizer=opt, loss='mse', metrics=[energy_loss])
 
             # FIT
             if i == 0:

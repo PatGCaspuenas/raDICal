@@ -49,7 +49,7 @@ for flag_AE in flags_AE:
             boundaries = [500, 100, 100]
             values = [1e-3, 1e-4, 1e-5, 1e-6]
             lr = tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries, values)
-            params['AE']['lr'] = lr
+            params['AE']['lr'] = lr(step)
             del step, boundaries, values
 
         params['AE']['logger'] = flag_AE + '_lr_' + str(IT['lr'][i]) + \
