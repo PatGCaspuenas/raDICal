@@ -1,4 +1,4 @@
-# MD-CNN-AE.py
+# MD-CNN-autoencoder.py
 # 2019 T. Murata
 #
 # Mode Decomposing CNN Autoencoder
