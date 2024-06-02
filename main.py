@@ -17,7 +17,6 @@ for flag_AE in flags_AE:
         flags = {}
         flags['save'] = {}
 
-        flags['loss'] = 'energy'        # Type of loss metric (mse, energy)
         flags['AE'] = flag_AE           # AE type (C-CNN-AE, MD-CNN-AE, CNN-HAE, CNN-VAE)
         flags['struct'] = 'complex'     # AE structure type (simple, medium, complex)
         flags['flow'] = 'FP'            # Flow type (SC, FP)
@@ -75,7 +74,7 @@ for flag_AE in flags_AE:
         params['flow']['k'] = 2                          # Number of dimensions
         params['flow']['nt'] = IT['nt'][i]
 
-        params['POD']['nt'] = 50                         # Number of snapshots to create POD basis
+        params['POD']['nt'] = 500                         # Number of snapshots to create POD basis
         params['POD']['nr'] = params['AE']['nr']         # Number of modes in truncated basis
 
         # PATHS
@@ -92,11 +91,11 @@ for flag_AE in flags_AE:
             if flags['control']:
                 paths['flow'] = cwd + r'/DATA/FPc_00k_80k.h5'
                 paths['flow_test'] = cwd + r'/DATA/FPc_00k_03k.h5'
-                params['flow']['Re'] = 130
+                params['flow']['Re'] = 150
             else:
                 paths['flow'] = cwd + r'/DATA/FP_14k_24k.h5'
                 paths['flow_test'] = cwd + r'/DATA/FP_10k_13k.h5'
-                params['flow']['Re'] = 150
+                params['flow']['Re'] = 130
 
 
         else:

@@ -34,7 +34,6 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
     # FLAGS
     flag_AE = flags['AE']
     flag_control = flags['control']
-    flag_loss = flags['loss']
 
     # PARAMETERS
     nr = params['AE']['nr']
@@ -55,7 +54,7 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
     i_val = [*range(np.shape(X_val)[0])]
     random.shuffle(i_val)
     logger = MyLogger(logging, n_epochs)
-    ES = EarlyStopping(monitor="val_loss", min_delta=0.001, patience=50)
+    ES = EarlyStopping(monitor="val_loss", min_delta=1e-5, patience=50)
 
     # DEFINE AE TYPE
     if flag_AE == 'CNN-VAE':
@@ -113,10 +112,7 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
 
         # LOSS
         opt = tf.keras.optimizers.Adam(learning_rate=lr)
-        if flag_loss=='mse':
-            AE.compile(optimizer=opt, loss='mse', metrics=[energy_loss])
-        elif flag_loss=='energy':
-            AE.compile(optimizer=opt, loss=energy_loss)
+        AE.compile(optimizer=opt, loss='mse', metrics=[energy_loss])
 
         # INPUT
         if flag_control:
