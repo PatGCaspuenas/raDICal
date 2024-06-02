@@ -22,8 +22,11 @@ class MyLogger(Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.logging.info(f'Epoch {epoch}/{self.n_epoch} - {self.batch_n}/{self.batch_n} - {(timer()-self.starttime)}s - {logs}')
 
+# def energy_loss(input_img, decoded):
+#     return tf.keras.ops.sum(tf.keras.ops.square(input_img - decoded)) / tf.keras.ops.sum(tf.keras.ops.square(input_img))
+
 def energy_loss(input_img, decoded):
-    return tf.keras.ops.sum(tf.keras.ops.square(input_img - decoded)) / tf.keras.ops.sum(tf.keras.ops.square(input_img))
+    return tf.keras.backend.sum(tf.keras.backend.square(input_img - decoded)) / tf.keras.backend.sum(tf.keras.backend.square(input_img))
 
 
 def train_AE(params, flags, grid, Ddt, logging, b=0):

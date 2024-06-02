@@ -9,7 +9,7 @@ from autoencoder import ROM
 # ITERABLES
 cwd = os.getcwd()
 flags_AE = ['CNN-VAE', 'C-CNN-AE']
-IT = pd.read_csv(cwd+r'/OUTPUT/Iterate_no_control.csv')
+IT = pd.read_csv(cwd+r'/OUTPUT/FP_no_control.csv')
 
 for flag_AE in flags_AE:
     for i in range(len(IT)):
