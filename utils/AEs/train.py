@@ -86,7 +86,7 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
                                          validation_data=([X_val[i_val, :, :, :]], X_val[i_val, :, :, :]),
                                          batch_size=batch_size,
                                          verbose=2,
-                                         callbacks=[logger, ES])
+                                         callbacks=[logger])
                 z_train = AE['m' + str(i + 1)].get_latent_vector(X_train)
                 z_val = AE['m' + str(i + 1)].get_latent_vector(X_val)
 
@@ -101,7 +101,7 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
                                          X_val[i_val, :, :, :]),
                                          batch_size=batch_size,
                                          verbose=2,
-                                         callbacks=[logger, ES])
+                                         callbacks=[logger])
                 z_train = tf.keras.layers.Concatenate(axis=1)([z_train, AE['m' + str(i + 1)].get_latent_vector(X_train)])
                 z_val = tf.keras.layers.Concatenate(axis=1)([z_val, AE['m' + str(i + 1)].get_latent_vector(X_val)])
 
@@ -126,7 +126,7 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
                                          validation_data=(input_val, X_val[i_val,:,:,:]),
                                          batch_size=batch_size,
                                          verbose=2,
-                                         callbacks=[logger, ES])
+                                         callbacks=[logger])
 
     return AE
 

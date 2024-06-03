@@ -22,7 +22,6 @@ import scipy.io as sio
 import matplotlib.pyplot as plt
 import random
 import h5py
-import logging
 
 # LOCAL FILES
 from utils.data.config import log_initial_config
@@ -41,6 +40,7 @@ from utils.modelling.differentiation import get_2Dvorticity
 def ROM(params, flags, paths):
 
     # LOGGING
+    import logging
     warnings.filterwarnings("ignore")
     OUT = {}
     logging.basicConfig(filename=paths['logger'],
@@ -162,6 +162,10 @@ def ROM(params, flags, paths):
         logging.info(f'SAVED AE outputs')
 
     if flags['save']['history']:
-        sio.savemat(paths['history'],{'loss': AE.history.history['loss'], 'val_loss': AE.history.history['val_loss']})
+        sio.savemat(paths['history'],{'loss': AE.history.history['loss'], 'val_loss': AE.history.history['val_loss'],
+                                      'val_energy_loss': AE.history.history['val_energy_loss'],
+                                      'energy_loss': AE.history.history['energy_loss']})
+
+    del logging
 
 
