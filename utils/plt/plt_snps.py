@@ -151,7 +151,7 @@ def plot_snp(grid, D, limits = [-0.5, 0.5], make_axis_visible = [1, 1], show_tit
         plot_body(ax, flag_flow)
     plt.show()
     plt.tight_layout()
-def plot_video_snp(grid, D, limits = [-0.5, 0.5], make_axis_visible = [1, 1], show_title = 1, show_colorbar = 1, flag_flow = 'SC', flag_control = 0, u = [], t = []):
+def plot_video_snp(grid, D, path_out, limits = [-0.5, 0.5], make_axis_visible = [1, 1], show_title = 1, show_colorbar = 1, flag_flow = 'SC', flag_control = 0, u = [], t = []):
 
     X = grid['X']
     Y = grid['Y']
@@ -260,6 +260,8 @@ def plot_video_snp(grid, D, limits = [-0.5, 0.5], make_axis_visible = [1, 1], sh
 
     anim = animation.FuncAnimation(fig, animate, frames=nt, interval=200)
     writergif = animation.PillowWriter(fps=2)
-    anim.save(r'F:\AEs_wControl\anim.gif', writer=writergif)
+    anim.save(path_out, writer=writergif)
+
+
 
 

@@ -4,7 +4,7 @@ import tensorflow as tf
 from utils.data.transform_data import CNNAE2raw, raw2CNNAE
 
 
-def get_modes_AE(AE, grid, D_test, nr, flag_AE, flag_static, z_test=0):
+def get_modes_AE(AE, grid, D_test, nr, flag_AE, flag_control, flag_static, z_test=0, b_test=0):
 
     X_test = raw2CNNAE(grid, D_test)
 
@@ -46,7 +46,10 @@ def get_modes_AE(AE, grid, D_test, nr, flag_AE, flag_static, z_test=0):
                 aux_z = np.zeros(np.shape(z_test))
                 aux_z[:, i] = z_test[:, i]
 
-            X_mode = AE.decoder(aux_z)
+            if flag_control:
+                X_mode = AE.decoder(tf.keras.layers.Concatenate(axis=1)([aux_z, b_test]))
+            else:
+                X_mode = AE.decoder(aux_z)
 
         Phi[:, :, i] = CNNAE2raw(X_mode)
 

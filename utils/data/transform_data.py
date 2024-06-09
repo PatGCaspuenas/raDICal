@@ -60,10 +60,14 @@ def CNNAE2raw(U):
 def get_control_vector(flow, flag_flow, flag_control):
 
     if flag_flow=='FP':
+        nt = np.shape(flow['U'])[1]
         if flag_control:
-            u = np.concatenate((flow['vF'], flow['vT'], flow['vB']), axis=1)
+            if 'vF' in flow:
+                u = np.concatenate((flow['vF'], flow['vT'], flow['vB']), axis=1)
+            else:
+                u = np.zeros((nt, 3))
         else:
-            u = 0
+            u = np.zeros((nt, 3))
     else:
         u = 0
 

@@ -28,7 +28,6 @@ class MyLogger(Callback):
 def energy_loss(input_img, decoded):
     return tf.keras.backend.sum(tf.keras.backend.square(input_img - decoded)) / tf.keras.backend.sum(tf.keras.backend.square(input_img))
 
-
 def train_AE(params, flags, grid, Ddt, logging, b=0):
 
     # FLAGS
@@ -54,7 +53,7 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
     i_val = [*range(np.shape(X_val)[0])]
     random.shuffle(i_val)
     logger = MyLogger(logging, n_epochs)
-    ES = EarlyStopping(monitor="val_loss", min_delta=1e-5, patience=50)
+    # ES = EarlyStopping(monitor="val_loss", min_delta=1e-5, patience=50)
 
     # DEFINE AE TYPE
     if flag_AE == 'CNN-VAE':

@@ -1,17 +1,9 @@
-import numpy as np
-import warnings
-import matplotlib.pyplot as plt
-import random
-import os
-import pandas as pd
 
-# LOCAL FILES
-from utils.data.read_data import read_FP
-from utils.plt.plt_control import plot_input
-from utils.plt.plt_snps import *
-from utils.plt.plt_config import *
 
 def merge_control_nocontrol():
+    import random
+    import numpy as np
+    from utils.data.read_data import read_FP
 
     path_flowc = r'F:\AEs_wControl\utils\data\FPc_00k_70k.h5'
     path_flow = r'F:\AEs_wControl\utils\data\FP_14k_24k.h5'

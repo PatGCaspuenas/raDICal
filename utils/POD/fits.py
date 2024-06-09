@@ -39,4 +39,4 @@ def elbow_fit(x, y):
     # FIND THE ELBOW
     elbow = np.argmax(R2/err)
 
-    return elbow + 1 # NUMBER OF MODES (not index)
+    return x[elbow] # NUMBER OF MODES (not index)
