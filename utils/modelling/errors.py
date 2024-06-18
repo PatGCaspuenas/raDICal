@@ -1,4 +1,6 @@
 import numpy as np
+import sklearn.metrics
+
 
 def get_RMSE(Dtrue, D, B, flag_type):
 
@@ -85,7 +87,7 @@ def get_cos_similarity(Dtrue, D, B):
     # PARAMETERS
     m = np.shape(B)[0]
     n = np.shape(B)[1]
-    nt = np.shape(D)[1]
+    nt = np.shape(Dtrue)[1]
 
     # GET DATA OUTSIDE MASK
     # i_nonmask = np.where(np.isnan(B))
@@ -153,5 +155,18 @@ def get_latent_correlation_matrix(z_test):
     detR = np.linalg.det(Rij)
 
     return detR, Rij
+
+def get_latent_MI(z_test):
+
+    nr = np.shape(z_test)[1]
+    MI = np.zeros((nr, nr))
+
+    for i in range(nr):
+        for j in range(i,nr):
+
+            MI[i,j] = sklearn.metrics.mutual_info_score(z_test[:, i], z_test[:, j])
+
+    return MI
+
 
 

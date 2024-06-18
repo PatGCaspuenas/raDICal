@@ -14,8 +14,9 @@ def mat2hdf5_FP_flow(path_flow, path_grid, path_save):
 
     U = M_flow['u']
     V = M_flow['v']
-    # dUdt = M_flow['du']
-    # dVdt = M_flow['dv']
+    dUdt = M_flow['du']
+    dVdt = M_flow['dv']
+    p = M_flow['p']
 
     t = M_flow['t'].T
 
@@ -39,16 +40,18 @@ def mat2hdf5_FP_flow(path_flow, path_grid, path_save):
 
     U[np.reshape(B, (m * n), order='F') == 1, :] = 0
     V[np.reshape(B, (m * n), order='F') == 1, :] = 0
-    # dUdt[np.reshape(B, (m * n), order='F') == 1, :] = 0
-    # dVdt[np.reshape(B, (m * n), order='F') == 1, :] = 0
+    dUdt[np.reshape(B, (m * n), order='F') == 1, :] = 0
+    dVdt[np.reshape(B, (m * n), order='F') == 1, :] = 0
+    p[np.reshape(B, (m * n), order='F') == 1, :] = 0
 
     U = np.reshape(U, (m * n, nt), order='F')
     V = np.reshape(V, (m * n, nt), order='F')
-    # dUdt = np.reshape(dUdt, (m * n, nt), order='F')
-    # dVdt = np.reshape(dVdt, (m * n, nt), order='F')
+    dUdt = np.reshape(dUdt, (m * n, nt), order='F')
+    dVdt = np.reshape(dVdt, (m * n, nt), order='F')
+    p = np.reshape(p, (m * n, nt), order='F')
 
-    # flow = {'U': U, 'V': V, 'dUdt': dUdt, 'dVdt': dVdt, 't': t, 'Re': Re}
-    flow = {'U': U, 'V': V, 't': t, 'Re': Re}
+    flow = {'U': U, 'V': V, 'dUdt': dUdt, 'dVdt': dVdt, 'P':p, 't': t, 'Re': Re}
+    # flow = {'U': U, 'V': V, 't': t, 'Re': Re}
 
     with h5py.File(path_save, 'w') as h5file:
         for key, item in flow.items():
@@ -94,8 +97,4 @@ def mat2hdf5_FP_grid(path, path_save):
     with h5py.File(path_save, 'w') as h5file:
         for key, item in grid.items():
             h5file.create_dataset(key, data=item)
-
-
-
-
 

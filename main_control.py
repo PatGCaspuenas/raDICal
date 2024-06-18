@@ -4,11 +4,11 @@ import os
 import pandas as pd
 
 # LOCAL FUNCTIONS
-from autoencoder import ROM
+from autoencoder_control import ROM
 
 # ITERABLES
 cwd = os.getcwd()
-IT = pd.read_csv(cwd+r'/OUTPUT/4th_FP_no_control.csv')
+IT = pd.read_csv(cwd+r'/OUTPUT/31rd_FP_control.csv')
 
 for i in range(len(IT)):
     # FLAGS
@@ -18,9 +18,8 @@ for i in range(len(IT)):
     flags['AE'] = IT['AE'][i]          # AE type (C-CNN-AE, MD-CNN-AE, CNN-HAE, CNN-VAE)
     flags['struct'] = 'complex'     # AE structure type (simple, medium, complex)
     flags['flow'] = 'FP'            # Flow type (SC, FP)
-    flags['control'] = 0            # With (1) or without (0) control
+    flags['control'] = IT['flag_control'][i]            # With (1) or without (0) control
     flags['POD'] = 0                # Gets POD basis (1) or not (0)
-    flags['filter'] = 0
 
     if IT['lr'][i] == 0:
         flags['lr_static'] = 0      # Fixed learning rate (1) or varying with nepochs (0)
@@ -29,7 +28,6 @@ for i in range(len(IT)):
 
     flags['get_modal'] = 0          # Retrieve modal analysis
     flags['get_reconstruction'] = 1 # Retrieve AE reconstruction and error quantification
-    flags['get_latent'] = 0
     flags['save']['model'] = 0      # Save trained model (1) or not (0)
     flags['save']['out'] = 0        # Save outputs of AE (1) or not (0)
     flags['save']['history'] = 1    # Save model history loss (1) or not (0)
@@ -57,7 +55,10 @@ for i in range(len(IT)):
                              '_batch_' + str(IT['batch_size'][i]) + \
                              '_beta_' + str(IT['beta'][i] ) + \
                              '_nr_' + str(IT['nr'][i] ) + \
-                             '_nt_' + str(IT['nt'][i] ) # Logger name
+                             '_nt_' + str(IT['nt'][i] )  + \
+                            '_tr_'  + str(IT['Train'][i] )  + \
+                             '_val_' + str(IT['Val'][i]) + \
+                             '_fc_' + str(IT['flag_control'][i]) # Logger name
 
     params['AE']['n_epochs'] = int(IT['n_epochs'][i])    # Number of epochs
     params['AE']['batch_size'] = int(IT['batch_size'][i]) # Batch size when training AE
@@ -82,26 +83,21 @@ for i in range(len(IT)):
 
     paths['history'] = cwd + r'/OUTPUT/' + params['AE']['logger'] + '_history.mat'
     paths['output'] = cwd + r'/OUTPUT/' + params['AE']['logger'] + '_out.h5'
-    paths['model'] = cwd + r'/MODELS/' + params['AE']['logger'] + '.weights.h5'
+    paths['model'] = cwd + r'/MODELS/' + params['AE']['logger'] + '_model.keras'
     paths['logger'] = cwd + r'/OUTPUT/' + params['AE']['logger'] + '_logger.log'
 
-    if flags['flow']=='FP':
-        paths['grid'] = cwd + r'/DATA/FP_grid.h5'
+    paths['grid'] = cwd + r'/DATA/FP_grid.h5'
+    params['flow']['Re'] = 130
+    if IT['Train'][i] == 70:
+        paths['flow'] = cwd + r'/DATA/FPc_00k_70k.h5'
+    elif IT['Train'][i] == 80:
+        paths['flow'] = cwd + r'/DATA/FPc_00k_80k.h5'
+    elif IT['Train'][i] == 10:
+        paths['flow'] = cwd + r'/DATA/FPc_00k_10k.h5'
 
-        if flags['control']:
-            paths['flow'] = cwd + r'/DATA/FPc_00k_70k.h5'
-            paths['flow_test'] = cwd + r'/DATA/FPc_00k_03k.h5'
-            params['flow']['Re'] = 150
-        else:
-            paths['flow'] = cwd + r'/DATA/FP_14k_24k.h5'
-            paths['flow_test'] = cwd + r'/DATA/FP_10k_13k.h5'
-            params['flow']['Re'] = 130
-
-
+    if IT['Val'][i] == 1:
+        paths['flow_test'] = cwd + r'/DATA/FPc_00k_03k.h5'
     else:
-        paths['grid'] = cwd + r'/DATA/SC_grid_AE.mat'
-        paths['flow'] = cwd + r'/DATA/SC_00k_00k_AE.mat'
-        paths['flow_test'] = cwd + r'/DATA/SC_00k_00k_AE.mat'
-        params['flow']['Re'] = 100
+        paths['flow_test'] = cwd + r'/DATA/FP_10k_13k.h5'
 
     ROM(params, flags, paths)

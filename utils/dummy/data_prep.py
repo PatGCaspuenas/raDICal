@@ -41,3 +41,34 @@ def merge_control_nocontrol():
     with h5py.File(path_save, 'w') as h5file:
         for key, item in flowm.items():
             h5file.create_dataset(key, data=item)
+
+def save_latent_vector_test():
+    import h5py
+    import numpy as np
+    path_out = r'F:\AEs_wControl\misc\5th_FP_control\CNN-VAE_lr_1e-05_nepoch_500_batch_256_beta_0.005_nr_30_nt_10000_val_2_out.h5'
+    path_save = r'F:\AEs_wControl\DATA\FPcz_00k_10k_CNNVAE.npy'
+
+    out = {}
+    with h5py.File(path_out, 'r') as f:
+        for i in f.keys():
+            out[i] = f[i][()]
+    np.save(path_save, out['z_test'])
+
+def save_aer_forces():
+    import h5py
+    import pandas as pd
+    import numpy as np
+
+    path_cl = r'F:\Re150\Indipendent_3\Validation\ClValues.txt'
+    path_cd = r'F:\Re150\Indipendent_3\Validation\CdValues.txt'
+    path_save = r'F:\AEs_wControl\DATA\FPcf_00k_03k.npy'
+
+    data_cl = pd.read_csv(path_cl, header=None, sep='\t')
+    data_cd = pd.read_csv(path_cd, header=None, sep='\t')
+
+    forces = {'CL': {'F': data_cl[1].to_numpy(), 'T': data_cl[2].to_numpy(), 'B': data_cl[3].to_numpy(),
+                     'tot': data_cl[1].to_numpy() + data_cl[2].to_numpy() + data_cl[2].to_numpy()},
+              'CD': {'F': data_cd[1].to_numpy(), 'T': data_cd[2].to_numpy(), 'B': data_cd[3].to_numpy(),
+                     'tot': data_cd[1].to_numpy() + data_cd[2].to_numpy() + data_cd[2].to_numpy()}}
+
+    np.save(path_save, forces)

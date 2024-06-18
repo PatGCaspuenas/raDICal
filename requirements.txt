@@ -7,3 +7,4 @@ optht == 0.2.0
 pandas == 2.0.3
 lic == 0.4.5
 pip == 23.2.1
+keras-tuner == 1.4.7

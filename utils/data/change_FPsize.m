@@ -1,9 +1,9 @@
 clc; clear all; close all;
 %
-load('FPc_00k_03k.mat');
+load('FP_10k_13k.mat');
 load('FP_grid.mat');
 
-t = 1:2400
+t = 10000:13000
 %
 nx = size(X,2);
 ny = size(X,1);
@@ -21,8 +21,10 @@ yq = linspace(min(Y(:,1)),max(Y(:,1)),ny_new);
 u = reshape(u,[ny nx nt]);
 v = reshape(v,[ny nx nt]);
 
-%du = reshape(du,[ny nx nt]);
-%dv = reshape(dv,[ny nx nt]);
+p = reshape(p,[ny nx nt]);
+
+du = reshape(du,[ny nx nt]);
+dv = reshape(dv,[ny nx nt]);
 %
 %%
 %
@@ -31,8 +33,10 @@ for i = 1:nt
     uq(:,:,i) = interp2(X,Y,u(:,:,i),Xq,Yq);
     vq(:,:,i) = interp2(X,Y,v(:,:,i),Xq,Yq);
 
-    %duq(:,:,i) = interp2(X,Y,du(:,:,i),Xq,Yq);
-    %dvq(:,:,i) = interp2(X,Y,dv(:,:,i),Xq,Yq);
+    pq(:,:,i) = interp2(X,Y,p(:,:,i),Xq,Yq);
+
+    duq(:,:,i) = interp2(X,Y,du(:,:,i),Xq,Yq);
+    dvq(:,:,i) = interp2(X,Y,dv(:,:,i),Xq,Yq);
     %
 end
 %
@@ -44,10 +48,12 @@ Y = Yq;
 u = reshape(uq,[nx_new*ny_new nt]);
 v = reshape(vq,[nx_new*ny_new nt]);
 
-%du = reshape(duq,[nx_new*ny_new nt]);
-%dv = reshape(dvq,[nx_new*ny_new nt]);
+p = reshape(pq,[nx_new*ny_new nt]);
+
+du = reshape(duq,[nx_new*ny_new nt]);
+dv = reshape(dvq,[nx_new*ny_new nt]);
 %
 %%
 %
-save('FPc_00k_03k_AE.mat','u','v','t');
-save('FP_grid_AE.mat','X','Y');
+save('FPp_10k_13k_AE.mat','u','v','du','dv','p','t');
+% save('FP_grid_AE.mat','X','Y');

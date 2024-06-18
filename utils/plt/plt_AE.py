@@ -61,3 +61,49 @@ def plot_corr_matrix(Rij, detR):
     fig.colorbar(cp0, ticks=[0, 0.5, 1])
 
     plt.show()
+
+def plot_MI_matrix(MI):
+
+    nr = np.shape(MI)[0]
+
+    fig, ax = plt.subplots(1, 1)
+
+    cp0 = ax.imshow(MI, cmap='copper', vmin=0)
+
+    ax.set_xticks([0, nr-1])
+    ax.set_yticks([0, nr-1])
+    ax.set_xticklabels([1, nr])
+    ax.set_yticklabels([1, nr])
+
+    fig.colorbar(cp0, ticks=[0, np.max(MI)])
+
+    plt.show()
+
+def plot_Lissajous(z_test):
+
+    nr = np.shape(z_test)[1]
+    zmax = np.max(np.abs(z_test))
+    xmin, xmax, ymin, ymax = -zmax, zmax, -zmax, zmax
+
+    fig, ax = plt.subplots(nr, nr, subplot_kw={'aspect': 1}, figsize=(9,9))
+
+    for i in range(nr):
+        for j in range(nr):
+
+            if j > i:
+                ax[i, j].axis('off')
+            else:
+                ax[i, j].plot(z_test[:, j], z_test[:, i], 'ko', markersize=0.1)
+
+            ax[i, j].set_xlim([xmin,xmax])
+            ax[i, j].set_ylim([ymin, ymax])
+
+            if i == (nr-1):
+                ax[i,j].set_xlabel('$z_' + str(j+1) + '$')
+            ax[i,j].set_xticks([])
+
+            if j == 0:
+                ax[i,j].set_ylabel('$z_' + str(i+1) + '$')
+            ax[i,j].set_yticks([])
+    plt.tight_layout()
+    plt.show()
