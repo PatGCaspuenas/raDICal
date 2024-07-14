@@ -150,7 +150,7 @@ def last_refinement():
     from utils.plt.plt_snps import *
     from utils.plt.plt_config import *
     from utils.plt.plt_AE import *
-    from utils.modelling.errors import get_latent_correlation_matrix
+    from utils.modelling.errors_flow import get_latent_correlation_matrix
     from utils.AEs.outputs import filter_AE_z
 
     path_flow = r'F:\AEs_wControl\OUTPUT2\3rd_FP_control_smooth\CNN-VAE_lr_1e-5_nepoch_500_batch_256_beta_5e-3_nr_15_nt_10000_SG3_15_out.h5'
@@ -362,3 +362,173 @@ def refinement_beta_grid():
         axis.set_major_formatter(formatter)
 
     plt.show()
+
+def refinements_new():
+    # PACKAGES
+    import os
+
+    import matplotlib.pyplot as plt
+    import pandas as pd
+    import scipy.io as sio
+    import numpy as np
+    import re
+    import random
+    from matplotlib.ticker import FuncFormatter
+
+    from utils.data.read_data import read_FP
+    from utils.POD.fits import elbow_fit
+
+    # PARAMETERS
+
+    path_out = r'F:\AEs_wControl\misc\1st_control'
+    path_list = r'F:\AEs_wControl\OUTPUT\1st_FP.csv'
+
+    files = os.listdir(path_out)
+    files = [f for f in files if f.endswith('.mat')]
+
+    df = pd.read_csv(path_list)
+    df['nepoch_s'] = 0
+    df['l_train_s'] = 0
+    df['l_val_s'] = 0
+    df['l_train_f'] = 0
+    df['l_val_f'] = 0
+    df['RMSE_AE'] = 0
+    df['CEA'] = 0
+    df['Sc'] = 0
+    df['zdetR'] = 0
+    df['zmeanR'] = 0
+    df['Dtime'] = 0
+
+    for f in files:
+        # Get hyperparameters of file
+        vars = re.split('_|c|lr|nepoch|batch|beta|nr|nt|history.mat', f)
+        vars = list(filter(None, vars))
+        AE, lr, n_epochs, batch_size, beta, nr, nt = vars
+        lr, n_epochs, batch_size, beta, nr, nt = float(lr), int(float(n_epochs)), int(float(batch_size)), float(
+            beta), int(float(nr)), int(float(nt))
+
+        # Match with csv list
+        ilist = df.loc[(df['lr'] == lr) & (df['n_epochs'] == n_epochs) & (df['batch_size'] == batch_size)
+                       & (df['beta'] == beta) & (df['nr'] == nr) & (df['nt'] == nt) & (df['nr'] == nr) & (
+                               df['AE'] == AE)].index[0]
+
+        M = sio.loadmat(os.path.join(path_out, f))
+
+        i_s = len(M['val_energy_loss'][0, :]) - 1
+
+        df['nepoch_s'][ilist] = i_s + 1
+        df['l_train_s'][ilist] = M['energy_loss'][0, i_s]
+        df['l_val_s'][ilist] = M['val_energy_loss'][0, i_s]
+        df['l_train_f'][ilist] = M['energy_loss'][0, -1]
+        df['l_val_f'][ilist] = M['val_energy_loss'][0, -1]
+        df['CEA'][ilist] = M['CEA'][0][0]
+        df['Sc'][ilist] = M['Sc'][0][0]
+        df['RMSE_AE'][ilist] = M['RMSE_AE'][0][0]
+        df['zmeanR'][ilist] = M['zmeanR'][0][0]
+        df['Dtime'][ilist] = M['Dtime'][0][0] / 60
+        df['zdetR'][ilist] = M['zdetR'][0][0]
+
+def last_refinement_new():
+    # PACKAGES
+    import os
+    import h5py
+
+    import matplotlib.pyplot as plt
+    import pandas as pd
+    import numpy as np
+    import random
+
+    from utils.data.read_data import read_FP
+    from utils.modelling.errors_z import get_frequencies, get_latent_correlation_matrix
+    from utils.POD.fits import elbow_fit
+    from utils.plt.plt_AE import plt_PSD_lat, plot_Lissajous, plot_corr_matrix
+    from utils.plt.plt_snps import plot_video_snp
+    from utils.plt.plt_POD import plt_psi
+
+    # PARAMETERS
+
+    path_out = r'F:\AEs_wControl\misc\3rd_control'
+    path_list = r'F:\AEs_wControl\OUTPUT\3rd_FP_control.csv'
+    path_data = r'F:\AEs_wControl\DATA\FPc_00k_70k.h5'
+    path_grid = r'F:\AEs_wControl\DATA\FP_grid.h5'
+    nt_POD = 1000
+
+    files = os.listdir(path_out)
+    files = [f for f in files if f.endswith('.h5')]
+
+    df = pd.read_csv(path_list)
+
+    for file in files:
+
+        if 'CNN-VAE' in file:
+            CNNVAE = {}
+            with h5py.File(os.path.join(path_out, file), 'r') as f:
+                for i in f.keys():
+                    CNNVAE[i] = f[i][()]
+        else:
+            CCNNAE = {}
+            with h5py.File(os.path.join(path_out, file), 'r') as f:
+                for i in f.keys():
+                    CCNNAE[i] = f[i][()]
+
+    # GET POD
+    grid, flow = read_FP(path_grid, path_data)
+    D = np.concatenate((flow['U'], flow['V']), axis=0)
+    Dmean = np.mean(D, axis=1).reshape((np.shape(D)[0]), 1)
+    Ddt = D - Dmean
+    del D, flow
+
+    nt = np.shape(Ddt)[1]
+    i_snps = random.sample([*range(nt)], nt_POD)
+
+    Phi, Sigma, Psi = np.linalg.svd(Ddt[:, i_snps], full_matrices=False)
+    CE = np.cumsum(Sigma ** 2) / np.sum(Sigma ** 2)
+
+    del Ddt
+    path_data = r'F:\AEs_wControl\DATA\FPc_00k_03k.h5'
+    grid, flow = read_FP(path_grid, path_data)
+    D = np.concatenate((flow['U'], flow['V']), axis=0)
+    Ddt = D - Dmean
+    t = flow['t']
+    # u = np.concatenate((flow['vF'], flow['vT'], flow['vB']), axis=1)
+    del D, flow
+
+    Psi_new = np.dot(Phi.T, Ddt) / np.linalg.norm(np.dot(Phi.T, Ddt), axis=1).reshape(-1, 1)
+    Psi_new = np.dot(Phi.T, Ddt) / np.max(np.abs(np.dot(Phi.T, Ddt)), axis=1).reshape(-1, 1)
+
+    plt_PSD_lat(Psi_new[:, 0:30], 10)
+    # CNN-VAE c : 90.1
+    # C-CNN-AE c: 95.8
+    a = 0
+
+    detR, meanR, Rij = get_latent_correlation_matrix(CCNNAE['z_test'])
+    plot_corr_matrix(Rij, detR)
+
+    it = np.arange(0, 500, 5)
+    plot_video_snp(grid, CNNVAE['Dr_test_AE'][:, it], 'test.gif', limits=[-0.5, 0.5], make_axis_visible=[1, 1],
+                   show_title=0, show_colorbar=0, flag_flow='FP', flag_control=0)
+    plot_video_snp(grid, np.abs(CNNVAE['Dr_test_AE'][:, it] - Ddt[:, it]), 'test2.gif', limits=[0, 0.2],
+                   make_axis_visible=[1, 1], show_title=0, show_colorbar=0, flag_flow='FP', flag_control=0)
+
+    fig, ax = plt.subplots(1, 1, subplot_kw=dict(box_aspect=1))
+
+    nr = np.shape(CNNVAE['z_test'])[1]
+    freq = get_frequencies(CNNVAE['z_test'])
+    for i in range(nr):
+        for j in range(len(freq[i])):
+            ax.semilogy(i, 1 / freq[i][j], 'ko', markersize=7)
+
+    nr = np.shape(CCNNAE['z_test'])[1]
+    freq = get_frequencies(CCNNAE['z_test'])
+    for i in range(nr):
+        for j in range(len(freq[i])):
+            ax.semilogy(i, 1 / freq[i][j], 'ro', markersize=4)
+
+    nr = np.shape(Psi_new)[0]
+    freq = get_frequencies(Psi_new[0:32, :].T)
+    for i in range(nr):
+        for j in range(len(freq[i])):
+            ax.semilogy(i, 1 / freq[i][j], 'bo', markersize=2)
+
+    ax.set_xlabel('$n_r$')
+    ax.set_ylabel('$T$')

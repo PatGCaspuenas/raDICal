@@ -76,3 +76,40 @@ def plot_cum_energy_POD(Sigma):
 
     ax.legend()
     plt.show()
+
+def plt_psi(z, t):
+
+    nr = np.shape(z)[1]
+
+    ncol = 5
+    nrow = int(np.ceil(nr / ncol))
+    fig, ax = plt.subplots(nrow, ncol, subplot_kw=dict(box_aspect=1), figsize=(9,9))
+
+    c = 0
+    for i in range(nrow):
+        for j in range(ncol):
+
+            if c >= nr:
+                ax[i, j].axis('off')
+            else:
+                ax[i, j].plot(t, z[:, c], 'b-')
+                ax[i, j].text(0, -1, '$i='+str(c+1)+'$', color='r', fontsize='10')
+
+                ax[i, j].set_xlim([0, 50])
+                ax[i, j].set_ylim([-1, 1])
+
+                if i == (nrow-1):
+                    ax[i,j].set_xlabel(r'$t/\tau$')
+                    ax[i, j].set_xticks([0, 50])
+                else:
+                    ax[i,j].set_xticks([])
+
+                if j == 0:
+                    ax[i,j].set_ylabel('$z$')
+                    ax[i, j].set_yticks([-1, 0, 1])
+                else:
+                    ax[i,j].set_yticks([])
+
+                c += 1
+    plt.tight_layout()
+    plt.show()

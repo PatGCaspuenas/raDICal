@@ -3,8 +3,8 @@ import os
 
 import numpy as np
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '0,2,3'
-os.environ["TF_CPP_MIN_LOG_LEVEL"]='0'
+os.environ["CUDA_VISIBLE_DEVICES"] = '1,2,3'
+os.environ["TF_CPP_MIN_LOG_LEVEL"]='1'
 import tensorflow as tf
 physical_devices = tf.config.list_physical_devices('GPU')
 available_GPUs = len(physical_devices)
@@ -24,6 +24,7 @@ import random
 import h5py
 import logging
 import time
+import pickle
 
 # LOCAL FILES
 from utils.data.config import log_initial_config
@@ -34,10 +35,11 @@ from utils.AEs.modes import get_modes_AE, get_correlation_matrix
 from utils.AEs.energy import energy_AE, energy_POD
 from utils.AEs.train import train_AE
 from utils.AEs.outputs import get_AE_z, get_AE_reconstruction
-from utils.modelling.errors import get_RMSE, get_CEA, get_cos_similarity, get_latent_correlation_matrix
+from utils.modelling.errors_flow import get_RMSE, get_CEA, get_cos_similarity
+from utils.modelling.errors_z import get_latent_correlation_matrix
+from utils.dynamics.outputs import load_model_AE
 
-from utils.plt.plt_snps import *
-from utils.modelling.differentiation import get_2Dvorticity
+from utils.plt.plt_snps import plot_video_snp
 
 def ROM(params, flags, paths):
 
@@ -46,11 +48,7 @@ def ROM(params, flags, paths):
     t0 = time.time()
     warnings.filterwarnings("ignore")
     OUT = {}
-    # logging.basicConfig(filename=paths['logger'],
-    #                     filemode='w',
-    #                     format='%(asctime)s, %(msecs)d --> %(message)s',
-    #                     datefmt='%H:%M:%S',
-    #                     level=logging.INFO)
+
     log = logging.getLogger()
     log.setLevel(logging.INFO)
     fh = logging.FileHandler(filename=paths['logger'], mode='w')
@@ -116,14 +114,23 @@ def ROM(params, flags, paths):
         del CE, CEA, nt_POD
 
     # TRAIN AE
-    log.info(f'STARTING AE training')
-    AE = train_AE(params, flags, grid, Ddt, log, u)
-    del Ddt
-    log.info(f'FINISHED AE training')
+    if flags['load']:
+        AE = load_model_AE(params, flags, paths)
+    else:
+        log.info(f'STARTING AE training')
+        AE = train_AE(params, flags, grid, Ddt, log, u)
+        del Ddt
+        log.info(f'FINISHED AE training')
     if flags['save']['model']:
-        AE.save_weights(paths['model'])
+        cwd = os.getcwd()
+        with open(cwd + r'/MODELS/' + 'encoder_' + paths['model'], "wb") as fp:  # Pickling
+            pickle.dump(AE.encoder.get_weights(), fp)
+        with open(cwd + r'/MODELS/' + 'decoder_' + paths['model'], "wb") as fp:  # Pickling
+            pickle.dump(AE.decoder.get_weights(), fp)
+
         log.info(f'SAVED AE model')
 
+    # MODAL ANALYSIS
     if flags['get_modal']:
 
         z_test = get_AE_z(params['AE']['nr'], flags['AE'], AE, grid, Ddt_test)
@@ -166,7 +173,7 @@ def ROM(params, flags, paths):
                                show_colorbar=0, flag_flow=flags['flow'], flag_control=flags['control'],
                                u=u_test, t=t_test)
 
-
+    # RECONSTRUCTION (TESTING)
     if flags['get_reconstruction']:
 
         Dr_test_AE = get_AE_reconstruction(params['AE']['nr'], flags['AE'], flags['control'], AE, grid, Ddt_test, u_test, flag_filter=flags['filter'])
@@ -175,11 +182,12 @@ def ROM(params, flags, paths):
         CEA = get_CEA(Ddt_test, Dr_test_AE, grid['B'])
         err_AE = get_RMSE(Ddt_test, Dr_test_AE, grid['B'], flags['error_type'])
         Sc = get_cos_similarity(Ddt_test, Dr_test_AE, grid['B'])
-        zdetR, zRij = get_latent_correlation_matrix(z_test.numpy())
-        log.info(f'Obtained AE reconstruction: CEA = {CEA:.2E}, RMSE = {err_AE:.2E}, Sc = {Sc:.4f}, zdetR = {zdetR:.2E}')
+        zdetR, zmeanR, zRij = get_latent_correlation_matrix(z_test.numpy())
+        log.info(f'Obtained AE reconstruction: CEA = {CEA:.2E}, RMSE = {err_AE:.2E}, Sc = {Sc:.4f}, zdetR = {zdetR:.2E}, zmeanR = {zmeanR:.2E}')
 
         if flags['save']['out']:
-            OUT['Dr_test_AE'] = Dr_test_AE
+            if not flags['get_latent']:
+                OUT['Dr_test_AE'] = Dr_test_AE
             OUT['z_test'] = z_test
 
     if flags['get_latent']:
@@ -187,18 +195,20 @@ def ROM(params, flags, paths):
         if flags['save']['out']:
             OUT['z_test'] = z_test
 
+    # SAVE ALL OUTPUTS
     if flags['save']['out']:
         with h5py.File(paths['output'], 'w') as h5file:
             for key, item in OUT.items():
                 h5file.create_dataset(key, data=item)
         log.info(f'SAVED AE outputs')
 
+    # SAVE HISTORY
     if flags['save']['history']:
         t1 = time.time()
         sio.savemat(paths['history'],{'loss': AE.history.history['loss'], 'val_loss': AE.history.history['val_loss'],
                                       'val_energy_loss': AE.history.history['val_energy_loss'],
                                       'energy_loss': AE.history.history['energy_loss'],
-                                      'CEA': CEA, 'RMSE_AE': err_AE, 'Sc':Sc, 'zdetR':zdetR, 'zRij': zRij, 'Dtime':t1-t0})
+                                      'CEA': CEA, 'RMSE_AE': err_AE, 'Sc':Sc, 'zdetR':zdetR, 'zRij': zRij, 'zmeanR': zmeanR, 'Dtime':t1-t0})
 
     log.removeHandler(fh)
     del log, fh

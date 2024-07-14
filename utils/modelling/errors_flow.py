@@ -1,8 +1,13 @@
 import numpy as np
 import sklearn.metrics
 
+from utils.data.transform_data import window2flow
 
 def get_RMSE(Dtrue, D, B, flag_type):
+
+    if Dtrue.ndim == 3:
+        Dtrue = window2flow(Dtrue)
+        D = window2flow(D)
 
     # PARAMETERS
     m = np.shape(B)[0]
@@ -35,6 +40,10 @@ def get_RMSE(Dtrue, D, B, flag_type):
 
 def get_CEA(Dtrue, D, B):
 
+    if Dtrue.ndim == 3:
+        Dtrue = window2flow(Dtrue)
+        D = window2flow(D)
+
     # PARAMETERS
     m = np.shape(B)[0]
     n = np.shape(B)[1]
@@ -56,33 +65,11 @@ def get_CEA(Dtrue, D, B):
 
     return CEA
 
-def get_R2factor(Xtrue, X, flag_R2method):
-
-    # PARAMETERS
-    if Xtrue.ndim == 1:
-        nr = 1
-        Xtrue = np.copy(Xtrue).reshape(-1,1)
-        X = np.copy(X).reshape(-1, 1)
-    else:
-        nr = np.shape(Xtrue)[1]
-
-    R2 = np.zeros(nr)
-
-    # COMPUTE R2 FOR EACH MODE
-    for i in range(nr):
-
-        if flag_R2method == 'D': # DETERMINATION
-            R2[i] = 1 - np.sum((Xtrue[:,i] - X[:,i]) ** 2) / np.sum((Xtrue[:,i] - np.mean(Xtrue[:,i])) ** 2)
-
-        elif flag_R2method == 'C': # CORRELATION
-            R2[i] = np.mean(np.multiply(Xtrue[:,i], X[:,i])) ** 2 / (np.mean(Xtrue[:,i] ** 2) * np.mean(X[:,i] ** 2))
-
-        if np.isnan(R2[i]): # CORRECT FOR INDETERMINATION
-            R2[i] = 1e-4
-
-    return R2
-
 def get_cos_similarity(Dtrue, D, B):
+
+    if Dtrue.ndim == 3:
+        Dtrue = window2flow(Dtrue)
+        D = window2flow(D)
 
     # PARAMETERS
     m = np.shape(B)[0]
@@ -133,40 +120,11 @@ def get_cos_similarity(Dtrue, D, B):
     X = D[i_nonmask, :]
     Sc = 0
     for t in range(nt):
-        Sc = Sc + np.sum( np.multiply(Xtrue[0,:,t],X[0,:,t]) / (np.linalg.norm(Xtrue[0,:,t])) / (np.linalg.norm(X[0,:,t])) )
+        Sc = Sc + np.sqrt(np.sum(np.multiply(Xtrue[0,:,t],X[0,:,t]))) / (np.linalg.norm(Xtrue[0,:,t]))
     Sc =  Sc / nt
 
     return Sc
 
-
-def get_latent_correlation_matrix(z_test):
-
-    nr = np.shape(z_test)[1]
-    nt = np.shape(z_test)[0]
-
-    Rij = np.zeros((nr, nr))
-
-    Cij = np.abs(np.cov(z_test.T))
-
-    for i in range(nr):
-        for j in range(nr):
-            Rij[i,j] = Cij[i,j] / np.sqrt(Cij[i,i] * Cij[j,j])
-
-    detR = np.linalg.det(Rij)
-
-    return detR, Rij
-
-def get_latent_MI(z_test):
-
-    nr = np.shape(z_test)[1]
-    MI = np.zeros((nr, nr))
-
-    for i in range(nr):
-        for j in range(i,nr):
-
-            MI[i,j] = sklearn.metrics.mutual_info_score(z_test[:, i], z_test[:, j])
-
-    return MI
 
 
 

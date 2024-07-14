@@ -2,7 +2,7 @@ import numpy as np
 from optht import optht
 
 from utils.POD.fits import *
-from utils.modelling.errors import *
+from utils.modelling.errors_flow import *
 
 def get_ROM(D, flag_truncate, dDdt=[]):
 

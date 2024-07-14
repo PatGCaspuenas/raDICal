@@ -4,7 +4,7 @@ import os
 import pandas as pd
 
 # LOCAL FUNCTIONS
-from autoencoder_control import ROM
+from autoencoderc import ROM
 
 # ITERABLES
 cwd = os.getcwd()
@@ -20,6 +20,7 @@ for i in range(len(IT)):
     flags['flow'] = 'FP'            # Flow type (SC, FP)
     flags['control'] = IT['flag_control'][i]            # With (1) or without (0) control
     flags['POD'] = 0                # Gets POD basis (1) or not (0)
+    flags['filter'] = 0
 
     if IT['lr'][i] == 0:
         flags['lr_static'] = 0      # Fixed learning rate (1) or varying with nepochs (0)
@@ -28,6 +29,7 @@ for i in range(len(IT)):
 
     flags['get_modal'] = 0          # Retrieve modal analysis
     flags['get_reconstruction'] = 1 # Retrieve AE reconstruction and error quantification
+    flags['get_latent'] = 0
     flags['save']['model'] = 0      # Save trained model (1) or not (0)
     flags['save']['out'] = 0        # Save outputs of AE (1) or not (0)
     flags['save']['history'] = 1    # Save model history loss (1) or not (0)
@@ -98,6 +100,6 @@ for i in range(len(IT)):
     if IT['Val'][i] == 1:
         paths['flow_test'] = cwd + r'/DATA/FPc_00k_03k.h5'
     else:
-        paths['flow_test'] = cwd + r'/DATA/FP_10k_13k.h5'
+        paths['flow_test'] = cwd + r'/DATA/FPnc_10k_13k.h5'
 
     ROM(params, flags, paths)

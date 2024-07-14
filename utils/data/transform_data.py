@@ -101,28 +101,21 @@ def get_mask_boundaries(Mask):
 
     return i_right, i_top, i_left, i_bottom
 
-
-def raw2dyn(t, z, u, params, flag_type, flag_split = 0):
+def raw2dyn(t, z, params, flag_control, u = np.zeros((1,1)), flag_train = 1):
 
     dt = params['dyn']['dt']
-    dt_lat = params['dyn']['latent']['dt']
-
-    if (flag_type == 'NARX') or (flag_type == 'NARMAX'):
-        dt_c = params['dyn']['control']['dt']
-        d_c = params['dyn']['control']['d']
-        d_lat = params['dyn']['latent']['d']
-    else:
-        dt_c = dt
-        d_c = params['dyn']['d']
-        d_lat = params['dyn']['d']
+    dt_lat = params['dyn']['dt_lat']
+    tol = 1e-5
 
     o = params['dyn']['o']
-    np = params['dyn']['np']
+    n_p = params['dyn']['np']
+    nt_pred = params['dyn']['nt_pred']
+    d = params['dyn']['d']
 
     nr = np.shape(z)[1]
-    nc = np.shape(u)[1]
+    nc = np.shape(u)[1] if flag_control else 0
 
-    if not flag_split:
+    if flag_train:
         t_train, t_val = train_test_split(t, test_size=0.2, shuffle=False)
         flags = ['train','val']
     else:
@@ -130,58 +123,116 @@ def raw2dyn(t, z, u, params, flag_type, flag_split = 0):
 
     for flag in flags:
 
-        T = {'TDL_lat': [], 'TDL_c': [], 'pred': []}
+        T = {'TDL_lat': [], 'pred': []}
 
         stop = 0
 
         if flag=='train':
-            tw = t_train[0] + np.max([dt_lat * d_lat, dt_c * d_c])
+            tw = t_train[0] + dt_lat * (d - 1)
             tf = t_train[-1]
         elif flag == 'val':
-            tw = t_val[0] + np.max([dt_lat * d_lat, dt_c * d_c])
+            tw = t_val[0] + dt_lat * (d - 1)
             tf = t_val[-1]
         elif flag=='test':
-            tw = t[0] + np.max([dt_lat * d_lat, dt_c * d_c])
+            tw = t[0] + dt_lat * (d - 1)
             tf = t[-1]
 
         while (not stop):
 
-            T['TDL_lat'].append(np.arange(tw - dt_lat * d_lat, tw + dt_lat, dt_lat))
-            T['TDL_c'].append(np.arange(tw - dt_c * d_c, tw + dt, dt))
-            T['pred'].append(np.arange(tw + dt, tw + dt * (np + 1), dt))
+            T['TDL_lat'].append(np.linspace(tw - dt_lat * (d - 1), tw, d  * int( dt_lat / dt ) -  int( dt_lat / dt  - 1)))
+            if flag=='test':
+                T['pred'].append(np.linspace(tw + dt, tw + dt * nt_pred, nt_pred))
+            else:
+                T['pred'].append(np.linspace(tw + dt, tw + dt * n_p, n_p))
 
             tw = tw + dt * o
 
-            if (tw + dt * np) > tf:
-                stop = 1
+            if flag == 'test':
+                if (tw + dt * nt_pred) >= tf:
+                    stop = 1
+            else:
+                if (tw + dt * n_p) >= tf:
+                    stop = 1
 
         nW = len(T['pred'])
-        Zy, Zx = np.zeros((2, nW, d_lat, nr))
-        Uy, Ux = np.zeros((2, nW, d_c, nc))
+        Zx = np.zeros((nW, d  * int( dt_lat / dt ) -  int( dt_lat / dt  - 1), nr))
+        Zy = np.zeros((nW, nt_pred, nr)) if (flag=='test') else np.zeros((nW, n_p, nr))
+
+        if flag_control:
+            Ux = np.zeros((nW, d  * int( dt_lat / dt ) -  int( dt_lat / dt  - 1), nc))
+            Uy = np.zeros((nW, nt_pred, nc)) if (flag=='test') else np.zeros((nW, n_p, nc))
 
         for i in range(nW):
 
-            it_TDL_lat = np.where(T['TDL_lat'][i] == t)
-            it_pred = np.where(T['pred'][i] == t)
-            it_TDL_c = np.where(T['TDL_c'][i] == t)
+            it_TDL_lat = np.arange(np.where(np.abs(T['TDL_lat'][i][0]-t) < tol)[0], np.where(np.abs(T['TDL_lat'][i][-1]-t) < tol)[0] + 1)
+            it_pred = np.arange(np.where(np.abs(T['pred'][i][0]-t) < tol)[0], np.where(np.abs(T['pred'][i][-1]-t) < tol)[0] + 1)
 
             Zx[i, :, :] = z[it_TDL_lat, :]
             Zy[i, :, :] = z[it_pred, :]
 
-            Ux[i, :, :] = z[it_TDL_c, :]
-            Uy[i, :, :] = z[it_pred, :]
+            if flag_control:
+                Ux[i, :, :] = u[it_TDL_lat, :]
+                Uy[i, :, :] = u[it_pred, :]
 
         if flag=='train':
             zx_train, zy_train = Zx, Zy
-            ux_train, uy_train = Ux, Uy
+            if flag_control:
+                ux_train, uy_train = Ux, Uy
         elif flag=='val':
             zx_val, zy_val = Zx, Zy
-            ux_val, uy_val = Ux, Uy
+            if flag_control:
+                ux_val, uy_val = Ux, Uy
         elif flag == 'test':
             zx, zy = Zx, Zy
-            ux, uy = Ux, Uy
+            if flag_control:
+                ux, uy = Ux, Uy
 
-    if not flag_split:
-        return zx_train, zy_train, zx_val, zy_val, ux_train, uy_train, ux_val, uy_val
+    if flag_train:
+        if flag_control:
+            return zx_train, zy_train, zx_val, zy_val, ux_train, uy_train, ux_val, uy_val
+        else:
+            return zx_train, zy_train, zx_val, zy_val
     else:
-        return zx, zy, ux, uy
+        if flag_control:
+            return zx, zy, ux, uy, T
+        else:
+            return zx, zy, T
+
+def z_window2concat(X, n_p):
+
+    nW, nt, nr = np.shape(X[:, 0:n_p, :])
+
+    X = np.reshape(X[:, 0:n_p, :], (nW * nt, nr))
+
+    return X
+
+def flow2window(Ddt, t, t_pred):
+
+    nW = len(t_pred)
+    ntpred = len(t_pred[0])
+    tol = 1e-5
+
+    nv, nt = np.shape(Ddt)
+
+    Dw = np.zeros((nW, nv, ntpred))
+
+    for w in range(nW):
+
+        it0 = np.where(np.abs(t - t_pred[w][0]) < tol)[0][0]
+        itf = np.where(np.abs(t - t_pred[w][-1]) < tol)[0][0] + 1
+
+        Dw[w, :, :] = Ddt[:, it0:itf]
+
+    return Dw
+
+def window2flow(Dw):
+
+    nW, nv, nt = np.shape(Dw)
+
+    for w in range(nW):
+        if w == 0:
+            Ddt = Dw[0,:,:]
+        else:
+            Ddt = np.concatenate((Ddt, Dw[w,:,:]), axis=1)
+
+    return Ddt

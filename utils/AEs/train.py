@@ -27,6 +27,8 @@ class MyLogger(Callback):
 
 def energy_loss(input_img, decoded):
     return tf.keras.backend.sum(tf.keras.backend.square(input_img - decoded)) / tf.keras.backend.sum(tf.keras.backend.square(input_img))
+def null_loss(input_img, decoded):
+    return 0
 
 def train_AE(params, flags, grid, Ddt, logging, b=0):
 
@@ -53,7 +55,7 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
     i_val = [*range(np.shape(X_val)[0])]
     random.shuffle(i_val)
     logger = MyLogger(logging, n_epochs)
-    # ES = EarlyStopping(monitor="val_loss", min_delta=1e-5, patience=50)
+    ES = EarlyStopping(monitor="val_energy_loss", patience=50)
 
     # DEFINE AE TYPE
     if flag_AE == 'CNN-VAE':
@@ -85,7 +87,7 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
                                          validation_data=([X_val[i_val, :, :, :]], X_val[i_val, :, :, :]),
                                          batch_size=batch_size,
                                          verbose=2,
-                                         callbacks=[logger])
+                                         callbacks=[logger, ES])
                 z_train = AE['m' + str(i + 1)].get_latent_vector(X_train)
                 z_val = AE['m' + str(i + 1)].get_latent_vector(X_val)
 
@@ -100,7 +102,7 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
                                          X_val[i_val, :, :, :]),
                                          batch_size=batch_size,
                                          verbose=2,
-                                         callbacks=[logger])
+                                         callbacks=[logger, ES])
                 z_train = tf.keras.layers.Concatenate(axis=1)([z_train, AE['m' + str(i + 1)].get_latent_vector(X_train)])
                 z_val = tf.keras.layers.Concatenate(axis=1)([z_val, AE['m' + str(i + 1)].get_latent_vector(X_val)])
 
@@ -108,8 +110,10 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
 
         # LOSS
         opt = tf.keras.optimizers.Adam(learning_rate=lr)
-        AE.compile(optimizer=opt, loss='mse', metrics=[energy_loss])
-
+        if flag_AE=='CNN-VAE':
+            AE.compile(optimizer=opt, loss=null_loss, metrics=[energy_loss])
+        else:
+            AE.compile(optimizer=opt, loss='mse', metrics=[energy_loss])
         # INPUT
         if flag_control:
             input_train = [X_train[i_train,:,:,:], tf.convert_to_tensor(b_train[i_train,:])]
@@ -125,7 +129,7 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
                                          validation_data=(input_val, X_val[i_val,:,:,:]),
                                          batch_size=batch_size,
                                          verbose=2,
-                                         callbacks=[logger])
+                                         callbacks=[logger, ES])
 
     return AE
 

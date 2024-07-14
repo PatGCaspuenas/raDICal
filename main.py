@@ -4,11 +4,11 @@ import os
 import pandas as pd
 
 # LOCAL FUNCTIONS
-from autoencoder import ROM
+from autoencoderc import ROM
 
 # ITERABLES
 cwd = os.getcwd()
-IT = pd.read_csv(cwd+r'/OUTPUT/4th_FP_no_control.csv')
+IT = pd.read_csv(cwd+r'/OUTPUT/6th_FP_control.csv')
 
 for i in range(len(IT)):
     # FLAGS
@@ -18,7 +18,7 @@ for i in range(len(IT)):
     flags['AE'] = IT['AE'][i]          # AE type (C-CNN-AE, MD-CNN-AE, CNN-HAE, CNN-VAE)
     flags['struct'] = 'complex'     # AE structure type (simple, medium, complex)
     flags['flow'] = 'FP'            # Flow type (SC, FP)
-    flags['control'] = 0            # With (1) or without (0) control
+    flags['control'] = 1            # With (1) or without (0) control
     flags['POD'] = 0                # Gets POD basis (1) or not (0)
     flags['filter'] = 0
 
@@ -29,11 +29,12 @@ for i in range(len(IT)):
 
     flags['get_modal'] = 0          # Retrieve modal analysis
     flags['get_reconstruction'] = 1 # Retrieve AE reconstruction and error quantification
-    flags['get_latent'] = 0
-    flags['save']['model'] = 0      # Save trained model (1) or not (0)
-    flags['save']['out'] = 0        # Save outputs of AE (1) or not (0)
+    flags['get_latent'] = 1
+    flags['save']['model'] = IT['save'][i]      # Save trained model (1) or not (0)
+    flags['save']['out'] = 1        # Save outputs of AE (1) or not (0)
     flags['save']['history'] = 1    # Save model history loss (1) or not (0)
     flags['error_type'] = 'W'       # Type of RMSE
+    flags['load'] = IT['load'][i]
 
     # PARAMETERS
     params = {}
@@ -52,12 +53,12 @@ for i in range(len(IT)):
         params['AE']['lr'] = lr(step)
         del step, boundaries, values
 
-    params['AE']['logger'] = IT['AE'][i] + '_lr_' + str(IT['lr'][i]) + \
+    params['AE']['logger'] = 'c' + IT['AE'][i] + '_lr_' + str(IT['lr'][i]) + \
                              '_nepoch_' + str(IT['n_epochs'][i]) + \
                              '_batch_' + str(IT['batch_size'][i]) + \
                              '_beta_' + str(IT['beta'][i] ) + \
                              '_nr_' + str(IT['nr'][i] ) + \
-                             '_nt_' + str(IT['nt'][i] ) # Logger name
+                             '_nt_' + str(IT['nt'][i] ) + '_val_' + str(IT['Val'][i]) # Logger name
 
     params['AE']['n_epochs'] = int(IT['n_epochs'][i])    # Number of epochs
     params['AE']['batch_size'] = int(IT['batch_size'][i]) # Batch size when training AE
@@ -82,7 +83,6 @@ for i in range(len(IT)):
 
     paths['history'] = cwd + r'/OUTPUT/' + params['AE']['logger'] + '_history.mat'
     paths['output'] = cwd + r'/OUTPUT/' + params['AE']['logger'] + '_out.h5'
-    paths['model'] = cwd + r'/MODELS/' + params['AE']['logger'] + '.weights.h5'
     paths['logger'] = cwd + r'/OUTPUT/' + params['AE']['logger'] + '_logger.log'
 
     if flags['flow']=='FP':
@@ -90,12 +90,29 @@ for i in range(len(IT)):
 
         if flags['control']:
             paths['flow'] = cwd + r'/DATA/FPc_00k_70k.h5'
-            paths['flow_test'] = cwd + r'/DATA/FPc_00k_03k.h5'
+            if IT['Val'][i] == 1:
+                paths['flow_test'] = cwd + r'/DATA/FPc_00k_03k.h5'
+            elif IT['Val'][i] == 2:
+                paths['flow_test'] = cwd + r'/DATA/FPc_00k_10k.h5'
+            else:
+                paths['flow_test'] = cwd + r'/DATA/FPnc_10k_13k.h5'
             params['flow']['Re'] = 150
+
+            if flags['AE'] == 'CNN-VAE':
+                paths['model'] = 'cCNN-VAE'
+            else:
+                paths['model'] = 'cC-CNN-AE'
         else:
             paths['flow'] = cwd + r'/DATA/FP_14k_24k.h5'
-            paths['flow_test'] = cwd + r'/DATA/FP_10k_13k.h5'
+            if IT['Val'][i] == 1:
+                paths['flow_test'] = cwd + r'/DATA/FP_10k_13k.h5'
+            else:
+                paths['flow_test'] = cwd + r'/DATA/FP_14k_24k.h5'
             params['flow']['Re'] = 130
+            if flags['AE'] == 'CNN-VAE':
+                paths['model'] = 'CNN-VAE'
+            else:
+                paths['model'] = 'C-CNN-AE'
 
 
     else:

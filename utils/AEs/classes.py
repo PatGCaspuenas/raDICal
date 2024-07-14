@@ -253,20 +253,21 @@ class CNN_VAE(AE, Model):
 
         encoded = self.encoder(input_img)
         z_mean, z_logvar = tf.split(encoded, num_or_size_splits=2, axis=1)
-        z = self.sampling(z_mean, z_logvar)
-        return z
+        # z = self.sampling(z_mean, z_logvar)
+        return z_mean
     def sampling(self, z_mean, z_log_sigma):
+
         epsilon = tf.keras.backend.random_normal(shape=(tf.keras.backend.shape(z_mean)[0], self.nr),
                                   mean=0., stddev=1.0)
         return z_mean + tf.keras.backend.exp(z_log_sigma) * epsilon
 
     def loss_fn(self, input_img, decoded, z_logvar, z_mean):
-        rec_loss = tf.keras.backend.sum(tf.keras.backend.square(input_img - decoded)) / tf.keras.backend.sum(tf.keras.backend.square(input_img))
+        rec_loss = tf.keras.losses.mse(tf.keras.backend.reshape(input_img, (-1,)), tf.keras.backend.reshape(decoded, (-1,)))
         kl_loss = 1 + z_logvar - tf.keras.backend.square(z_mean) - tf.keras.backend.exp(z_logvar)
         kl_loss = tf.keras.backend.sum(kl_loss, axis=-1)
         kl_loss *= -0.5
-        vae_loss = rec_loss + tf.keras.backend.mean(self.beta * kl_loss)
-        return rec_loss, kl_loss, vae_loss
+        vae_loss = tf.keras.backend.mean(rec_loss + self.beta * kl_loss)
+        return vae_loss
 
     def call(self, input):
 
@@ -285,7 +286,7 @@ class CNN_VAE(AE, Model):
         else:
             decoded = self.decoder(tf.keras.layers.Concatenate(axis=1)([z, control_vector]))
 
-        rec_loss, kl_loss, vae_loss = self.loss_fn(input_img, decoded, z_logvar, z_mean)
+        vae_loss = self.loss_fn(input_img, decoded, z_logvar, z_mean)
         self.add_loss(vae_loss)
         #self.add_metric(rec_loss)
         #self.add_metric(kl_loss)

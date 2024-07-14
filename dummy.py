@@ -1,54 +1,67 @@
-import h5py
-import numpy as np
-import pandas as pd
+# PACKAGES
+import os
+
 import matplotlib.pyplot as plt
+import pandas as pd
+import scipy.io as sio
+import numpy as np
+import re
+import random
 
-path = r'F:\Re150\InputValues'
-inputs = 3
 
-for i in range(1, inputs+1):
-    df = pd.read_csv(path+str(i)+'.txt',header=None,sep=' ')
-    if i == 1:
-        utrain = df.to_numpy()
-    else:
-        utrain = np.concatenate((utrain, df.to_numpy()), axis=0)
+# PARAMETERS
 
-df = pd.read_csv(path+str(4)+'.txt',header=None,sep=' ')
-uval = df.to_numpy()
+path_out = r'F:\AEs_wControl\misc\1st_dyn'
+path_list = r'F:\AEs_wControl\OUTPUT\dyn_1st_control.csv'
 
-nt_train = np.shape(utrain)[0]
-nt_val = np.shape(uval)[0]
+files = os.listdir(path_out)
+files = [f for f in files if f.endswith('.mat')]
 
-# 0: F, 1: T, 2: B
-BB = []
-BT = []
-M =[]
-M_val =[]
-FSP =[]
+df = pd.read_csv(path_list)
 
-for t in range(nt_val):
-    if (uval[t,1] == uval[t,2]) & (uval[t,1] == uval[t,0]): # magnus
-        M_val.append(t)
+df['l_train_f'] = 0
+df['l_val_f'] = 0
+df['RMSE_dyn'] = 0
+df['NT'] = 0
+df['R2C'] = 0
+df['Dtime'] = 0
 
-for t in range(nt_train):
-    if (utrain[t,1] == -utrain[t,2]) & (utrain[t,1]>0) & (utrain[t,0]==0): # base bleed, T-CCW, B-CW
-        BB.append(t)
-    if (utrain[t,1] == -utrain[t,2]) & (utrain[t,1]<0) & (utrain[t,0]==0): # boat tailing, T-CW, B-CCW
-        BT.append(t)
-    if (utrain[t,1] == utrain[t,2]) & (utrain[t,1] == utrain[t,0]): # magnus
-        M.append(t)
-    if (utrain[t,1] == 0) & (utrain[t,2] == 0) & (utrain[t,0] != 0): # forward stagnation point
-        FSP.append(t)
+df['RMSE_AE_np'] = 0
+df['CEA_np'] = 0
+df['Sc_np'] = 0
+df['RMSE_AE_nt'] = 0
+df['CEA_nt'] = 0
+df['Sc_nt'] = 0
 
-BB = np.array(BB)
-BT = np.array(BT)
-M =np.array(M)
-M_val =np.array(M_val)
-FSP =np.array(FSP)
+for f in files:
+    # Get hyperparameters of file
+    vars = re.split('_|c|lr|nepoch|batch|beta|nr|nt|fc|lstmu|lstmdu|narxdu|np|d|history.mat', f)
+    vars = list(filter(None, vars))
+    DYN, AE, lr, n_epochs, batch_size, fc, d, n_p, lstmu, lstmdu, narxdu = vars
+    lr, n_epochs, batch_size, d, fc, n_p = float(lr), int(float(n_epochs)), int(float(batch_size)), int(float(
+        d)), int(float(fc)), int(float(n_p))
 
-jBB = np.where((BB[1:]-BB[:-1])>1)
-jBT = np.where((BT[1:]-BT[:-1])>1)
-jM = np.where((M[1:]-M[:-1])>1)
-jFSP = np.where((FSP[1:]-FSP[:-1])>1)
+    # Match with csv list
+    ilist = df.loc[(df['lr_d'] == lr) & (df['n_epochs_d'] == n_epochs) & (df['batch_size_d'] == batch_size)
+                   & (df['flag_control_dyn'] == fc) & (df['d'] == d) & (df['np'] == n_p) &
+                   (df['lstm_units'] == lstmu) & (df['dense_units'] == lstmdu) & (df['units'] == narxdu) &
+                   (df['AE'] == AE) & (df['dyn'] == DYN)].index[0]
+
+    M = sio.loadmat(os.path.join(path_out, f))
+
+    df['l_train_f'][ilist] = M['loss'][0, -1]
+    df['l_val_f'][ilist] = M['val_loss'][0, -1]
+    df['RMSE_dyn'][ilist] = np.mean(M['RMSE_dyn'], axis=1)
+    df['NT'][ilist] = M['NT'][0][0]
+    df['R2C'][ilist] = np.mean(M['R2C'], axis=1)
+    df['Dtime'][ilist] = M['Dtime'][0][0] / 60
+
+    # df['CEA_np'][ilist] = M['CEA_np'][0][0]
+    # df['Sc_np'][ilist] = M['Sc_np'][0][0]
+    # df['RMSE_AE_np'][ilist] = M['RMSE_AE_np'][0][0]
+    # df['CEA_nt'][ilist] = M['CEA_nt'][0][0]
+    # df['Sc_nt'][ilist] = M['Sc_nt'][0][0]
+    # df['RMSE_AE_nt'][ilist] = M['RMSE_AE_nt'][0][0]
 
 a=0
+

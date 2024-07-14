@@ -34,7 +34,7 @@ from utils.AEs.modes import get_modes_AE, get_correlation_matrix
 from utils.AEs.energy import energy_AE, energy_POD
 from utils.AEs.train import train_AE
 from utils.AEs.outputs import get_AE_z, get_AE_reconstruction
-from utils.modelling.errors import get_RMSE, get_CEA, get_cos_similarity, get_latent_correlation_matrix
+from utils.modelling.errors_flow import get_RMSE, get_CEA, get_cos_similarity, get_latent_correlation_matrix
 
 from utils.plt.plt_snps import *
 from utils.modelling.differentiation import get_2Dvorticity
@@ -43,17 +43,17 @@ from utils.modelling.differentiation import get_2Dvorticity
 flags = {}
 flags['save'] = {}
 
-flags['AE'] = 'C-CNN-AE'  # AE type (C-CNN-AE, MD-CNN-AE, CNN-HAE, CNN-VAE)
+flags['AE'] = 'CNN-VAE'  # AE type (C-CNN-AE, MD-CNN-AE, CNN-HAE, CNN-VAE)
 flags['struct'] = 'complex'  # AE structure type (simple, medium, complex)
 flags['flow'] = 'FP'  # Flow type (SC, FP)
-flags['control'] = 1  # With (1) or without (0) control
+flags['control'] = 0  # With (1) or without (0) control
 flags['POD'] = 0  # Gets POD basis (1) or not (0)
 flags['filter'] = 0
 flags['lr_static'] = 1  # Fixed learning rate (1) or varying with nepochs (0)
 
 flags['get_modal'] = 0  # Retrieve modal analysis
-flags['get_reconstruction'] = 1  # Retrieve AE reconstruction and error quantification
-flags['get_latent'] = 0
+flags['get_reconstruction'] = 0  # Retrieve AE reconstruction and error quantification
+flags['get_latent'] = 1
 flags['save']['model'] = 0  # Save trained model (1) or not (0)
 flags['save']['out'] = 0  # Save outputs of AE (1) or not (0)
 flags['save']['history'] = 1  # Save model history loss (1) or not (0)
@@ -67,7 +67,7 @@ params['POD'] = {}
 
 # Learning rate in Adam optimizer
 if flags['lr_static']:
-    params['AE']['lr'] = 1e-5
+    params['AE']['lr'] = 1e-3
 else:
     step = tf.Variable(0, trainable=False)
     boundaries = [500, 100, 100]
@@ -83,9 +83,9 @@ params['AE']['logger'] = 'HOLI2C-CNN-AE' + '_lr_' + '1e-5' + \
                          '_nr_' + '15' + \
                          '_nt_' + '10000'  # Logger name
 
-params['AE']['n_epochs'] = 500  # Number of epochs
-params['AE']['batch_size'] = 64  # Batch size when training AE
-params['AE']['beta'] = 5e-3  # CNN-VAE reg parameter
+params['AE']['n_epochs'] = 20  # Number of epochs
+params['AE']['batch_size'] = 32  # Batch size when training AE
+params['AE']['beta'] = 1e-3  # CNN-VAE reg parameter
 params['AE']['ksize'] = (3, 3)  # Kernel size of convolutional layers
 params['AE']['psize'] = (2, 2)  # Kernel size of pooling layers
 params['AE']['ptypepool'] = 'valid'  # Type of pooling padding (same or valid)
@@ -134,7 +134,11 @@ cwd = os.getcwd()
 t0 = time.time()
 warnings.filterwarnings("ignore")
 OUT = {}
-
+# logging.basicConfig(filename=paths['logger'],
+#                     filemode='w',
+#                     format='%(asctime)s, %(msecs)d --> %(message)s',
+#                     datefmt='%H:%M:%S',
+#                     level=logging.INFO)
 log = logging.getLogger()
 log.setLevel(logging.INFO)
 fh = logging.FileHandler(filename=paths['logger'], mode='w')
@@ -165,7 +169,6 @@ D = np.concatenate((flow['U'], flow['V']), axis=0)
 Dmean = np.mean(D, axis=1).reshape((np.shape(D)[0]), 1)
 Ddt = D - Dmean
 t = flow['t']
-
 del D, flow
 
 i_flow = np.linspace(0, np.shape(Ddt)[1] - 1, params['flow']['nt']).astype(int)
@@ -173,8 +176,6 @@ Ddt = Ddt[:, i_flow]
 t = t[i_flow, :]
 if flags['control']:
     u = u[i_flow, :]
-
-Ddt[:,0:3000] = Ddt[:,0:3000] * 130 / 150
 
 D_test = np.concatenate((flow_test['U'], flow_test['V']), axis=0)
 Ddt_test = D_test - Dmean
@@ -258,14 +259,16 @@ if flags['get_modal']:
 
 if flags['get_reconstruction']:
 
-    Dr_test_AE = get_AE_reconstruction(params['AE']['nr'], flags['AE'], flags['control'], AE, grid, Ddt_test, u_test, flag_filter=1)
+    Dr_test_AE = get_AE_reconstruction(params['AE']['nr'], flags['AE'], flags['control'], AE, grid, Ddt_test, u_test,
+                                       flag_filter=flags['filter'])
     z_test = get_AE_z(params['AE']['nr'], flags['AE'], AE, grid, Ddt_test)
 
     CEA = get_CEA(Ddt_test, Dr_test_AE, grid['B'])
     err_AE = get_RMSE(Ddt_test, Dr_test_AE, grid['B'], flags['error_type'])
     Sc = get_cos_similarity(Ddt_test, Dr_test_AE, grid['B'])
-    zdetR, zRij = get_latent_correlation_matrix(z_test.numpy())
-    log.info(f'Obtained AE reconstruction: CEA = {CEA:.2E}, RMSE = {err_AE:.2E}, Sc = {Sc:.4f}, zdetR = {zdetR:.2E}')
+    zdetR, zmeanR, zRij = get_latent_correlation_matrix(z_test.numpy())
+    log.info(
+        f'Obtained AE reconstruction: CEA = {CEA:.2E}, RMSE = {err_AE:.2E}, Sc = {Sc:.4f}, zdetR = {zdetR:.2E}, zmeanR = {zmeanR:.2E}')
 
     if flags['save']['out']:
         OUT['Dr_test_AE'] = Dr_test_AE
@@ -288,6 +291,6 @@ if flags['save']['history']:
                                    'val_energy_loss': AE.history.history['val_energy_loss'],
                                    'energy_loss': AE.history.history['energy_loss'],
                                    'CEA': CEA, 'RMSE_AE': err_AE, 'Sc': Sc, 'zdetR': zdetR, 'zRij': zRij,
-                                   'Dtime': t1 - t0})
+                                   'zmeanR': zmeanR, 'Dtime': t1 - t0})
 
 log.removeHandler(fh)

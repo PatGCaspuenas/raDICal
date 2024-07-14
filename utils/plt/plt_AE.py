@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 import numpy as np
+from scipy import stats
+from scipy import signal
 
 def plot_train_val_loss(model):
 
@@ -105,5 +107,77 @@ def plot_Lissajous(z_test):
             if j == 0:
                 ax[i,j].set_ylabel('$z_' + str(i+1) + '$')
             ax[i,j].set_yticks([])
+    plt.tight_layout()
+    plt.show()
+
+def plt_PDF(z_test):
+
+    nr = np.shape(z_test)[1]
+    zmax = np.max(np.abs(z_test))
+    zs = np.linspace(-zmax, zmax, 200)
+
+    ncol = 5
+    nrow = int(np.ceil(nr / ncol))
+    fig, ax = plt.subplots(nrow, ncol, subplot_kw={'aspect': 1}, figsize=(9,9))
+
+    c = 0
+    for i in range(nrow):
+        for j in range(ncol):
+
+            if c >= nr:
+                ax[i, j].axis('off')
+            else:
+                kde1 = stats.gaussian_kde(z_test[:, c])
+                ax[i, j].plot(zs, kde1(zs), 'b-')
+                ax[i, j].text(-zmax, 1, '$i='+str(c+1)+'$', color='r', fontsize='10')
+
+                ax[i, j].set_xlim([-zmax, zmax])
+                ax[i, j].set_ylim([0, 1])
+
+                if i == (nr-1):
+                    ax[i,j].set_xlabel('$z_' + str(j+1) + '$')
+                else:
+                    ax[i,j].set_xticks([])
+
+                if j == 0:
+                    ax[i,j].set_ylabel('$PDF$')
+                else:
+                    ax[i,j].set_yticks([])
+    plt.tight_layout()
+    plt.show()
+
+def plt_PSD_lat(z_test, fs):
+
+    nr = np.shape(z_test)[1]
+
+    ncol = 5
+    nrow = int(np.ceil(nr / ncol))
+    fig, ax = plt.subplots(nrow, ncol, subplot_kw=dict(box_aspect=1), figsize=(9,9))
+
+    c = 0
+    for i in range(nrow):
+        for j in range(ncol):
+
+            if c >= nr:
+                ax[i, j].axis('off')
+            else:
+                f, PSD = signal.periodogram(z_test[:, c], fs)
+                ax[i, j].semilogy(f/fs, PSD, 'b-')
+                ax[i, j].text(0, 1e2, '$i='+str(c+1)+'$', color='r', fontsize='10')
+
+                ax[i, j].set_xlim([0, f.max()/fs])
+                ax[i, j].set_ylim([1e-7, 1e2])
+
+                if i == (nrow-1):
+                    ax[i,j].set_xlabel('$St$')
+                else:
+                    ax[i,j].set_xticks([])
+
+                if j == 0:
+                    ax[i,j].set_ylabel('$PSD$')
+                else:
+                    ax[i,j].set_yticks([])
+
+                c += 1
     plt.tight_layout()
     plt.show()
