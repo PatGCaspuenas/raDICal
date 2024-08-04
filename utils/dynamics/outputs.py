@@ -4,7 +4,7 @@ import pickle
 import os
 
 from utils.data.transform_data import raw2dyn, CNNAE2raw
-from utils.AEs.classes import CNN_VAE, C_CNN_AE
+from utils.AEs.classes import CNN_VAE, C_CNN_AE, C_CNN_AE_c
 
 def energy_loss(input_img, decoded):
     return tf.keras.backend.sum(tf.keras.backend.square(input_img - decoded)) / tf.keras.backend.sum(tf.keras.backend.square(input_img))
@@ -19,19 +19,19 @@ def get_predicted_z(params, flags, DYN, Z, t, Znorm, u=0):
     if not flag_control:
 
         Zx_test, Zy_test, T = raw2dyn(t, Z, params, flag_control, flag_train=0)
-        Zx_test, Zy_test = Zx_test / Znorm, Zy_test / Znorm
+        #Zx_test, Zy_test = Zx_test / Znorm, Zy_test / Znorm
 
     else:
 
         Zx_test, Zy_test, Ux_test, Uy_test, T = raw2dyn(t, Z, params, flag_control, flag_train=0, u=u)
-        Zx_test, Zy_test = Zx_test / Znorm, Zy_test / Znorm
+        #Zx_test, Zy_test = Zx_test / Znorm, Zy_test / Znorm
 
     if flag_control_dyn:
         Zy_test_dyn = DYN.predict([Zx_test, Ux_test, Uy_test], nt_pred)
     else:
         Zy_test_dyn = DYN.predict(Zx_test, nt_pred)
 
-    Zx_test, Zy_test, Zy_test_dyn = Zx_test * Znorm, Zy_test * Znorm, Zy_test_dyn * Znorm
+    #Zx_test, Zy_test, Zy_test_dyn = Zx_test * Znorm, Zy_test * Znorm, Zy_test_dyn * Znorm
 
     if not flag_control:
         return Zx_test, Zy_test, Zy_test_dyn, T
@@ -52,10 +52,12 @@ def load_model_AE(params, flags, paths):
         AE = CNN_VAE(params, flags)
     elif flag_AE == 'C-CNN-AE':
         AE = C_CNN_AE(params, flags)
+    elif flag_AE == 'C-CNN-AE-c':
+        AE = C_CNN_AE_c(params, flags)
 
     # LOSS
     opt = tf.keras.optimizers.Adam(learning_rate=1e-3)
-    if flag_AE=='CNN-VAE':
+    if (flag_AE=='CNN-VAE') or (flag_AE=='C-CNN-AE-c'):
         AE.compile(optimizer=opt, loss=null_loss, metrics=[energy_loss])
     else:
         AE.compile(optimizer=opt, loss='mse', metrics=[energy_loss])

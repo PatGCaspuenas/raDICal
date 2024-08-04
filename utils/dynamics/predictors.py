@@ -55,7 +55,7 @@ class LSTM(Model):
                 else:
                     lstm.add(layers.LSTM(units, return_sequences=True))
                 count += 1
-
+        lstm.add(layers.Flatten())
         for units, drop in zip(self.dense_units, self.dropout):
             lstm.add(layers.Dense(units, activation=self.act))
             if drop > 0:
@@ -67,7 +67,7 @@ class LSTM(Model):
 
         predictor = tf.keras.Sequential()
 
-        predictor.add(layers.Dense(self.np * self.n_output, activation=self.act))
+        predictor.add(layers.Dense(self.np * self.n_output, activation='linear'))
         predictor.add(layers.Reshape([self.np, self.n_output]))
 
         return predictor
@@ -361,7 +361,6 @@ class NARX(Model):
                     output[:, (self.np * t):(self.np * (t + 1)), :] = output_t[:, :self.np, :]
 
         return output
-
     def call(self, input):
 
         if self.flag_control:

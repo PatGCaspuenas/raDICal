@@ -7,10 +7,10 @@ import pandas as pd
 def mat2hdf5_FP_flow(path_flow, path_grid, path_save):
 
     M_flow = sio.loadmat(path_flow)
-    M_grid = sio.loadmat(path_grid)
+    #M_grid = sio.loadmat(path_grid)
 
-    X = M_grid['X']
-    Y = M_grid['Y']
+    X = M_flow['X']
+    Y = M_flow['Y']
 
     U = M_flow['u']
     V = M_flow['v']
@@ -97,3 +97,6 @@ def mat2hdf5_FP_grid(path, path_save):
     with h5py.File(path_save, 'w') as h5file:
         for key, item in grid.items():
             h5file.create_dataset(key, data=item)
+
+
+

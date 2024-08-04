@@ -3,6 +3,7 @@ import os
 
 os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3'
 os.environ["TF_CPP_MIN_LOG_LEVEL"]='1'
+os.environ["TF_GPU_ALLOCATOR"] = 'cuda_malloc_async'
 import tensorflow as tf
 physical_devices = tf.config.list_physical_devices('GPU')
 available_GPUs = len(physical_devices)
@@ -26,6 +27,7 @@ import random
 import h5py
 import logging
 import time
+from sklearn import preprocessing
 
 # LOCAL FILES
 from utils.data.config import log_initial_config
@@ -39,7 +41,7 @@ from utils.modelling.errors_z import get_RMSE_z, get_max_ntpred, get_R2factor
 
 # ITERABLES
 cwd = os.getcwd()
-IT = pd.read_csv(cwd+r'/OUTPUT/dyn_1st_control.csv')
+IT = pd.read_csv(cwd+r'/OUTPUT/dyn_2nd_control.csv')
 
 for i in range(len(IT)):
     # FLAGS
@@ -57,7 +59,7 @@ for i in range(len(IT)):
     flags['control'] = 1            # With (1) or without (0) control
     flags['filter'] = 0
 
-    flags['decode'] = 1             # Decode from trained model the predicted latent space and error quantification
+    flags['decode'] = 0             # Decode from trained model the predicted latent space and error quantification
     flags['save']['model'] = 0      # Save trained model (1) or not (0)
     flags['save']['out'] = 1
     flags['save']['latent'] = 1      # Save outputs of AE (1) or not (0)
@@ -69,6 +71,7 @@ for i in range(len(IT)):
     flags['dyn']['type'] = (IT['dyn'][i])
     flags['dyn']['multi_train'] = 0
     flags['dyn']['opt'] = (IT['opt'][i])
+    flags['dyn']['loss'] = (IT['loss'][i])
 
     # PARAMETERS
     params = {}
@@ -97,7 +100,8 @@ for i in range(len(IT)):
                              '_np_' + str(IT['np'][i]) + \
                              '_lstmu_' + str(IT['lstm_units'][i]) + \
                              '_lstmdu_' + str(IT['dense_units'][i]) + \
-                             '_narxdu_' + str(IT['units'][i])  # Logger name
+                             '_narxdu_' + str(IT['units'][i]) + \
+                             '_opt_' + str(IT['opt'][i])# Logger name
 
     params['AE']['lr'] = IT['lr'][i]
     params['AE']['n_epochs'] = int(IT['n_epochs'][i])    # Number of epochs
@@ -123,7 +127,7 @@ for i in range(len(IT)):
     params['dyn']['np'] = int(IT['np'][i])
     params['dyn']['d'] = int(IT['d'][i])
     params['dyn']['act'] = 'tanh'
-    params['dyn']['nt_pred'] = 100 + params['dyn']['np']
+    params['dyn']['nt_pred'] = 500
 
     params['dyn']['dt'] = 0.1
     params['dyn']['dt_lat'] = 0.1
@@ -138,7 +142,7 @@ for i in range(len(IT)):
     params['LSTM']['dropout'] = np.zeros((len(params['LSTM']['dense_units'])))
 
     params['NARX']['units'] = ast.literal_eval((IT['units'][i]))
-    params['NARX']['dropout'] = np.zeros((len(params['NARX']['units'])))
+    params['NARX']['dropout'] = np.ones((len(params['NARX']['units'])))*float(IT['dropout'][i])
 
     # PATHS
     paths = {}
@@ -155,11 +159,11 @@ for i in range(len(IT)):
             paths['flow_test'] = cwd + r'/DATA/FPc_00k_03k.h5'
 
             if flags['AE'] == 'CNN-VAE':
-                paths['z'] = cwd + r'/DATA/latent/FPcz_00k_10k_CNNVAE.h5'
+                paths['z'] = cwd + r'/DATA/latent/FPcz_00k_70k_CNNVAE.h5'
                 paths['z_test'] = cwd + r'/DATA/latent/FPcz_00k_03k_CNNVAE.h5'
                 paths['model'] = r'cCNN-VAE'
             else:
-                paths['z'] = cwd + r'/DATA/latent/FPcz_00k_10k_CCNNAE.h5'
+                paths['z'] = cwd + r'/DATA/latent/FPcz_00k_70k_CCNNAE.h5'
                 paths['z_test'] = cwd + r'/DATA/latent/FPcz_00k_03k_CCNNAE.h5'
                 paths['model'] = r'cC-CNN-AE'
 
@@ -239,9 +243,27 @@ for i in range(len(IT)):
     if flags['control']:
         Z, t, U = latent['Z'], latent['t'], latent['U']
         Z_test, t_test, U_test = latent_test['Z'], latent_test['t'], latent_test['U']
+        Z, U, t = Z[2:, :], U[2:, :], t[2:, :]
+        Z_test, U_test, t_test = Z_test[2:, :], U_test[2:, :], t_test[2:, :]
+
+        # scaler_Z = preprocessing.StandardScaler()
+        # scaler_U = preprocessing.StandardScaler()
+        #
+        # Z = scaler_Z.fit_transform(Z)
+        # Z_test = scaler_Z.transform(Z_test)
+        # U = scaler_U.fit_transform(U)
+        # U_test = scaler_U.transform(U_test)
     else:
         Z, t = latent['Z'], latent['t']
         Z_test, t_test = latent_test['Z'], latent_test['t']
+        Z, t = Z[2:, :], t[2:, :]
+        Z_test, t_test = Z_test[2:, :], t_test[2:, :]
+
+        # scaler_Z = preprocessing.RobustScaler()
+        #
+        # Z = scaler_Z.fit_transform(Z)
+        # Z_test = scaler_Z.transform(Z_test)
+
 
     # TRAIN DYNAMIC PREDICTOR
     t0train = time.time()
@@ -278,6 +300,11 @@ for i in range(len(IT)):
     R2C = get_R2factor(Zy_test, Zy_test_dyn, 'C', n_p = params['dyn']['np'])
     err_dyn_ntpred = get_RMSE_z(Zy_test, Zy_test_dyn, n_p=params['dyn']['nt_pred'])
     R2C_ntpred = get_R2factor(Zy_test, Zy_test_dyn, 'C', n_p=params['dyn']['nt_pred'])
+    R2C_5 = get_R2factor(Zy_test, Zy_test_dyn, 'C', n_p=5)
+    R2C_20 = get_R2factor(Zy_test, Zy_test_dyn, 'C', n_p=20)
+    R2C_50 = get_R2factor(Zy_test, Zy_test_dyn, 'C', n_p=50)
+    R2C_100 = get_R2factor(Zy_test, Zy_test_dyn, 'C', n_p=100)
+    R2C_200 = get_R2factor(Zy_test, Zy_test_dyn, 'C', n_p=200)
     log.info(f'Obtained dyn prediction: RMSE = {err_dyn}, NT = {NT}, R2C = {R2C}')
 
     if flags['decode']:
@@ -331,10 +358,11 @@ for i in range(len(IT)):
                                           'RMSE_dyn_ntpred': err_dyn_ntpred, 'R2C_ntpred': R2C_ntpred,
                                           'Dtime':t1-t0, 'Dt_train':t1train - t0train, 'Dt_pred':t1pred - t0pred})
         else:
-            sio.savemat(paths['history'],{'loss': DYN.history.history['loss'], 'val_loss': DYN.history.history['val_loss'],
+            sio.savemat(paths['history'],{'loss': loss, 'val_loss': DYN.history.history['val_loss'],
                                           'RMSE_dyn': err_dyn, 'NT': NT, 'R2C':R2C,
                                           'RMSE_dyn_ntpred': err_dyn_ntpred, 'R2C_ntpred': R2C_ntpred,
-                                          'Dtime':t1-t0, 'Dt_train':t1train - t0train, 'Dt_pred':t1pred - t0pred})
+                                          'Dtime':t1-t0, 'Dt_train':t1train - t0train, 'Dt_pred':t1pred - t0pred,
+                                          'R2C_5':R2C_5,'R2C_20':R2C_20,'R2C_50':R2C_50,'R2C_100':R2C_100,'R2C_200':R2C_200})
 
         log.removeHandler(fh)
         del log, fh

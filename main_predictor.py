@@ -7,6 +7,14 @@ from utils.data.transform_data import raw2dyn
 from utils.dynamics.predictors_lm import NARX, LSTM, MeanSquaredError
 from utils.dynamics.systems import get_lorenz_time
 
+def sphs(t,Pf=0.5,K=8,A=10):
+    # Schroeder-phased harmonic sequence
+    u = np.zeros_like(t)
+    for i in range(K):
+        theta = 2 * np.pi / (K+1) * np.sum(np.arange(1,i+1))
+        u = u + np.sqrt(2 / (K+1)) * np.cos(2*np.pi * (i+1) * t / Pf + theta)
+    return A * u
+
 # PARAMETERS AND FLAGS
 params = {}
 params['AE'] = {}
@@ -21,10 +29,10 @@ flags['dyn'] = {}
 params['AE']['nr'] = 3
 params['AE']['n_epochs'] = 500
 params['AE']['batch_size'] = 5000
-params['AE']['lr'] = 1e-3
+params['AE']['lr'] = 1
 
-params['dyn']['np'] = 10
-params['dyn']['d'] = 10
+params['dyn']['np'] = 1
+params['dyn']['d'] = 1
 params['dyn']['act'] = 'tanh'
 params['dyn']['nt_pred'] = 500
 
@@ -44,17 +52,21 @@ params['NARX']['units'] = [10]
 params['NARX']['dropout'] = [0]
 
 flags['dyn']['control'] = 1
-flags['dyn']['type'] = 'LSTM'
+flags['dyn']['type'] = 'NARX'
 flags['dyn']['multi_train'] = 0
 
 params['flow']['nc'] = 1 if flags['dyn']['control'] else 0
 
 # GENERATE TIME CHAOTIC SEQUENCES
 sigma, rho, beta = 10, 28, 8/3
-t_span = np.linspace(0, 10, int(10 / (params['dyn']['dt']) +1))
+t_span = np.linspace(0, 100, int(100 / (params['dyn']['dt']) +1))
 nt = len(t_span)
-u = (np.sin(t_span)).reshape((nt, 1))
-n_sets = 10
+u = ((5*np.sin(30*t_span))**3).reshape(-1,1)
+u = ((2*np.sin(t_span)*np.sin(t_span/10))**2).reshape(-1,1)
+u = (np.sin(t_span)).reshape(-1,1)
+u = sphs(t_span).reshape(-1,1)
+
+n_sets = 1
 
 for i in range(n_sets):
     Y0 = np.random.rand(params['AE']['nr']) * 30 - 15
@@ -87,7 +99,8 @@ for i in range(n_sets):
 
 Ynorm = np.max(np.abs(Zx_train), axis=(0,1)).reshape(1,1,-1)
 Zx_train, Zy_train, Zx_val, Zy_val = Zx_train / Ynorm, Zy_train / Ynorm, Zx_val / Ynorm, Zy_val / Ynorm
-
+#flags['dyn']['control'] = 0
+#params['flow']['nc'] = 1 if flags['dyn']['control'] else 0
 # TRAIN DYNAMIC MODEL
 ES = EarlyStopping(monitor="val_loss", patience=50)
 
@@ -117,8 +130,8 @@ else:
             callbacks=[ES])
 
 # GENERATE TESTING SET & PREDICT
-Y0 = np.random.rand(params['AE']['nr']) * 30 - 15
-
+#Y0 = np.random.rand(params['AE']['nr']) * 30 - 15
+# = get_lorenz_time(t_span, Y0, sigma, beta, rho, b_span=u, flag_control=1)
 if not flags['dyn']['control']:
     Y = get_lorenz_time(t_span, Y0, sigma, beta, rho)
 

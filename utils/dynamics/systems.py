@@ -18,8 +18,8 @@ def get_lorenz_time(t_span, Y0, sigma, beta, rho, b_span = 0, flag_control = 0):
         b = np.interp(t,t_span, b_span[:,0])
 
         dydt = [-sigma*(u - v) + b,
-                rho*u - v - u*w,
-                -beta*w + u*v]
+                rho*u - v - u*w ,
+                -beta*w + u*v ]
 
         return dydt
 

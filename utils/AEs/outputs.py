@@ -10,7 +10,7 @@ def get_AE_z(nr, flag_AE, AE, grid, D_test):
 
     X_test = raw2CNNAE(grid, D_test)
     nt = np.shape(X_test)[0]
-    nt_max = 3001
+    nt_max = 1000
     mult = (np.floor(nt / nt_max)).astype(int)
 
     if nt > nt_max:
@@ -51,7 +51,7 @@ def get_AE_reconstruction(nr, flag_AE, flag_control, AE, grid, D_test, b_test, f
 
     X_test = raw2CNNAE(grid, D_test)
     nt = np.shape(X_test)[0]
-    nt_max = 3001
+    nt_max = 1000
     mult = (np.floor(nt / nt_max)).astype(int)
 
     if nt > nt_max:

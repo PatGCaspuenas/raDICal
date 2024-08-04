@@ -30,12 +30,13 @@ def train_dyn(params, flags, Z, t, logging, u=0):
     batch_size = params['dyn']['batch_size']
 
     logger = MyLogger(logging, n_epochs)
-    ES = EarlyStopping(monitor="val_loss", patience=50)
+    ES = EarlyStopping(monitor="val_loss", patience=100)
 
     # FLAGS
     flag_control = flags['dyn']['control']
     flag_type = flags['dyn']['type']
     flag_opt = flags['dyn']['opt']
+    flag_loss = flags['dyn']['loss']
 
     # GENERATE WINDOW PREDICTIONS
     if not flag_control:
@@ -44,7 +45,7 @@ def train_dyn(params, flags, Z, t, logging, u=0):
         Zx_train, Zy_train, Zx_val, Zy_val, Ux_train, Uy_train, Ux_val, Uy_val = raw2dyn(t, Z, params, flag_control, u=u)
 
     # NORMALIZE STATE VARIABLES
-    Zx_train, Zy_train, Zx_val, Zy_val = Zx_train / Znorm, Zy_train / Znorm, Zx_val / Znorm, Zy_val / Znorm
+    #Zx_train, Zy_train, Zx_val, Zy_val = Zx_train / Znorm, Zy_train / Znorm, Zx_val / Znorm, Zy_val / Znorm
 
     # TRAIN DYNAMIC MODEL
     nw_train, nw_val = np.shape(Zx_train)[0], np.shape(Zx_val)[0]
@@ -62,7 +63,10 @@ def train_dyn(params, flags, Z, t, logging, u=0):
 
     if flag_opt == 'Adam':
         opt = tf.keras.optimizers.Adam(learning_rate=lr)
-        DYN.compile(optimizer=opt, loss='mse')
+        if flag_loss == 'mse':
+            DYN.compile(optimizer=opt, loss='mse', metrics = ['mae'])
+        else:
+            DYN.compile(optimizer=opt, loss=tf.keras.losses.Huber(), metrics = ['mae'])
     else:
         DYN.compile(tf.keras.optimizers.SGD(learning_rate=1.0),
                     loss=MeanSquaredError(), run_eagerly=True)

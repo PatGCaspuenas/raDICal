@@ -6,7 +6,7 @@ from keras.callbacks import Callback, EarlyStopping
 from timeit import default_timer as timer
 
 # LOCAL FUNCTIONS
-from utils.AEs.classes import CNN_VAE, CNN_HAE, C_CNN_AE, MD_CNN_AE
+from utils.AEs.classes import CNN_VAE, CNN_HAE, C_CNN_AE, MD_CNN_AE, C_CNN_AE_c
 from utils.data.transform_data import raw2CNNAE
 
 class MyLogger(Callback):
@@ -64,6 +64,8 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
         AE = MD_CNN_AE(params, flags)
     elif flag_AE == 'C-CNN-AE':
         AE = C_CNN_AE(params, flags)
+    elif flag_AE == 'C-CNN-AE-c':
+        AE = C_CNN_AE_c(params, flags)
 
 
     if flag_AE=='CNN-HAE':
@@ -110,8 +112,8 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
 
         # LOSS
         opt = tf.keras.optimizers.Adam(learning_rate=lr)
-        if flag_AE=='CNN-VAE':
-            AE.compile(optimizer=opt, loss=null_loss, metrics=[energy_loss])
+        if (flag_AE=='CNN-VAE') or (flag_AE=='C-CNN-AE-c'):
+            AE.compile(optimizer=opt, loss=null_loss, metrics=[energy_loss, 'mse'])
         else:
             AE.compile(optimizer=opt, loss='mse', metrics=[energy_loss])
         # INPUT

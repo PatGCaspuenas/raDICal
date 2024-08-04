@@ -218,6 +218,8 @@ class Trainer(Model):
         # matrix will have maximum shape (jacobian_max_num_rows, num_variables)
         # instead of (batch_size, num_variables).
         slice_size = self.jacobian_max_num_rows // self._num_outputs
+        if self._num_outputs > self.jacobian_max_num_rows:
+            slice_size = 1
         if isinstance(inputs, list) or isinstance(inputs, tuple):
             batch_size = tf.shape(inputs[0])[0]
         else:
@@ -518,7 +520,7 @@ class LSTM(Trainer):
         predictor = tf.keras.Sequential()
 
         predictor.add(tf.keras.layers.Input(shape=(self.nc * self.np + self.lstm_units[-1])))
-        predictor.add(layers.Dense(self.np * self.n_output, activation=self.act))
+        predictor.add(layers.Dense(self.np * self.n_output, activation='linear'))
         predictor.add(layers.Reshape([self.np, self.n_output]))
 
         return predictor

@@ -21,12 +21,15 @@ class AE(object):
         self.act = params['AE']['act']             # Activation function
         self.reg_k = params['AE']['reg_k']         # Regularization kernel
         self.reg_b = params['AE']['reg_b']         # Regularization bias
+        self.drop = params['AE']['drop']
         self.nr = params['AE']['nr']               # Latent space dimensions
+        self.alpha = params['AE']['alpha']
 
         # Data parameters
         self.n = params['flow']['n'] # Columns in grid
         self.m = params['flow']['m'] # Rows in grid
         self.k = params['flow']['k'] # Number of dimensions
+        self.nc = params['flow']['nc']
 
         # Flags
         self.flag_AE = flags['AE']           # AE type (C-CNN-AE, MD-CNN-AE, CNN-HAE, CNN-VAE)
@@ -41,6 +44,8 @@ class AE(object):
             self.ne = self.nr
         elif (self.flag_AE=='CNN-VAE'):
             self.ne = self.nr + self.nr
+        elif (self.flag_AE=='C-CNN-AE-c'):
+            self.ne =  self.nc + self.nr
 
         # Define # filters in layer sequential
         if (self.flag_struct=='simple'):
@@ -48,10 +53,13 @@ class AE(object):
             self.filter_seq_d = [ 4,  4,  8,  8,   8,  16]
         elif (self.flag_struct=='medium'):
             self.filter_seq_e = [ 4,  4,  8, 16,  32,  64, 32]
-            self.filter_seq_d = [128, 256, 256, 128, 64, 32, 16, 16]
+            self.filter_seq_d = [32, 64, 32, 16, 8, 4, 4]
         elif (self.flag_struct=='complex'):
             self.filter_seq_e = [16, 16, 32, 64, 128, 256, 128]
-            self.filter_seq_d = [64, 128, 128, 64, 32, 16, 8, 8]
+            self.filter_seq_d = [128, 256, 256, 128, 64, 32, 16, 16]
+        elif (self.flag_struct=='complex_nearf'):
+            self.filter_seq_e = [16, 16, 32, 64, 128, 256, 128]
+            self.filter_seq_d = [128, 256, 256, 128, 64, 32, 16, 16]
 
         # Create encoder and decoder(s)
         self.encoder = self.create_encoder()
@@ -70,19 +78,20 @@ class AE(object):
         encoder = tf.keras.Sequential()
         encoder.add(tf.keras.layers.Input(shape=(self.n, self.m, self.k)))
 
-        # 1st: conv & max pooling (if m x n = 392 x 196)
-        if self.n == 384:
+        # 1st: conv & max pooling (if m x n = 384 x 192)
+        if n_sub == 384:
             encoder.add(tf.keras.layers.Conv2D(self.filter_seq_e[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
             encoder.add(tf.keras.layers.MaxPooling2D(pool_size=self.psize, padding=self.ptypepool, strides=self.nstrides))
             n_sub = (n_sub) // self.nstrides
             m_sub = (m_sub) // self.nstrides
-            i_seq += 1
+        i_seq += 1
 
         # 2nd: conv & max pooling
-        encoder.add(layers.Conv2D(self.filter_seq_e[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
-        encoder.add(layers.MaxPooling2D(pool_size=self.psize, padding=self.ptypepool, strides=self.nstrides))
-        n_sub = (n_sub) // self.nstrides
-        m_sub = (m_sub) // self.nstrides
+        if n_sub == 192:
+            encoder.add(layers.Conv2D(self.filter_seq_e[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
+            encoder.add(layers.MaxPooling2D(pool_size=self.psize, padding=self.ptypepool, strides=self.nstrides))
+            n_sub = (n_sub) // self.nstrides
+            m_sub = (m_sub) // self.nstrides
         i_seq += 1
 
         # 3rd: conv & max pooling
@@ -114,6 +123,8 @@ class AE(object):
 
         # fully connected
         encoder.add(layers.Reshape([m_sub * n_sub * self.filter_seq_e[i_seq]]))
+        if self.drop > 0:
+            encoder.add(layers.Dropout(self.drop))
         i_seq += 1
         if self.flag_struct != 'simple':
             encoder.add(layers.Dense(self.filter_seq_e[i_seq], activation=self.act, kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
@@ -134,10 +145,12 @@ class AE(object):
 
         # fully connected
         if self.flag_struct != 'simple':
-            decoder.add(layers.Dense(m_sub * n_sub * self.filter_seq_d[i_seq], activation=self.act, kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
+            decoder.add(layers.Dense(self.filter_seq_d[i_seq], activation=self.act, kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
             i_seq += 1
 
         decoder.add(layers.Dense(m_sub * n_sub * self.filter_seq_d[i_seq], activation=self.act, kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
+        if self.drop > 0:
+            decoder.add(layers.Dropout(self.drop))
         decoder.add(layers.Reshape([n_sub, m_sub, self.filter_seq_d[i_seq]]))
         i_seq += 1
 
@@ -162,7 +175,7 @@ class AE(object):
         i_seq += 1
 
         # 5th: upsampling & (11th) conv
-        if self.flag_struct != 'simple':
+        if (self.flag_struct != 'simple') and (self.n == 192):
             decoder.add(layers.UpSampling2D(self.psize))
             decoder.add(layers.Conv2D(self.filter_seq_d[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
             i_seq += 1
@@ -320,4 +333,43 @@ class C_CNN_AE(AE, Model):
 
         return decoded
 
+class C_CNN_AE_c(AE, Model):
+
+    def __init__(self, params, flags):
+
+        # Call parent constructor
+        super(C_CNN_AE_c, self).__init__(params=params, flags=flags)
+
+    def get_latent_vector(self, input_img):
+
+        encoded = self.encoder(input_img)
+
+        return encoded[:, :self.nr]
+
+    def get_control_vector(self, input_img):
+
+        encoded = self.encoder(input_img)
+
+        return encoded[:, self.nr:]
+
+    def loss_fn(self, input_img, control_vector, decoded, encoded):
+        rec_loss = tf.keras.losses.mse(tf.keras.backend.reshape(input_img, (-1,)), tf.keras.backend.reshape(decoded, (-1,)))
+        control_loss = tf.keras.losses.mse(tf.keras.backend.reshape(control_vector, (-1,)), tf.keras.backend.reshape(encoded[:, self.nr:], (-1,)))
+        ae_loss = tf.keras.backend.mean(rec_loss + self.alpha * control_loss)
+        return ae_loss
+    def call(self, input):
+
+        input_img = input[0]
+        control_vector = input[1]
+
+        encoded = self.encoder(input_img)
+        control_vector_encoded = encoded[:, self.nr:]
+        z_encoded = encoded[:, :self.nr]
+
+        decoded = self.decoder(tf.keras.layers.Concatenate(axis=1)([z_encoded, control_vector]))
+
+        ae_loss = self.loss_fn(input_img, control_vector, decoded, encoded)
+        self.add_loss(ae_loss)
+
+        return decoded
 
