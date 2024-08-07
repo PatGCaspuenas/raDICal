@@ -1,0 +1,67 @@
+{
+	"HISTORY": ".\\OUTPUTS\\history.mat",
+
+	"OUTPUT" : ".\\OUTPUTS\\output.h5",
+	
+	"LOGGER" : ".\\OUTPUTS\\logger.h5",
+	
+	"LOAD"   :{
+		"CONTROL"   :{
+			"MODEL":{
+				"CNN-VAE" : [".\\MODELS\\decoder_cCNN-VAE", ".\\MODELS\\encoder_cCNN-VAE"],
+				"C-CNN-AE": [".\\MODELS\\decoder_cC-CNN-AE", ".\\MODELS\\encoder_cC-CNN-AE"]
+			},
+
+			"FLOW" :{
+				"TRAIN"   : ".\\DATA\\FPc_00k_70k.h5",
+				"TEST"    : ".\\DATA\\FPc_00k_03k.h5",
+				"TEST_LAT": ".\\DATA\\FPc_00k_10k.h5"
+			},
+
+			"LAT"  :{
+				"TRAIN":{
+					"CNN-VAE" : ".\\DATA\\latent\\FPcz_00k_10k_CNNVAE.h5",
+					"C-CNN-AE": ".\\DATA\\latent\\FPcz_00k_10k_CCNNAE.h5",
+					"POD"     : ".\\DATA\\latent\\FPcz_00k_10k_POD.h5"
+				},
+
+				"TEST" :{
+					"CNN-VAE" : ".\\DATA\\latent\\FPcz_00k_03k_CNNVAE.h5",
+					"C-CNN-AE": ".\\DATA\\latent\\FPcz_00k_03k_CCNNAE.h5",
+					"POD"     : ".\\DATA\\latent\\FPcz_00k_03k_POD.h5"
+				}
+			}
+		},
+
+		"NO CONTROL": {
+			"MODEL": {
+				"CNN-VAE": [
+					".\\MODELS\\decoder_CNN-VAE",
+					".\\MODELS\\encoder_CNN-VAE"
+				],
+				"C-CNN-AE": [
+					".\\MODELS\\decoder_C-CNN-AE",
+					".\\MODELS\\encoder_C-CNN-AE"
+				]
+			},
+			"FLOW": {
+				"TRAIN": ".\\DATA\\FP_14k_24k.h5",
+				"TEST": ".\\DATA\\FP_10k_13k.h5",
+				"TEST_LAT": ".\\DATA\\FP_10k_13k.h5"
+			},
+			"LAT": {
+				"TRAIN": {
+					"CNN-VAE": ".\\DATA\\latent\\FPz_14k_24k_CNNVAE.h5",
+					"C-CNN-AE": ".\\DATA\\latent\\FPz_14k_24k_CCNNAE.h5",
+					"POD": ".\\DATA\\latent\\FPz_14k_24k_POD.h5"
+				},
+				"TEST": {
+					"CNN-VAE": ".\\DATA\\latent\\FPz_10k_13k_CNNVAE.h5",
+					"C-CNN-AE": ".\\DATA\\latent\\FPz_10k_13k_CCNNAE.h5",
+					"POD": ".\\DATA\\latent\\FPz_10k_13k_POD.h5"
+				}
+			}
+		},
+		"GRID"      : ".\\DATA\\FP_grid.h5"
+	}
+}

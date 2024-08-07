@@ -1,0 +1,24 @@
+{
+	"FLAGS": {
+		"type": "C-CNN-AE",
+		"struct": "complex",
+		"act": "tanh",
+		"control": 0,
+		"lr_static": 1,
+		"error_type": "W"
+	},
+
+	"PARAMS": {
+		"n_epochs": 500,
+		"n_batch": 128,
+		"beta": 0,
+		"k_size": [3,3],
+		"p_size": [2,2],
+		"p_pad": "valid",
+		"k_reg": 0,
+		"k_b": 0,
+		"n_z": 15,
+		"l_r": 1e-4,
+		"nt_train": 10000
+	}
+}

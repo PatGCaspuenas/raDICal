@@ -1,0 +1,29 @@
+{
+	"AE": {
+		"type": "C-CNN-AE",
+		"struct": "complex",
+		"act": "tanh",
+		"control": 1,
+		"lr_static": 1,
+		"error_type": "W"
+	},
+
+	"FLOW": {
+		"type": "FP",
+		"control": 1
+	},
+
+	"POD": {
+		"trunc_method": "elbow"
+	},
+
+	"DYN": {
+		"type": "NARX",
+		"control": 1,
+		"act": "tanh",
+		"opt": "LM",
+		"irreg_TDL": 0,
+		"R2_method": "C",
+		"multi_train": 0
+	}
+}
