@@ -4,13 +4,14 @@ import scipy.io as sio
 import os
 import pandas as pd
 
-def mat2hdf5_FP_flow(path_flow, path_grid, path_save):
+# NOT PART OF THE CODE - pre-processing of data output by MATLAB's GetDatasets.m
+
+def mat2hdf5_FP_flow(path_flow, path_save):
 
     M_flow = sio.loadmat(path_flow)
-    M_grid = sio.loadmat(path_grid)
 
-    X = M_grid['X']
-    Y = M_grid['Y']
+    X = M_flow['X']
+    Y = M_flow['Y']
 
     U = M_flow['u']
     V = M_flow['v']
@@ -56,6 +57,53 @@ def mat2hdf5_FP_flow(path_flow, path_grid, path_save):
     with h5py.File(path_save, 'w') as h5file:
         for key, item in flow.items():
             h5file.create_dataset(key, data=item)
+
+def mat2hdf5_SC(path_grid, path_flow, path_grid_save, path_flow_save):
+
+    M = sio.loadmat(path_grid)
+
+    X = M['X']
+    Y = M['Y']
+
+    M = sio.loadmat(path_flow)
+
+    U = M['u']
+    V = M['v']
+    W = M['w']
+
+    t = M['t'].T
+
+    m = np.shape(X)[0]
+    n = np.shape(X)[1]
+    nt = np.shape(U)[1]
+
+    Re = 100
+
+    # Body mask
+    B = np.zeros((m ,n))
+    B[np.where( 0.5**2 - X**2 - Y**2 >= 0)] = 1
+    B[np.where(0.5 ** 2 - X ** 2 - Y ** 2 < 0)] = 'nan'
+
+    U[np.reshape(B, (m*n), order='F') == 1, :] = 0
+    V[np.reshape(B, (m*n), order='F') == 1, :] = 0
+    W[np.reshape(B, (m*n), order='F') == 1, :] = 0
+
+    U = np.reshape(U, (m * n, nt), order='F')
+    V = np.reshape(V, (m * n, nt), order='F')
+    W = np.reshape(W, (m * n, nt), order='F')
+
+    grid = {'X': X, 'Y': Y, 'B': B}
+    flow = {'U': U, 'V': V, 'W': W, 't': t, 'Re': Re}
+
+    with h5py.File(path_flow_save, 'w') as h5file:
+        for key, item in flow.items():
+            h5file.create_dataset(key, data=item)
+
+    with h5py.File(path_grid_save, 'w') as h5file:
+        for key, item in grid.items():
+            h5file.create_dataset(key, data=item)
+
+
 def add_control_FP(path_input, path_save):
 
     M_input = sio.loadmat(path_input)
@@ -97,3 +145,4 @@ def mat2hdf5_FP_grid(path, path_save):
     with h5py.File(path_save, 'w') as h5file:
         for key, item in grid.items():
             h5file.create_dataset(key, data=item)
+

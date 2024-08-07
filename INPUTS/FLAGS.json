@@ -1,0 +1,29 @@
+{
+	"AE": {
+		"type"         : "C-CNN-AE",
+		"architecture" : "complex",
+		"activation"   : "tanh",
+		"p_pad"        : "valid",
+		"control"      : 0,
+		"adaptive_l_r" : 0,
+		"error_type"   : "W"
+	},
+
+	"FLOW": {
+		
+	},
+
+	"POD": {
+		"r_method"     : "elbow"
+	},
+
+	"DYN": {
+		"type"         : "NARX",
+		"control"      : 1,
+		"activation"   : "tanh",
+		"optimizer"    : "LM",
+		"loss"         : "Hubert",
+		"R2_method"    : "C",
+		"recurrent"    : 1
+	}
+}

@@ -1,14 +1,20 @@
+# PACKAGES
 import numpy as np
 
 def get_reyn_stresses_2D(grid, Ddt):
+    """
+    Retrieves Reynold stresses for 2D flow
+    :param grid: dictionary containing X, Y grids
+    :param Ddt: snapshot matrix of fluctuations of velocity
+    :return: dictionary containing TKE and Reynolds stresses
+    """
 
     X = grid['X']
 
-    m = np.shape(X)[0]
-    n = np.shape(X)[1]
+    N_y, N_x = np.shape(X)
 
-    U = Ddt[0: m * n, :]
-    V = Ddt[n * m: n * m * 2, :]
+    U = Ddt[0: N_x * N_y, :]
+    V = Ddt[N_x * N_y:N_x * N_y * 2, :]
 
     REYN = {}
     REYN['uu'] = np.mean(U ** 2, axis=1)
@@ -18,17 +24,21 @@ def get_reyn_stresses_2D(grid, Ddt):
 
     return REYN
 
-def get_energy_fluctuations(Ddt):
+def get_energy_fluctuations(D):
+    """
+    Retrieves energy fluctuations in time
+    :param D: snapshot matrix of velocity (or fluctuations)
+    :return: energy in time
+    """
 
-    nt = np.shape(Ddt)[1]
-    E = np.zeros((nt))
+    N_t = np.shape(D)[1]
+    E = np.zeros((N_t))
 
-    Phi, Sigma, Psi = np.linalg.svd(Ddt, full_matrices=False)
+    for t in range(N_t):
+        E[t] = 1 / 2 * np.dot(D[:, t], D[:, t])
 
-    for t in range(nt):
-        E[t] = 1 / 2 * np.dot(Ddt[:, t], Ddt[:, t])
-
-    EPOD = 1 / 2 * np.sum(Psi ** 2, axis=0)
-    # Check that it´s the same first!
+    # Should be equivalent to the following snippet
+    # Phi, Sigma, Psi = np.linalg.svd(D, full_matrices=False)
+    # EPOD = 1 / 2 * np.sum(Psi ** 2, axis=0)
 
     return E

@@ -7,40 +7,43 @@ import tensorflow as tf
 
 # PARENT CLASS - STRUCTURE AND UTILS
 class AE(object):
+    """
+    AE parent class, containing initialization of parameters, encoder and decoder structure and common utils
+    """
 
-    def __init__(self, params, flags):
+    def __init__(self, PARAMS, FLAGS):
 
         super(AE, self).__init__()
 
         # AE parameters
-        self.beta = params['AE']['beta']           # CNN-VAE reg parameter
-        self.ksize = params['AE']['ksize']         # Kernel size of convolutional layers
-        self.psize = params['AE']['psize']         # Kernel size of pooling layers
-        self.ptypepool = params['AE']['ptypepool'] # Type of pooling padding (same or valid)
-        self.nstrides = params['AE']['nstrides']   # Number of strides in pooling
-        self.act = params['AE']['act']             # Activation function
-        self.reg_k = params['AE']['reg_k']         # Regularization kernel
-        self.reg_b = params['AE']['reg_b']         # Regularization bias
-        self.nr = params['AE']['nr']               # Latent space dimensions
+        self.beta = PARAMS['AE']['beta']             # CNN-VAE reg parameter
+        self.k_size = PARAMS['AE']['k_size']         # Kernel size of convolutional layers
+        self.p_size = PARAMS['AE']['p_size']         # Kernel size of pooling layers
+        self.p_pad = FLAGS['AE']['p_pad']            # Type of pooling padding (same or valid)
+        self.p_strides = PARAMS['AE']['p_strides']   # Number of strides in pooling
+        self.activation = FLAGS['AE']['activation']  # Activation function
+        self.k_reg = PARAMS['AE']['k_reg']           # Regularization kernel
+        self.k_b = PARAMS['AE']['k_b']               # Regularization bias
+        self.drp_rate = PARAMS['AE']['drp_rate']     # Dropout rate after dense layers
+        self.N_z = PARAMS['AE']['N_z']               # Latent space dimensions
 
         # Data parameters
-        self.n = params['flow']['n'] # Columns in grid
-        self.m = params['flow']['m'] # Rows in grid
-        self.k = params['flow']['k'] # Number of dimensions
+        self.N_x =  PARAMS['FLOW']['N_x'] # Columns in grid
+        self.N_y =  PARAMS['FLOW']['N_y'] # Rows in grid
+        self.K =    PARAMS['FLOW']['K']   # Number of dimensions
 
-        # Flags
-        self.flag_AE = flags['AE']           # AE type (C-CNN-AE, MD-CNN-AE, CNN-HAE, CNN-VAE)
-        self.flag_struct = flags['struct']   # AE structure type (simple, medium, complex)
-        self.flag_flow = flags['flow']       # Flow type (SC, FP)
-        self.flag_control = flags['control'] # With (1) or without (0) control
+        # FLAGS
+        self.flag_AE = FLAGS['AE']["type"]              # AE type (C-CNN-AE, MD-CNN-AE, CNN-HAE, CNN-VAE)
+        self.flag_struct = FLAGS['AE']['architecture']  # AE structure type (simple, medium, complex)
+        self.flag_control = FLAGS['AE']['control']      # With (1) or without (0) control embedded in the latent space
 
         # Latent space at the end of encoder
         if (self.flag_AE=='CNN-HAE'):
-            self.ne = 1
+            self.N_e = 1
         elif (self.flag_AE=='C-CNN-AE') or (self.flag_AE=='MD-CNN-AE'):
-            self.ne = self.nr
+            self.N_e = self.N_z
         elif (self.flag_AE=='CNN-VAE'):
-            self.ne = self.nr + self.nr
+            self.N_e = self.N_z + self.N_z
 
         # Define # filters in layer sequential
         if (self.flag_struct=='simple'):
@@ -48,144 +51,152 @@ class AE(object):
             self.filter_seq_d = [ 4,  4,  8,  8,   8,  16]
         elif (self.flag_struct=='medium'):
             self.filter_seq_e = [ 4,  4,  8, 16,  32,  64, 32]
-            self.filter_seq_d = [128, 256, 256, 128, 64, 32, 16, 16]
+            self.filter_seq_d = [32, 64, 32, 16, 8, 4, 4]
         elif (self.flag_struct=='complex'):
             self.filter_seq_e = [16, 16, 32, 64, 128, 256, 128]
-            self.filter_seq_d = [64, 128, 128, 64, 32, 16, 8, 8]
+            self.filter_seq_d = [128, 256, 256, 128, 64, 32, 16, 16]
 
         # Create encoder and decoder(s)
         self.encoder = self.create_encoder()
         if self.flag_AE == 'MD-CNN-AE':
-            for i in range(self.nr):
+            for i in range(self.N_z):
                 setattr(self, 'decoder' + str(i + 1), self.create_decoder())
         else:
             self.decoder = self.create_decoder()
 
     def create_encoder(self):
 
-        m_sub = self.m
-        n_sub = self.n
+        N_y_sub = self.N_y
+        N_x_sub = self.N_x
         i_seq = 0
 
         encoder = tf.keras.Sequential()
-        encoder.add(tf.keras.layers.Input(shape=(self.n, self.m, self.k)))
+        encoder.add(tf.keras.layers.Input(shape=(self.N_x, self.N_y, self.K)))
 
-        # 1st: conv & max pooling (if m x n = 392 x 196)
-        if self.n == 384:
-            encoder.add(tf.keras.layers.Conv2D(self.filter_seq_e[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
-            encoder.add(tf.keras.layers.MaxPooling2D(pool_size=self.psize, padding=self.ptypepool, strides=self.nstrides))
-            n_sub = (n_sub) // self.nstrides
-            m_sub = (m_sub) // self.nstrides
-            i_seq += 1
+        # 1st: conv & max pooling (if m x n = 384 x 192)
+        if N_x_sub == 384:
+            encoder.add(tf.keras.layers.Conv2D(self.filter_seq_e[i_seq], self.k_size, activation=self.activation, padding='same', kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
+            encoder.add(tf.keras.layers.MaxPooling2D(pool_size=self.p_size, padding=self.p_pad, strides=self.p_strides))
+            N_x_sub = (N_x_sub) // self.p_strides
+            N_y_sub = (N_y_sub) // self.p_strides
+        i_seq += 1
 
         # 2nd: conv & max pooling
-        encoder.add(layers.Conv2D(self.filter_seq_e[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
-        encoder.add(layers.MaxPooling2D(pool_size=self.psize, padding=self.ptypepool, strides=self.nstrides))
-        n_sub = (n_sub) // self.nstrides
-        m_sub = (m_sub) // self.nstrides
+        if N_x_sub == 192:
+            encoder.add(layers.Conv2D(self.filter_seq_e[i_seq], self.k_size, activation=self.activation, padding='same', kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
+            encoder.add(layers.MaxPooling2D(pool_size=self.p_size, padding=self.p_pad, strides=self.p_strides))
+            N_x_sub = (N_x_sub) // self.p_strides
+            N_y_sub = (N_y_sub) // self.p_strides
         i_seq += 1
 
         # 3rd: conv & max pooling
-        encoder.add(layers.Conv2D(self.filter_seq_e[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
-        encoder.add(layers.MaxPooling2D(pool_size=self.psize, padding=self.ptypepool, strides=self.nstrides))
-        n_sub = (n_sub) // self.nstrides
-        m_sub = (m_sub) // self.nstrides
+        encoder.add(layers.Conv2D(self.filter_seq_e[i_seq], self.k_size, activation=self.activation, padding='same', kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
+        encoder.add(layers.MaxPooling2D(pool_size=self.p_size, padding=self.p_pad, strides=self.p_strides))
+        N_x_sub = (N_x_sub) // self.p_strides
+        N_y_sub = (N_y_sub) // self.p_strides
         i_seq += 1
 
         # 4th: conv & max pooling
-        encoder.add(layers.Conv2D(self.filter_seq_e[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
-        encoder.add(layers.MaxPooling2D(pool_size=self.psize, padding=self.ptypepool, strides=self.nstrides))
-        n_sub = (n_sub) // self.nstrides
-        m_sub = (m_sub) // self.nstrides
+        encoder.add(layers.Conv2D(self.filter_seq_e[i_seq], self.k_size, activation=self.activation, padding='same', kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
+        encoder.add(layers.MaxPooling2D(pool_size=self.p_size, padding=self.p_pad, strides=self.p_strides))
+        N_x_sub = (N_x_sub) // self.p_strides
+        N_y_sub = (N_y_sub) // self.p_strides
         i_seq += 1
 
         # 5th: conv & max pooling
-        encoder.add(layers.Conv2D(self.filter_seq_e[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
-        encoder.add(layers.MaxPooling2D(pool_size=self.psize, padding=self.ptypepool, strides=self.nstrides))
-        n_sub = (n_sub) // self.nstrides
-        m_sub = (m_sub) // self.nstrides
+        encoder.add(layers.Conv2D(self.filter_seq_e[i_seq], self.k_size, activation=self.activation, padding='same', kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
+        encoder.add(layers.MaxPooling2D(pool_size=self.p_size, padding=self.p_pad, strides=self.p_strides))
+        N_x_sub = (N_x_sub) // self.p_strides
+        N_y_sub = (N_y_sub) // self.p_strides
         i_seq += 1
 
         # 6th: conv & max pooling
-        encoder.add(layers.Conv2D(self.filter_seq_e[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
-        encoder.add(layers.MaxPooling2D(pool_size=self.psize, padding=self.ptypepool, strides=self.nstrides))
-        n_sub = (n_sub) // self.nstrides
-        m_sub = (m_sub) // self.nstrides
+        encoder.add(layers.Conv2D(self.filter_seq_e[i_seq], self.k_size, activation=self.activation, padding='same', kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
+        encoder.add(layers.MaxPooling2D(pool_size=self.p_size, padding=self.p_pad, strides=self.p_strides))
+        N_x_sub = (N_x_sub) // self.p_strides
+        N_y_sub = (N_y_sub) // self.p_strides
 
         # fully connected
-        encoder.add(layers.Reshape([m_sub * n_sub * self.filter_seq_e[i_seq]]))
+        encoder.add(layers.Reshape([N_y_sub * N_x_sub * self.filter_seq_e[i_seq]]))
+        if self.drp_rate > 0:
+            encoder.add(layers.Dropout(self.drp_rate))
         i_seq += 1
         if self.flag_struct != 'simple':
-            encoder.add(layers.Dense(self.filter_seq_e[i_seq], activation=self.act, kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
+            encoder.add(layers.Dense(self.filter_seq_e[i_seq], activation=self.activation, kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
 
-        encoder.add(layers.Dense(self.ne, activation=self.act, kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
+        encoder.add(layers.Dense(self.N_e, activation=self.activation, kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
 
-        self.m_sub = m_sub
-        self.n_sub = n_sub
+        self.N_y_sub = N_y_sub
+        self.N_x_sub = N_x_sub
 
         return encoder
     def create_decoder(self):
 
-        m_sub = self.m_sub
-        n_sub = self.n_sub
+        N_y_sub = self.N_y_sub
+        N_x_sub = self.N_x_sub
         i_seq = 0
 
         decoder = tf.keras.Sequential()
 
         # fully connected
         if self.flag_struct != 'simple':
-            decoder.add(layers.Dense(m_sub * n_sub * self.filter_seq_d[i_seq], activation=self.act, kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
+            decoder.add(layers.Dense(self.filter_seq_d[i_seq], activation=self.activation, kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
             i_seq += 1
 
-        decoder.add(layers.Dense(m_sub * n_sub * self.filter_seq_d[i_seq], activation=self.act, kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
-        decoder.add(layers.Reshape([n_sub, m_sub, self.filter_seq_d[i_seq]]))
+        decoder.add(layers.Dense(N_y_sub * N_x_sub * self.filter_seq_d[i_seq], activation=self.activation, kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
+        if self.drp_rate > 0:
+            decoder.add(layers.Dropout(self.drp_rate))
+        decoder.add(layers.Reshape([N_x_sub, N_y_sub, self.filter_seq_d[i_seq]]))
         i_seq += 1
 
         # 1st: upsampling & (7th) conv
-        decoder.add(layers.UpSampling2D(self.psize))
-        decoder.add(layers.Conv2D(self.filter_seq_d[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
+        decoder.add(layers.UpSampling2D(self.p_size))
+        decoder.add(layers.Conv2D(self.filter_seq_d[i_seq], self.k_size, activation=self.activation, padding='same', kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
         i_seq += 1
 
         # 2nd: upsampling & (8th) conv
-        decoder.add(layers.UpSampling2D(self.psize))
-        decoder.add(layers.Conv2D(self.filter_seq_d[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
+        decoder.add(layers.UpSampling2D(self.p_size))
+        decoder.add(layers.Conv2D(self.filter_seq_d[i_seq], self.k_size, activation=self.activation, padding='same', kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
         i_seq += 1
 
         # 3rd: upsampling & (9th) conv
-        decoder.add(layers.UpSampling2D(self.psize))
-        decoder.add(layers.Conv2D(self.filter_seq_d[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
+        decoder.add(layers.UpSampling2D(self.p_size))
+        decoder.add(layers.Conv2D(self.filter_seq_d[i_seq], self.k_size, activation=self.activation, padding='same', kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
         i_seq += 1
 
         # 4th: upsampling & (10th) conv
-        decoder.add(layers.UpSampling2D(self.psize))
-        decoder.add(layers.Conv2D(self.filter_seq_d[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
+        decoder.add(layers.UpSampling2D(self.p_size))
+        decoder.add(layers.Conv2D(self.filter_seq_d[i_seq], self.k_size, activation=self.activation, padding='same', kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
         i_seq += 1
 
         # 5th: upsampling & (11th) conv
-        if self.flag_struct != 'simple':
-            decoder.add(layers.UpSampling2D(self.psize))
-            decoder.add(layers.Conv2D(self.filter_seq_d[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
+        if (self.flag_struct != 'simple') and (self.N_x == 192):
+            decoder.add(layers.UpSampling2D(self.p_size))
+            decoder.add(layers.Conv2D(self.filter_seq_d[i_seq], self.k_size, activation=self.activation, padding='same', kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
             i_seq += 1
 
         # 6th: upsampling & (12th) conv  (if m x n = 392 x 196)
-        if self.n == 384:
-            decoder.add(layers.UpSampling2D(self.psize))
-            decoder.add(layers.Conv2D(self.filter_seq_d[i_seq], self.ksize, activation=self.act, padding='same', kernel_regularizer=l2(self.reg_k), bias_regularizer=l2(self.reg_b)))
+        if self.N_x == 384:
+            decoder.add(layers.UpSampling2D(self.p_size))
+            decoder.add(layers.Conv2D(self.filter_seq_d[i_seq], self.k_size, activation=self.activation, padding='same', kernel_regularizer=l2(self.k_reg), bias_regularizer=l2(self.k_b)))
 
         if self.flag_struct == 'simple':
-            decoder.add(layers.UpSampling2D(self.psize))
+            decoder.add(layers.UpSampling2D(self.p_size))
 
-        decoder.add(layers.Conv2D(self.k, self.ksize, activation=self.act, padding='same'))
+        decoder.add(layers.Conv2D(self.K, self.k_size, activation=self.activation, padding='same'))
 
         return decoder
 
 
 class MD_CNN_AE(AE, Model):
+    """
+    Modal CNN-AE (linear summation of modes)
+    """
 
-    def __init__(self, params, flags):
+    def __init__(self, PARAMS, FLAGS):
 
         # Call parent constructor
-        super(MD_CNN_AE, self).__init__(params=params, flags=flags)
+        super(MD_CNN_AE, self).__init__(PARAMS=PARAMS, FLAGS=FLAGS)
 
 
     def extract_mode(self, input_img, ni):
@@ -205,7 +216,7 @@ class MD_CNN_AE(AE, Model):
     def call(self, input_img):
 
         encoded = self.encoder(input_img)
-        for i in range(self.nr):
+        for i in range(self.N_z):
             lat_vector = tf.keras.layers.Lambda(lambda x: x[:, i:i + 1])(encoded)
             decoded_sub = getattr(self, 'decoder'+str(i+1))(lat_vector)
 
@@ -217,11 +228,14 @@ class MD_CNN_AE(AE, Model):
         return decoded
 
 class CNN_HAE(AE, Model):
+    """
+    Hierarchical convolutional AE
+    """
 
-    def __init__(self, params, flags):
+    def __init__(self, PARAMS, FLAGS):
 
         # Call parent constructor
-        super(CNN_HAE, self).__init__(params=params, flags=flags)
+        super(CNN_HAE, self).__init__(PARAMS=PARAMS, FLAGS=FLAGS)
 
     def get_latent_vector(self, input_img):
 
@@ -242,11 +256,14 @@ class CNN_HAE(AE, Model):
         return decoded
 
 class CNN_VAE(AE, Model):
+    """
+    Variational convolutional AE
+    """
 
-    def __init__(self, params, flags):
+    def __init__(self, PARAMS, FLAGS):
 
         # Call parent constructor
-        super(CNN_VAE, self).__init__(params=params, flags=flags)
+        super(CNN_VAE, self).__init__(PARAMS=PARAMS, FLAGS=FLAGS)
 
 
     def get_latent_vector(self, input_img):
@@ -257,7 +274,7 @@ class CNN_VAE(AE, Model):
         return z_mean
     def sampling(self, z_mean, z_log_sigma):
 
-        epsilon = tf.keras.backend.random_normal(shape=(tf.keras.backend.shape(z_mean)[0], self.nr),
+        epsilon = tf.keras.backend.random_normal(shape=(tf.keras.backend.shape(z_mean)[0], self.N_z),
                                   mean=0., stddev=1.0)
         return z_mean + tf.keras.backend.exp(z_log_sigma) * epsilon
 
@@ -294,11 +311,14 @@ class CNN_VAE(AE, Model):
         return decoded
 
 class C_CNN_AE(AE, Model):
+    """
+    Basic convolutional AE
+    """
 
-    def __init__(self, params, flags):
+    def __init__(self, PARAMS, FLAGS):
 
         # Call parent constructor
-        super(C_CNN_AE, self).__init__(params=params, flags=flags)
+        super(C_CNN_AE, self).__init__(PARAMS=PARAMS, FLAGS=FLAGS)
 
     def get_latent_vector(self, input_img):
 
@@ -319,5 +339,3 @@ class C_CNN_AE(AE, Model):
             decoded = self.decoder(tf.keras.layers.Concatenate(axis=1)([encoded, control_vector]))
 
         return decoded
-
-

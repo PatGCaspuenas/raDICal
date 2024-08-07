@@ -8,3 +8,4 @@ pandas == 2.0.3
 lic == 0.4.5
 pip == 20.0.2
 keras-tuner == 1.4.7
+h5py == 3.11.0

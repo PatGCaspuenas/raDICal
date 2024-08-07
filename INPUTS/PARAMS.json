@@ -1,0 +1,48 @@
+{
+	"AE": {
+		
+		"N_epochs"    : 500,
+		"N_batch"     : 64,
+		"beta"        : 0,
+		"k_size"      : [3,3],
+		"p_size"      : [2,2],
+		"p_strides"   : 2,
+		"k_reg"       : 0,
+		"k_b"         : 0,
+		"N_z"         : 20,
+		"l_r"         : 1e-5,
+		"N_t_train"   : 10000,
+		"drp_rate"    : 0
+		
+	},
+
+	"FLOW": {
+		
+		"N_t"         : 10000
+		
+	},
+
+	"POD": {
+		
+		"N_t"         : 1000,
+		"r_threshold" : 0
+		
+	},
+
+	"DYN": {
+		
+		"N_epochs"    : 500,
+		"N_batch"     : 10000,
+		"l_r"         : 1,
+		"w_p"         : 20,
+		"w_d"         : 20,
+		"w_o"         : 1,
+		"w_prop"      : 300,
+		"k_reg"       : 0,
+		"DT"          : 0.1,
+		"hidden_units": [16],
+		"drp_rate"    : 0,
+		"dense_units" : []
+		
+	}
+}

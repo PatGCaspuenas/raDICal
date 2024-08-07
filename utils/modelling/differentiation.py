@@ -1,11 +1,20 @@
+# PACKAGES
 import numpy as np
-from utils.data.transform_data import get_mask_boundaries
+
+# LOCAL FUNCTIONS
+from utils.data.transformer import get_mask_boundaries
 
 def diff_time(D,t):
+    """
+    Differentiation in time
+    :param D: snapshot matrix (N_v, N_t)
+    :param t: time array
+    :return: time derivative of D
+    """
 
     # PARAMETERS AND INITIALIZATION
     dt = t[1] - t[0]
-    nt = np.shape(D)[1]
+    N_t = np.shape(D)[1]
     dDdt = np.zeros(np.shape(D))
 
     # CENTRAL DIFFERENCE
@@ -20,22 +29,27 @@ def diff_time(D,t):
     return dDdt
 
 def diff_1st_2D(grid,D):
+    """
+    1st order differentiation in space
+    :param grid: dictionary containing X, Y grids
+    :param D: 2D snapshot matrix (N_v, N_t)
+    :return: 1st order gradient of D (Dx, Dy)
+    """
 
     # PARAMETERS AND INITIALIZATION
     X = grid['X']
     Y = grid['Y']
 
-    m = np.shape(X)[0]
-    n = np.shape(X)[1]
-    nt = np.shape(D)[1]
+    N_y, N_x = np.shape(X)
+    N_t = np.shape(D)[1]
 
     dx = np.abs(X[0, 1] - X[0, 0])
     dy = np.abs(Y[0, 0] - Y[1, 0])
 
-    U = np.reshape(D[0:m * n,:], (m, n, nt), order='F')
-    V = np.reshape(D[m * n:2 * m* n, :], (m, n, nt), order='F')
+    U = np.reshape(D[0:N_x * N_y,:], (N_y, N_x, N_t), order='F')
+    V = np.reshape(D[N_x * N_y:2 * N_x * N_y, :], (N_y, N_x, N_t), order='F')
 
-    Ux, Uy, Vx, Vy = np.zeros((4, m, n, nt))
+    Ux, Uy, Vx, Vy = np.zeros((4, N_y, N_x, N_t))
 
     # GRADIENTS
     Ux[:, 1:-1, :] = (U[:, 2:, :] - U[:, 0:-2, :]) / (2 * dx)
@@ -74,51 +88,61 @@ def diff_1st_2D(grid,D):
     Vy[imask[0], imask[1], :] = 0
 
     # RESHAPE
-    Dx = np.concatenate((np.reshape(Ux, (m * n, nt), order='F'), np.reshape(Vx, (m * n, nt), order='F')), axis=0)
-    Dy = np.concatenate((np.reshape(Uy, (m * n, nt), order='F'), np.reshape(Vy, (m * n, nt), order='F')), axis=0)
+    Dx = np.concatenate((np.reshape(Ux, (N_x * N_y, N_t), order='F'), np.reshape(Vx, (N_x * N_y, N_t), order='F')), axis=0)
+    Dy = np.concatenate((np.reshape(Uy, (N_x * N_y, N_t), order='F'), np.reshape(Vy, (N_x * N_y, N_t), order='F')), axis=0)
 
     return Dx, Dy
 
 def get_2Dvorticity(grid,D):
+    """
+    Planar vorticity
+    :param grid: dictionary containing X, Y grids
+    :param D: snapshot matrix (N_v, N_t)
+    :return: vorticity out-of-plane component
+    """
 
     # PARAMETERS
     X = grid['X']
     Y = grid['Y']
 
-    m = np.shape(X)[0]
-    n = np.shape(X)[1]
+    N_y, N_x = np.shape(X)
 
     # GRADIENTS
     Dx, Dy = diff_1st_2D(grid, D)
 
-    Vx = Dx[m * n:2 * m * n, :]
-    Uy = Dy[0:m * n, :]
+    Vx = Dx[N_x * N_y:2 * N_x * N_y, :]
+    Uy = Dy[0:N_x * N_y, :]
 
     # PLANAR VORTICITY
     w = Vx - Uy
 
     return w
 def get_laplacian_2D(grid,D):
+    """
+    Laplacian of 2D flow
+    :param grid: dictionary containing X, Y grids
+    :param D: 2D snapshot matrix (N_v, N_t)
+    :return: Dxx + Dyy
+    """
 
     # PARAMETERS
     X = grid['X']
     Y = grid['Y']
 
-    m = np.shape(X)[0]
-    n = np.shape(X)[1]
-    nt = np.shape(D)[1]
+    N_y, N_x = np.shape(X)
+    N_t = np.shape(D)[1]
 
-    dx = np.abs(X[0, 0] - X[0, 1])
+    dx = np.abs(X[0, 1] - X[0, 0])
     dy = np.abs(Y[0, 0] - Y[1, 0])
 
     # INITIALIZATION
-    Uxx = np.zeros((m, n, nt))
-    Uyy = np.zeros((m, n, nt))
-    Vxx = np.zeros((m, n, nt))
-    Vyy = np.zeros((m, n, nt))
+    Uxx = np.zeros((N_y, N_x, N_t))
+    Uyy = np.zeros((N_y, N_x, N_t))
+    Vxx = np.zeros((N_y, N_x, N_t))
+    Vyy = np.zeros((N_y, N_x, N_t))
 
-    U = np.reshape(D[0:n * m, :], (m, n, nt), order='F')
-    V = np.reshape(D[n * m:2 * n * m, :], (m, n, nt), order='F')
+    U = np.reshape(D[0:N_x * N_y,:], (N_y, N_x, N_t), order='F')
+    V = np.reshape(D[N_x * N_y:2 * N_x * N_y, :], (N_y, N_x, N_t), order='F')
 
     # GRADIENTS
     Uxx[:, 1:-1, :] = (U[:, 2:, :] - 2 * U[:, 1:-1, :] + U[:, 0:-2, :]) / dx ** 2
@@ -157,30 +181,35 @@ def get_laplacian_2D(grid,D):
     Vyy[imask[0], imask[1], :] = 0
 
     # LAPLACIAN
-    Dxx = np.concatenate((np.reshape(Uxx,(n*m,nt),order='F'),np.reshape(Vxx,(n*m,nt),order='F')),axis=0)
-    Dyy = np.concatenate((np.reshape(Uyy,(n*m,nt),order='F'),np.reshape(Vyy,(n*m,nt),order='F')),axis=0)
+    Dxx = np.concatenate((np.reshape(Uxx, (N_x * N_y, N_t), order='F'), np.reshape(Vxx, (N_x * N_y, N_t), order='F')), axis=0)
+    Dyy = np.concatenate((np.reshape(Uyy, (N_x * N_y, N_t), order='F'), np.reshape(Vyy, (N_x * N_y, N_t), order='F')), axis=0)
 
     return Dxx + Dyy
 
 def get_divergence_2D(grid,D):
+    """
+    Divergence of 2D flow
+    :param grid: dictionary containing X, Y grids
+    :param D: 2D snapshot matrix (N_v, N_t)
+    :return: Ux + Vy
+    """
 
     # PARAMETERS
     X = grid['X']
     Y = grid['Y']
 
-    m = np.shape(X)[0]
-    n = np.shape(X)[1]
-    nt = np.shape(D)[1]
+    N_y, N_x = np.shape(X)
+    N_t = np.shape(D)[1]
 
     dx = np.abs(X[0, 0] - X[0, 1])
     dy = np.abs(Y[0, 0] - Y[1, 0])
 
     # INITIALIZATION
-    Ux = np.zeros((m, n, nt))
-    Vy = np.zeros((m, n, nt))
+    Ux = np.zeros((N_y, N_x, N_t))
+    Vy = np.zeros((N_y, N_x, N_t))
 
-    U = np.reshape(D[0:n * m, :], (m, n, nt), order='F')
-    V = np.reshape(D[n * m:2 * n * m, :], (m, n, nt), order='F')
+    U = np.reshape(D[0:N_x * N_y,:], (N_y, N_x, N_t), order='F')
+    V = np.reshape(D[N_x * N_y:2 * N_x * N_y, :], (N_y, N_x, N_t), order='F')
 
     # GRADIENTS
     Ux[:, 1:-1, :] = (U[:, 2:, :] - U[:, 0:-2, :]) / (2 * dx)
@@ -205,34 +234,39 @@ def get_divergence_2D(grid,D):
     Vy[imask[0], imask[1], :] = 0
 
     # DIVERGENCE
-    Div = np.reshape(Ux + Vy, (n * m, nt), order='F')
+    Div = np.reshape(Ux + Vy, (N_x * N_y, N_t), order='F')
 
     return Div
 
 def diff_2nd_2D(grid,D):
+    """
+    2nd order differentiation in space
+    :param grid: dictionary containing X, Y grids
+    :param D: 2D snapshot matrix (N_v, N_t)
+    :return: 2nd order gradient of D (Dxx, Dyy, Dxy)
+    """
 
     # PARAMETERS
     X = grid['X']
     Y = grid['Y']
 
-    m = np.shape(X)[0]
-    n = np.shape(X)[1]
-    nt = np.shape(D)[1]
+    N_y, N_x = np.shape(X)
+    N_t = np.shape(D)[1]
 
     dx = np.abs(X[0, 0] - X[0, 1])
     dy = np.abs(Y[0, 0] - Y[1, 0])
 
     # INITIALIZATION
-    Uxx = np.zeros((m,n,nt))
-    Uyy = np.zeros((m,n,nt))
-    Uxy = np.zeros((m,n,nt))
+    Uxx = np.zeros((N_y, N_x, N_t))
+    Uyy = np.zeros((N_y, N_x, N_t))
+    Uxy = np.zeros((N_y, N_x, N_t))
 
-    Vxx = np.zeros((m, n, nt))
-    Vyy = np.zeros((m, n, nt))
-    Vxy = np.zeros((m, n, nt))
+    Vxx = np.zeros((N_y, N_x, N_t))
+    Vyy = np.zeros((N_y, N_x, N_t))
+    Vxy = np.zeros((N_y, N_x, N_t))
 
-    U = np.reshape(D[0:n * m, :], (m, n, nt), order='F')
-    V = np.reshape(D[n * m:2 * n * m, :], (m, n, nt), order='F')
+    U = np.reshape(D[0:N_x * N_y, :], (N_y, N_x, N_t), order='F')
+    V = np.reshape(D[N_x * N_y:2 * N_x * N_y, :], (N_y, N_x, N_t), order='F')
 
     # GRADIENTS
     Uxx[:, 1:-1, :] = (U[:, 2:, :] - 2 * U[:, 1:-1, :] + U[:, 0:-2, :]) / dx ** 2
@@ -287,28 +321,33 @@ def diff_2nd_2D(grid,D):
     # CORRECTION FOR VXY AND UXY REQUIRED
 
     # RESHAPE
-    Dxx = np.concatenate((np.reshape(Uxx,(n*m,nt),order='F'),np.reshape(Vxx,(n*m,nt),order='F')),axis=0)
-    Dyy = np.concatenate((np.reshape(Uyy,(n*m,nt),order='F'),np.reshape(Vyy,(n*m,nt),order='F')),axis=0)
-    Dxy = np.concatenate((np.reshape(Uxy,(n*m,nt),order='F'),np.reshape(Vxy,(n*m,nt),order='F')),axis=0)
+    Dxx = np.concatenate((np.reshape(Uxx,(N_x * N_y, N_t),order='F'),np.reshape(Vxx,(N_x * N_y, N_t),order='F')),axis=0)
+    Dyy = np.concatenate((np.reshape(Uyy,(N_x * N_y, N_t),order='F'),np.reshape(Vyy,(N_x * N_y, N_t),order='F')),axis=0)
+    Dxy = np.concatenate((np.reshape(Uxy,(N_x * N_y, N_t),order='F'),np.reshape(Vxy,(N_x * N_y, N_t),order='F')),axis=0)
 
     return Dxx, Dyy, Dxy
 
 def diff_1st_1D(grid,D):
+    """
+    1st order differentiation in space
+    :param grid: dictionary containing X, Y grids
+    :param U: 1D snapshot matrix (N_v, N_t)
+    :return: 1st order gradient of U (Ux, Uy)
+    """
 
     # PARAMETERS AND INITIALIZATION
     X = grid['X']
     Y = grid['Y']
 
-    m = np.shape(X)[0]
-    n = np.shape(X)[1]
-    nt = np.shape(D)[1]
+    N_y, N_x = np.shape(X)
+    N_t = np.shape(D)[1]
 
     dx = np.abs(X[0, 1] - X[0, 0])
     dy = np.abs(Y[0, 0] - Y[1, 0])
 
-    U = np.reshape(D[0:m * n,:], (m, n, nt), order='F')
+    U = np.reshape(D[0:N_x * N_y,:], (N_y, N_x, N_t), order='F')
 
-    Ux, Uy = np.zeros((2, m, n, nt))
+    Ux, Uy = np.zeros((2, N_y, N_x, N_t))
 
     # GRADIENTS
     Ux[:, 1:-1, :] = (U[:, 2:, :] - U[:, 0:-2, :]) / (2 * dx)
@@ -333,7 +372,7 @@ def diff_1st_1D(grid,D):
     Uy[imask[0], imask[1], :] = 0
 
     # RESHAPE
-    Dx = np.reshape(Ux, (m * n, nt), order='F')
-    Dy = np.reshape(Uy, (m * n, nt), order='F')
+    Dx = np.reshape(Ux, (N_x * N_y, N_t), order='F')
+    Dy = np.reshape(Uy, (N_x * N_y, N_t), order='F')
 
     return Dx, Dy

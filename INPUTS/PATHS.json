@@ -1,0 +1,24 @@
+{
+	"OUTPUTS"      : ".\\OUTPUTS",
+
+	"INPUT_READER" : ".\\INPUTS\\USER_INPUTS.csv",
+	
+	"INPUT_COMMAND": ".\\INPUTS\\USER_COMMANDS.csv",
+	
+	"GRID"         : ".\\DATA\\FP_grid.h5",
+
+	"FLOW_MEAN"    : ".\\DATA\\others\\FPc_Dmean.npy",
+	
+	"FLOW_TRAIN"   : ".\\DATA\\FPc_00k_70k.h5",
+	
+	"FLOW_TEST"    : ".\\DATA\\FPc_00k_03k.h5",
+	
+	"LATENT_TRAIN" : ".\\DATA\\latent\\FPcz_00k_70k_CCNNAE.h5",
+	
+	"LATENT_TEST"  : ".\\DATA\\latent\\FPcz_00k_03k_CCNNAE.h5",
+	
+	"MODEL_AE"     : [".\\MODELS\\encoder_CCNNAE", ".\\MODELS\\decoder_CCNNAE"],
+	
+	"MODEL_DYN"    : [".\\MODELS\\LSTM_layer", ".\\MODELS\\LSTM_dense"]
+
+}

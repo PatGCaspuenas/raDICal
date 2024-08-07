@@ -1,61 +1,92 @@
+# PACKAGES
 import numpy as np
 import numpy.fft as fft
 import sklearn.metrics
 
-from utils.data.transform_data import z_window2concat
+# LOCAL FUNCTIONS
+from utils.data.transformer import window2zcat
 
-def get_RMSE_z(Xtrue, X, n_p=0):
+def get_RMSE_z(Xtrue, X, w_prop=0):
+    """
+    Estimation of Root Mean Square Error (normalized with standard deviation of ground truth latent coordinate)
+    for latent space up to a certain length of the PW
+    :param Xtrue: ground truth of latent space (N_t, N_z) or (N_w, N_t, N_z)
+    :param X: reconstructed latent space (N_t, N_z) or (N_w, N_t, N_z)
+    :param w_prop: PW window to evaluate RMSE
+    :return: RMSE for each latent coordinate
+    """
 
+    # If latent space is given in PW shape, transform to raw shape
     if Xtrue.ndim == 3:
-        Xtrue = z_window2concat(Xtrue, n_p)
-        X = z_window2concat(X, n_p)
+        Xtrue = window2zcat(Xtrue, w_prop)
+        X = window2zcat(X, w_prop)
 
     # PARAMETERS
-    nr = np.shape(Xtrue)[1]
+    N_z = np.shape(Xtrue)[1]
 
-    RMSE = np.zeros((nr))
-    for i in range(nr):
-        RMSE[i] = np.sqrt(np.mean((Xtrue[:, i] - X[:, i]) ** 2, axis=0))
+    # Evaluate RMSE for each latent coordinate
+    RMSE = np.zeros((N_z))
+    for i in range(N_z):
+        std_i = np.std(Xtrue[:, i])
+        RMSE[i] = np.sqrt(np.mean((Xtrue[:, i] - X[:, i]) ** 2, axis=0)) / std_i
 
     return RMSE
 
-def get_max_ntpred(Xtrue, X, n_p):
+def get_max_w_prop(Xtrue, X, w_p):
+    """
+    Estimation of number of time instants where prediction is above a certain R2 threshold
+    :param Xtrue: ground truth of latent space (N_w, N_t, N_z)
+    :param X: reconstructed latent space (N_w, N_t, N_z)
+    :param w_p: PW window to evaluate RMSE
+    :return: number of prediction time instants where condition holds
+    """
 
     # PARAMETERS
-    nW, nt, nr = np.shape(Xtrue)
+    N_w, N_t, N_z = np.shape(Xtrue)
 
-    ntpred = np.zeros((nW))
+    w_prop_s = np.zeros((N_w))
     R2threshold = 0.9
 
-    for w in range(nW):
-        for t in range(n_p, nt):
+    # For each window, number of time instants is evaluated. Mean R2 condition is applied
+    for w in range(N_w):
+        for t in range(w_p, N_t):
             R2 = get_R2factor(Xtrue[w, :t, :], X[w, :t, :], 'C')
-            if any(R2 < R2threshold):
-                ntpred[w] = t
+            if (np.mean(R2) < R2threshold):
+                w_prop_s[w] = t
                 break
 
-    ntpred = int(np.mean(ntpred))
+    # Mean over all windows
+    w_prop_s = int(np.mean(w_prop_s))
 
-    return ntpred
+    return w_prop_s
 
-def get_R2factor(Xtrue, X, flag_R2method, n_p =0):
+def get_R2factor(Xtrue, X, flag_R2method, w_prop =0):
+    """
+    Estimates R2 factor for latent space up to a certain length of the PW
+    :param Xtrue: ground truth of latent space (N_t, N_z) or (N_w, N_t, N_z)
+    :param X: reconstructed latent space (N_t, N_z) or (N_w, N_t, N_z)
+    :param w_prop: PW window to evaluate RMSE
+    :param flag_R2method: 'D' if deterministic, 'C' if correlation
+    :return: R2 factor for each latent coordinate
+    """
 
+    # If latent space is given in PW shape, transform to raw shape
     if Xtrue.ndim == 3:
-        Xtrue = z_window2concat(Xtrue, n_p)
-        X = z_window2concat(X, n_p)
+        Xtrue = window2zcat(Xtrue, w_prop)
+        X = window2zcat(X, w_prop)
 
     # PARAMETERS
     if Xtrue.ndim == 1:
-        nr = 1
+        N_z = 1
         Xtrue = np.copy(Xtrue).reshape(-1,1)
         X = np.copy(X).reshape(-1, 1)
     else:
-        nr = np.shape(Xtrue)[1]
+        N_z = np.shape(Xtrue)[1]
 
-    R2 = np.zeros(nr)
+    R2 = np.zeros(N_z)
 
     # COMPUTE R2 FOR EACH MODE
-    for i in range(nr):
+    for i in range(N_z):
 
         if flag_R2method == 'D': # DETERMINATION
             R2[i] = 1 - np.sum((Xtrue[:,i] - X[:,i]) ** 2) / np.sum((Xtrue[:,i] - np.mean(Xtrue[:,i])) ** 2)
@@ -69,23 +100,31 @@ def get_R2factor(Xtrue, X, flag_R2method, n_p =0):
     return R2
 
 
-def get_latent_correlation_matrix(z_test):
+def get_latent_correlation_matrix(z):
+    """
+    Obtains correlation matrix for latent space
+    :param z: latent space (N_t, N_z)
+    :return: determinant of correlation matrix, mean of corr matrix and correlation matrx
+    """
 
-    nr = np.shape(z_test)[1]
-    nt = np.shape(z_test)[0]
+    # Parameters
+    N_z = np.shape(z)[1]
+    N_t = np.shape(z)[0]
 
-    Rij = np.zeros((nr, nr))
+    Rij = np.zeros((N_z, N_z))
 
-    Cij = np.abs(np.cov(z_test.T))
+    # Correlation matrix
+    Cij = np.abs(np.cov(z.T))
 
-    for i in range(nr):
-        for j in range(nr):
+    for i in range(N_z):
+        for j in range(N_z):
             Rij[i,j] = Cij[i,j] / np.sqrt(Cij[i,i] * Cij[j,j])
 
+    # Mean of correlation matrix for upper triangle of the latter
     meanR = 0
     c = 0
-    for i in range(nr):
-        for j in range(i+1,nr):
+    for i in range(N_z):
+        for j in range(i+1,N_z):
             meanR += Rij[i,j]
             c += 1
 
@@ -94,25 +133,39 @@ def get_latent_correlation_matrix(z_test):
 
     return detR, meanR, Rij
 
-def get_latent_MI(z_test):
+def get_latent_MI(z):
+    """
+    Estimation of Mutual Information (nonlinear correlation) for latent space
+    :param z: latent space (N_t, N_z)
+    :return: Mutual information matrix
+    """
 
-    nr = np.shape(z_test)[1]
-    MI = np.zeros((nr, nr))
+    # Parameters
+    N_z = np.shape(z)[1]
+    MI = np.zeros((N_z, N_z))
 
-    for i in range(nr):
-        for j in range(i,nr):
+    # Mutual Information matrix
+    for i in range(N_z):
+        for j in range(i,N_z):
 
-            MI[i,j] = sklearn.metrics.mutual_info_score(z_test[:, i], z_test[:, j])
+            MI[i,j] = sklearn.metrics.mutual_info_score(z[:, i], z[:, j])
 
     return MI
 
-def get_frequencies(z_test):
+def get_frequencies(z):
+    """
+    Estimation of most relevant frequencies for each latent coordinate
+    :param z: latent space (N_t, N_z)
+    :return: frequency array
+    """
 
-    nr = np.shape(z_test)[1]
+    # Parameters
+    N_z = np.shape(z)[1]
     peaks = []
 
-    for i in range(nr):
-        spectrum = fft.fft(z_test[:, i])
+    # FFT of each coordinate and frequency retrieval above a certain threhold (50% of highest peak)
+    for i in range(N_z):
+        spectrum = fft.fft(z[:, i])
         freq = fft.fftfreq(len(spectrum), d=0.1)
         threshold = 0.5 * max(abs(spectrum))
         mask = (abs(spectrum) > threshold)

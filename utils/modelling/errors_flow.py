@@ -1,23 +1,33 @@
+# PACKAGES
 import numpy as np
 import sklearn.metrics
 
-from utils.data.transform_data import window2flow
+# LOCAL FUNCTIONS
+from utils.data.transformer import window2flow
 
 def get_RMSE(Dtrue, D, B, flag_type):
+    """
+    Estimates Root Mean Square Error (normalized with standard deviation of ground truth flow) for snapshot matrix
+    :param Dtrue: ground truth of snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)
+    :param D: reconstructed snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)
+    :param B: mask grid (1 if body, 0 otherwise)
+    :param flag_type: 'W' if whole error, 'S' if spatial, 'T' if temporal
+    :return: RMSE
+    """
 
+    # If flow is in PW format, convert to raw format
     if Dtrue.ndim == 3:
         Dtrue = window2flow(Dtrue)
         D = window2flow(D)
 
     # PARAMETERS
-    m = np.shape(B)[0]
-    n = np.shape(B)[1]
+    N_y, N_x = np.shape(B)
 
     # GET DATA OUTSIDE MASK
-    B = np.reshape(B, (m*n), order='F')
-    if np.shape(D)[0] == m * n:
+    B = np.reshape(B, (N_y * N_x), order='F')
+    if np.shape(D)[0] == (N_y * N_x):
         i_nonmask = np.where(np.isnan(B))
-    elif np.shape(D)[0] == 2 * m * n:
+    elif np.shape(D)[0] == 2 * (N_y * N_x):
         i_nonmask = np.where(np.isnan(np.concatenate((B, B))))
     else:
         i_nonmask = np.where(np.isnan(np.concatenate((B,B,B))))
@@ -39,20 +49,27 @@ def get_RMSE(Dtrue, D, B, flag_type):
     return RMSE
 
 def get_CEA(Dtrue, D, B):
+    """
+    Estimates Cumulative Energetic Accuracy (similar to CE) for snapshot matrix
+    :param Dtrue: ground truth of snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)
+    :param D: reconstructed snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)
+    :param B: mask grid (1 if body, 0 otherwise)
+    :return: CEA
+    """
 
+    # If flow is in PW format, convert to raw format
     if Dtrue.ndim == 3:
         Dtrue = window2flow(Dtrue)
         D = window2flow(D)
 
     # PARAMETERS
-    m = np.shape(B)[0]
-    n = np.shape(B)[1]
+    N_y, N_x = np.shape(B)
 
     # GET DATA OUTSIDE MASK
-    B = np.reshape(B, (m*n), order='F')
-    if np.shape(D)[0] == m * n:
+    B = np.reshape(B, (N_y * N_x), order='F')
+    if np.shape(D)[0] == (N_y * N_x):
         i_nonmask = np.where(np.isnan(B))
-    elif np.shape(D)[0] == 2 * m * n:
+    elif np.shape(D)[0] == 2 * (N_y * N_x):
         i_nonmask = np.where(np.isnan(np.concatenate((B, B))))
     else:
         i_nonmask = np.where(np.isnan(np.concatenate((B,B,B))))
@@ -66,16 +83,42 @@ def get_CEA(Dtrue, D, B):
     return CEA
 
 def get_cos_similarity(Dtrue, D, B):
+    """
+    Estimates temporal cosine similarity Sc for snapshot matrix
+    :param Dtrue: ground truth of snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)
+    :param D: reconstructed snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)
+    :param B: mask grid (1 if body, 0 otherwise)
+    :return: Sc
+    """
 
+    # If flow is in PW format, convert to raw format
     if Dtrue.ndim == 3:
         Dtrue = window2flow(Dtrue)
         D = window2flow(D)
 
     # PARAMETERS
-    m = np.shape(B)[0]
-    n = np.shape(B)[1]
-    nt = np.shape(Dtrue)[1]
+    N_y, N_x = np.shape(B)
+    N_t = np.shape(Dtrue)[1]
 
+    # GET DATA OUTSIDE MASK
+    B = np.reshape(B, (N_y * N_x), order='F')
+    if np.shape(D)[0] == (N_y * N_x):
+        i_nonmask = np.where(np.isnan(B))
+    elif np.shape(D)[0] == 2 * (N_y * N_x):
+        i_nonmask = np.where(np.isnan(np.concatenate((B, B))))
+    else:
+        i_nonmask = np.where(np.isnan(np.concatenate((B,B,B))))
+
+    Xtrue = Dtrue[i_nonmask, :]
+    X = D[i_nonmask, :]
+    Sc = 0
+    for t in range(N_t):
+        Sc = Sc + np.sqrt(np.sum(np.multiply(Xtrue[0,:,t],X[0,:,t]))) / (np.linalg.norm(Xtrue[0,:,t]))
+    Sc =  Sc / N_t
+
+    return Sc
+
+    # Other implementation of Sc
     # GET DATA OUTSIDE MASK
     # i_nonmask = np.where(np.isnan(B))
     # if np.shape(D)[0] == m * n:
@@ -106,24 +149,6 @@ def get_cos_similarity(Dtrue, D, B):
     #     aux = SC[t, :, :].T
     #     Sc =  Sc + np.sum(aux[i_nonmask])
     # Sc = Sc / (nv_nonmask * nt)
-
-
-    B = np.reshape(B, (m*n), order='F')
-    if np.shape(D)[0] == m * n:
-        i_nonmask = np.where(np.isnan(B))
-    elif np.shape(D)[0] == 2 * m * n:
-        i_nonmask = np.where(np.isnan(np.concatenate((B, B))))
-    else:
-        i_nonmask = np.where(np.isnan(np.concatenate((B,B,B))))
-
-    Xtrue = Dtrue[i_nonmask, :]
-    X = D[i_nonmask, :]
-    Sc = 0
-    for t in range(nt):
-        Sc = Sc + np.sqrt(np.sum(np.multiply(Xtrue[0,:,t],X[0,:,t]))) / (np.linalg.norm(Xtrue[0,:,t]))
-    Sc =  Sc / nt
-
-    return Sc
 
 
 

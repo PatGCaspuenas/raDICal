@@ -2,51 +2,42 @@
 import numpy as np
 import tensorflow as tf
 import random
-from keras.callbacks import Callback, EarlyStopping
-from timeit import default_timer as timer
+from keras.callbacks import EarlyStopping
 
 # LOCAL FUNCTIONS
 from utils.AEs.classes import CNN_VAE, CNN_HAE, C_CNN_AE, MD_CNN_AE
-from utils.data.transform_data import raw2CNNAE
+from utils.data.transformer import raw2CNNAE
+from utils.data.logger import MyLogger
+from utils.modelling.custom_losses import null_loss, energy_loss
 
-class MyLogger(Callback):
-    def __init__(self,logging, epochs):
-        super(MyLogger, self).__init__()
-        self.logging = logging
-        self.n_epoch = epochs
-    def on_train_batch_end(self, batch, logs=None):
-        self.batch_n += 1
-    def on_epoch_begin(self, epoch, logs=None):
-        self.starttime = timer()
-        self.batch_n = 0
-    def on_epoch_end(self, epoch, logs=None):
-        self.logging.info(f'Epoch {epoch}/{self.n_epoch} - {self.batch_n}/{self.batch_n} - {(timer()-self.starttime)}s - {logs}')
 
-# def energy_loss(input_img, decoded):
-#     return tf.keras.ops.sum(tf.keras.ops.square(input_img - decoded)) / tf.keras.ops.sum(tf.keras.ops.square(input_img))
-
-def energy_loss(input_img, decoded):
-    return tf.keras.backend.sum(tf.keras.backend.square(input_img - decoded)) / tf.keras.backend.sum(tf.keras.backend.square(input_img))
-def null_loss(input_img, decoded):
-    return 0
-
-def train_AE(params, flags, grid, Ddt, logging, b=0):
+def train_AE(PARAMS, FLAGS, grid, D, logging, b=0):
+    """
+    Trains and compiles AE
+    :param PARAMS: dictionary of parameters
+    :param FLAGS: dictionary of flags
+    :param grid: dictionary containing X,Y and mask grids
+    :param D: snapshot matrix (train + val set)
+    :param logging: logger object
+    :param b: control vector (if any)
+    :return: AE class model
+    """
 
     # FLAGS
-    flag_AE = flags['AE']
-    flag_control = flags['control']
+    flag_AE = FLAGS['AE']['type']
+    flag_control = FLAGS['AE']['control']
 
     # PARAMETERS
-    nr = params['AE']['nr']
-    n_epochs = params['AE']['n_epochs']
-    batch_size = params['AE']['batch_size']
-    lr = params['AE']['lr']
+    N_z = PARAMS['AE']['N_z']
+    N_epochs = PARAMS['AE']['N_epochs']
+    N_batch = PARAMS['AE']['N_batch']
+    l_r = PARAMS['AE']['l_r']
 
     # TRAINING AND VALIDATION DATA
-    X_train, X_val, b_train, b_val = raw2CNNAE(grid, Ddt, flag_split=1, flag_control=flags['control'], u=b)
-    nt_train = np.shape(X_train)[0]
-    nt_val = np.shape(X_val)[0]
-    logging.info(f'{nt_train} training snapshots, {nt_val} validation snapshots')
+    X_train, X_val, b_train, b_val = raw2CNNAE(grid, D, flag_train=1, flag_control=FLAGS['control'], u=b)
+    N_t_train = np.shape(X_train)[0]
+    N_t_val = np.shape(X_val)[0]
+    logging.info(f'{N_t_train} training snapshots, {N_t_val} validation snapshots')
 
     # SHUFFLE TRAIN AND VALIDATION SETS IN SAME WAY
     i_train = [*range(np.shape(X_train)[0])]
@@ -54,38 +45,39 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
 
     i_val = [*range(np.shape(X_val)[0])]
     random.shuffle(i_val)
-    logger = MyLogger(logging, n_epochs)
+    logger = MyLogger(logging, N_epochs)
     ES = EarlyStopping(monitor="val_energy_loss", patience=50)
 
     # DEFINE AE TYPE
     if flag_AE == 'CNN-VAE':
-        AE = CNN_VAE(params, flags)
+        AE = CNN_VAE(PARAMS, FLAGS)
     elif flag_AE == 'MD-CNN-AE':
-        AE = MD_CNN_AE(params, flags)
+        AE = MD_CNN_AE(PARAMS, FLAGS)
     elif flag_AE == 'C-CNN-AE':
-        AE = C_CNN_AE(params, flags)
+        AE = C_CNN_AE(PARAMS, FLAGS)
 
 
     if flag_AE=='CNN-HAE':
 
         AE = {}
-        for i in range(nr):
+        for i in range(N_z):
 
             # CREATE AE
-            AE['m' + str(i + 1)] = CNN_HAE(params, flags)
-            opt = tf.keras.optimizers.Adam(learning_rate=lr)
+            AE['m' + str(i + 1)] = CNN_HAE(PARAMS, FLAGS)
+            opt = tf.keras.optimizers.Adam(learning_rate=l_r)
 
             # LOSS
             AE['m' + str(i + 1)].compile(optimizer=opt, loss='mse', metrics=[energy_loss])
+            logging.info(f'{flag_AE} compilation COMPLETED...')
 
             # FIT
             if i == 0:
 
                 AE['m' + str(i + 1)].fit([X_train[i_train, :, :, :]], X_train[i_train, :, :, :],
-                                         epochs=n_epochs,
+                                         epochs=N_epochs,
                                          shuffle=False,
                                          validation_data=([X_val[i_val, :, :, :]], X_val[i_val, :, :, :]),
-                                         batch_size=batch_size,
+                                         N_batch=N_batch,
                                          verbose=2,
                                          callbacks=[logger, ES])
                 z_train = AE['m' + str(i + 1)].get_latent_vector(X_train)
@@ -95,12 +87,12 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
 
                 AE['m' + str(i + 1)].fit([X_train[i_train, :, :, :], tf.convert_to_tensor(z_train.numpy()[i_train, :])],
                                          X_train[i_train, :, :, :],
-                                         epochs=n_epochs,
+                                         epochs=N_epochs,
                                          shuffle=False,
                                          validation_data=(
                                          [X_val[i_val, :, :, :], tf.convert_to_tensor(z_val.numpy()[i_val, :])],
                                          X_val[i_val, :, :, :]),
-                                         batch_size=batch_size,
+                                         N_batch=N_batch,
                                          verbose=2,
                                          callbacks=[logger, ES])
                 z_train = tf.keras.layers.Concatenate(axis=1)([z_train, AE['m' + str(i + 1)].get_latent_vector(X_train)])
@@ -109,11 +101,13 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
     else:
 
         # LOSS
-        opt = tf.keras.optimizers.Adam(learning_rate=lr)
-        if flag_AE=='CNN-VAE':
-            AE.compile(optimizer=opt, loss=null_loss, metrics=[energy_loss])
+        opt = tf.keras.optimizers.Adam(learning_rate=l_r)
+        if (flag_AE=='CNN-VAE') or (flag_AE=='C-CNN-AE-c'):
+            AE.compile(optimizer=opt, loss=null_loss, metrics=[energy_loss, 'mse'])
         else:
             AE.compile(optimizer=opt, loss='mse', metrics=[energy_loss])
+        logging.info(f'{flag_AE} compilation COMPLETED...')
+
         # INPUT
         if flag_control:
             input_train = [X_train[i_train,:,:,:], tf.convert_to_tensor(b_train[i_train,:])]
@@ -124,13 +118,14 @@ def train_AE(params, flags, grid, Ddt, logging, b=0):
 
         # FIT
         AE.fit(input_train, X_train[i_train,:,:,:],
-                                         epochs=n_epochs,
+                                         epochs=N_epochs,
                                          shuffle=False,
                                          validation_data=(input_val, X_val[i_val,:,:,:]),
-                                         batch_size=batch_size,
+                                         batch_size=N_batch,
                                          verbose=2,
                                          callbacks=[logger, ES])
 
+    logging.info(f'{flag_AE} training process COMPLETED...')
     return AE
 
 
