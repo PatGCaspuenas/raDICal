@@ -12,6 +12,7 @@ from utils.modelling.custom_losses import energy_loss, null_loss, MeanSquaredErr
 def load_model_AE(PARAMS, FLAGS, PATHS):
     """
     Loads weigths for AE model
+
     :param PARAMS: dictionary of parameters
     :param FLAGS: dictionary of flags
     :param PATHS: dictionary of paths
@@ -73,6 +74,7 @@ def load_model_AE(PARAMS, FLAGS, PATHS):
 def load_model_dyn(PARAMS, FLAGS, PATHS):
     """
     Loads weigths for DYN model
+
     :param PARAMS: dictionary of parameters
     :param FLAGS: dictionary of flags
     :param PATHS: dictionary of paths

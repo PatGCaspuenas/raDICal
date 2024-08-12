@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils.modelling package &mdash; raDICal 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=af2ce170"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="utils.dynamics package" href="utils.dynamics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            raDICal
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">AEs_wControl_user</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="utils.html">utils package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="utils.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="utils.AEs.html">utils.AEs package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils.POD.html">utils.POD package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils.data.html">utils.data package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils.dynamics.html">utils.dynamics package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">utils.modelling package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#module-utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">raDICal</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">AEs_wControl_user</a></li>
+          <li class="breadcrumb-item"><a href="utils.html">utils package</a></li>
+      <li class="breadcrumb-item active">utils.modelling package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/utils.modelling.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="utils-modelling-package">
+<h1>utils.modelling package<a class="headerlink" href="#utils-modelling-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-utils.modelling.control">
+<span id="utils-modelling-control-module"></span><h2>utils.modelling.control module<a class="headerlink" href="#module-utils.modelling.control" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.control.rotation2coords">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.control.</span></span><span class="sig-name descname"><span class="pre">rotation2coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/control.html#rotation2coords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.control.rotation2coords" title="Permalink to this definition"></a></dt>
+<dd><p>Estimates for all cylinders the rotation coordinates along their surface after a given delta t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong><strong>,</strong><strong>y</strong> – cartesian coordinates of specific surface coordinate of cylinder(s) (at r = R)</p></li>
+<li><p><strong>x0</strong><strong>,</strong><strong>y0</strong> – cartesian coordinates of cylinder centers</p></li>
+<li><p><strong>v</strong> – linear velocity of cylinder surface (at r = R)</p></li>
+<li><p><strong>Dt</strong> – delta time</p></li>
+<li><p><strong>R</strong> – cylinder radius</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>cartesian coordinates of cylinder coordinates at r = R after rotation</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-utils.modelling.custom_losses">
+<span id="utils-modelling-custom-losses-module"></span><h2>utils.modelling.custom_losses module<a class="headerlink" href="#module-utils.modelling.custom_losses" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="utils.modelling.custom_losses.MeanSquaredError">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">utils.modelling.custom_losses.</span></span><span class="sig-name descname"><span class="pre">MeanSquaredError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean_squared_error'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/custom_losses.html#MeanSquaredError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.custom_losses.MeanSquaredError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MeanSquaredError</span></code></p>
+<p>Provides mean squared error metrics: loss / residuals.
+Use mean squared error for regression problems with one or more outputs.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="utils.modelling.custom_losses.MeanSquaredError.residuals">
+<span class="sig-name descname"><span class="pre">residuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/custom_losses.html#MeanSquaredError.residuals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.custom_losses.MeanSquaredError.residuals" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.custom_losses.energy_loss">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.custom_losses.</span></span><span class="sig-name descname"><span class="pre">energy_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decoded</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/custom_losses.html#energy_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.custom_losses.energy_loss" title="Permalink to this definition"></a></dt>
+<dd><p>Computes Cumulative Energetic Accuracy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_img</strong> – ground truth</p></li>
+<li><p><strong>decoded</strong> – reconstructed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>CEA</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.custom_losses.null_loss">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.custom_losses.</span></span><span class="sig-name descname"><span class="pre">null_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decoded</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/custom_losses.html#null_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.custom_losses.null_loss" title="Permalink to this definition"></a></dt>
+<dd><p>Null loss</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_img</strong> – ground truth</p></li>
+<li><p><strong>decoded</strong> – reconstructed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>0</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-utils.modelling.differentiation">
+<span id="utils-modelling-differentiation-module"></span><h2>utils.modelling.differentiation module<a class="headerlink" href="#module-utils.modelling.differentiation" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.differentiation.diff_1st_1D">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.differentiation.</span></span><span class="sig-name descname"><span class="pre">diff_1st_1D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/differentiation.html#diff_1st_1D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.differentiation.diff_1st_1D" title="Permalink to this definition"></a></dt>
+<dd><p>1st order differentiation in space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> – dictionary containing X, Y grids</p></li>
+<li><p><strong>U</strong> – 1D snapshot matrix (N_v, N_t)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>1st order gradient of U (Ux, Uy)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.differentiation.diff_1st_2D">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.differentiation.</span></span><span class="sig-name descname"><span class="pre">diff_1st_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/differentiation.html#diff_1st_2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.differentiation.diff_1st_2D" title="Permalink to this definition"></a></dt>
+<dd><p>1st order differentiation in space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> – dictionary containing X, Y grids</p></li>
+<li><p><strong>D</strong> – 2D snapshot matrix (N_v, N_t)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>1st order gradient of D (Dx, Dy)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.differentiation.diff_2nd_2D">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.differentiation.</span></span><span class="sig-name descname"><span class="pre">diff_2nd_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/differentiation.html#diff_2nd_2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.differentiation.diff_2nd_2D" title="Permalink to this definition"></a></dt>
+<dd><p>2nd order differentiation in space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> – dictionary containing X, Y grids</p></li>
+<li><p><strong>D</strong> – 2D snapshot matrix (N_v, N_t)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>2nd order gradient of D (Dxx, Dyy, Dxy)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.differentiation.diff_time">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.differentiation.</span></span><span class="sig-name descname"><span class="pre">diff_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/differentiation.html#diff_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.differentiation.diff_time" title="Permalink to this definition"></a></dt>
+<dd><p>Differentiation in time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>D</strong> – snapshot matrix (N_v, N_t)</p></li>
+<li><p><strong>t</strong> – time array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>time derivative of D</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.differentiation.get_2Dvorticity">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.differentiation.</span></span><span class="sig-name descname"><span class="pre">get_2Dvorticity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/differentiation.html#get_2Dvorticity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.differentiation.get_2Dvorticity" title="Permalink to this definition"></a></dt>
+<dd><p>Planar vorticity</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> – dictionary containing X, Y grids</p></li>
+<li><p><strong>D</strong> – snapshot matrix (N_v, N_t)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>vorticity out-of-plane component</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.differentiation.get_divergence_2D">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.differentiation.</span></span><span class="sig-name descname"><span class="pre">get_divergence_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/differentiation.html#get_divergence_2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.differentiation.get_divergence_2D" title="Permalink to this definition"></a></dt>
+<dd><p>Divergence of 2D flow</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> – dictionary containing X, Y grids</p></li>
+<li><p><strong>D</strong> – 2D snapshot matrix (N_v, N_t)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Ux + Vy</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.differentiation.get_laplacian_2D">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.differentiation.</span></span><span class="sig-name descname"><span class="pre">get_laplacian_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/differentiation.html#get_laplacian_2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.differentiation.get_laplacian_2D" title="Permalink to this definition"></a></dt>
+<dd><p>Laplacian of 2D flow</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> – dictionary containing X, Y grids</p></li>
+<li><p><strong>D</strong> – 2D snapshot matrix (N_v, N_t)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dxx + Dyy</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-utils.modelling.errors_flow">
+<span id="utils-modelling-errors-flow-module"></span><h2>utils.modelling.errors_flow module<a class="headerlink" href="#module-utils.modelling.errors_flow" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.errors_flow.get_CEA">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.errors_flow.</span></span><span class="sig-name descname"><span class="pre">get_CEA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Dtrue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/errors_flow.html#get_CEA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.errors_flow.get_CEA" title="Permalink to this definition"></a></dt>
+<dd><p>Estimates Cumulative Energetic Accuracy (similar to CE) for snapshot matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Dtrue</strong> – ground truth of snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)</p></li>
+<li><p><strong>D</strong> – reconstructed snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)</p></li>
+<li><p><strong>B</strong> – mask grid (1 if body, 0 otherwise)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>CEA</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.errors_flow.get_RMSE">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.errors_flow.</span></span><span class="sig-name descname"><span class="pre">get_RMSE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Dtrue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/errors_flow.html#get_RMSE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.errors_flow.get_RMSE" title="Permalink to this definition"></a></dt>
+<dd><p>Estimates Root Mean Square Error (normalized with standard deviation of ground truth flow) for snapshot matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Dtrue</strong> – ground truth of snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)</p></li>
+<li><p><strong>D</strong> – reconstructed snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)</p></li>
+<li><p><strong>B</strong> – mask grid (1 if body, 0 otherwise)</p></li>
+<li><p><strong>flag_type</strong> – ‘W’ if whole error, ‘S’ if spatial, ‘T’ if temporal</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>RMSE</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.errors_flow.get_cos_similarity">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.errors_flow.</span></span><span class="sig-name descname"><span class="pre">get_cos_similarity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Dtrue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/errors_flow.html#get_cos_similarity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.errors_flow.get_cos_similarity" title="Permalink to this definition"></a></dt>
+<dd><p>Estimates temporal cosine similarity Sc for snapshot matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Dtrue</strong> – ground truth of snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)</p></li>
+<li><p><strong>D</strong> – reconstructed snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)</p></li>
+<li><p><strong>B</strong> – mask grid (1 if body, 0 otherwise)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sc</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-utils.modelling.errors_z">
+<span id="utils-modelling-errors-z-module"></span><h2>utils.modelling.errors_z module<a class="headerlink" href="#module-utils.modelling.errors_z" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.errors_z.get_R2factor">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.errors_z.</span></span><span class="sig-name descname"><span class="pre">get_R2factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xtrue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_R2method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_prop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/errors_z.html#get_R2factor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.errors_z.get_R2factor" title="Permalink to this definition"></a></dt>
+<dd><p>Estimates R2 factor for latent space up to a certain length of the PW</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Xtrue</strong> – ground truth of latent space (N_t, N_z) or (N_w, N_t, N_z)</p></li>
+<li><p><strong>X</strong> – reconstructed latent space (N_t, N_z) or (N_w, N_t, N_z)</p></li>
+<li><p><strong>w_prop</strong> – PW window to evaluate RMSE</p></li>
+<li><p><strong>flag_R2method</strong> – ‘D’ if deterministic, ‘C’ if correlation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>R2 factor for each latent coordinate</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.errors_z.get_RMSE_z">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.errors_z.</span></span><span class="sig-name descname"><span class="pre">get_RMSE_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xtrue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_prop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/errors_z.html#get_RMSE_z"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.errors_z.get_RMSE_z" title="Permalink to this definition"></a></dt>
+<dd><p>Estimation of Root Mean Square Error (normalized with standard deviation of ground truth latent coordinate)
+for latent space up to a certain length of the PW</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Xtrue</strong> – ground truth of latent space (N_t, N_z) or (N_w, N_t, N_z)</p></li>
+<li><p><strong>X</strong> – reconstructed latent space (N_t, N_z) or (N_w, N_t, N_z)</p></li>
+<li><p><strong>w_prop</strong> – PW window to evaluate RMSE</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>RMSE for each latent coordinate</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.errors_z.get_frequencies">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.errors_z.</span></span><span class="sig-name descname"><span class="pre">get_frequencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/errors_z.html#get_frequencies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.errors_z.get_frequencies" title="Permalink to this definition"></a></dt>
+<dd><p>Estimation of most relevant frequencies for each latent coordinate</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>z</strong> – latent space (N_t, N_z)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>frequency array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.errors_z.get_latent_MI">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.errors_z.</span></span><span class="sig-name descname"><span class="pre">get_latent_MI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/errors_z.html#get_latent_MI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.errors_z.get_latent_MI" title="Permalink to this definition"></a></dt>
+<dd><p>Estimation of Mutual Information (nonlinear correlation) for latent space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>z</strong> – latent space (N_t, N_z)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Mutual information matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.errors_z.get_latent_correlation_matrix">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.errors_z.</span></span><span class="sig-name descname"><span class="pre">get_latent_correlation_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/errors_z.html#get_latent_correlation_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.errors_z.get_latent_correlation_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Obtains correlation matrix for latent space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>z</strong> – latent space (N_t, N_z)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>determinant of correlation matrix, mean of corr matrix and correlation matrx</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.errors_z.get_max_w_prop">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.errors_z.</span></span><span class="sig-name descname"><span class="pre">get_max_w_prop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xtrue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/errors_z.html#get_max_w_prop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.errors_z.get_max_w_prop" title="Permalink to this definition"></a></dt>
+<dd><p>Estimation of number of time instants where prediction is above a certain R2 threshold</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Xtrue</strong> – ground truth of latent space (N_w, N_t, N_z)</p></li>
+<li><p><strong>X</strong> – reconstructed latent space (N_w, N_t, N_z)</p></li>
+<li><p><strong>w_p</strong> – PW window to evaluate RMSE</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>number of prediction time instants where condition holds</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-utils.modelling.flow_properties">
+<span id="utils-modelling-flow-properties-module"></span><h2>utils.modelling.flow_properties module<a class="headerlink" href="#module-utils.modelling.flow_properties" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.flow_properties.get_energy_fluctuations">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.flow_properties.</span></span><span class="sig-name descname"><span class="pre">get_energy_fluctuations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/flow_properties.html#get_energy_fluctuations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.flow_properties.get_energy_fluctuations" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves energy fluctuations in time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>D</strong> – snapshot matrix of velocity (or fluctuations)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>energy in time</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.modelling.flow_properties.get_reyn_stresses_2D">
+<span class="sig-prename descclassname"><span class="pre">utils.modelling.flow_properties.</span></span><span class="sig-name descname"><span class="pre">get_reyn_stresses_2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ddt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/modelling/flow_properties.html#get_reyn_stresses_2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.modelling.flow_properties.get_reyn_stresses_2D" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves Reynold stresses for 2D flow</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> – dictionary containing X, Y grids</p></li>
+<li><p><strong>Ddt</strong> – snapshot matrix of fluctuations of velocity</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dictionary containing TKE and Reynolds stresses</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-utils.modelling">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-utils.modelling" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="utils.dynamics.html" class="btn btn-neutral float-left" title="utils.dynamics package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Patricía Garcia-Caspueñas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -8,6 +8,7 @@ from utils.data.transformer import CNNAE2raw
 def energy_POD(D, Phi, a):
     """
     Retrieves energy and cumulative energy up to x number of modes (from 1 to N_r)
+
     :param D: snapshot matrix (N_v, N_t)
     :param Phi: spatial mode set (N_v, N_r)
     :param a: temporal mode set (N_r, N_t)
@@ -37,6 +38,7 @@ def energy_POD(D, Phi, a):
 def energy_AE(D, out_AE, flag_AE, AE):
     """
     Orders AE modes by energy content
+
     :param D: snapshot matrix (N_v, N_t)
     :param out_AE: AE modes (if MD-CNN-AE or CNN-HAE) or latent space (C-CNN-AE or CNN-VAE)
     :param flag_AE: type of AE flag

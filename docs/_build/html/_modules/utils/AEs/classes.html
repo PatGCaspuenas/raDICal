@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils.AEs.classes &mdash; raDICal 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=af2ce170"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            raDICal
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">AEs_wControl_user</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">raDICal</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">utils.AEs.classes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for utils.AEs.classes</h1><div class="highlight"><pre>
+<span></span><span class="c1"># PACKAGES</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">tensorflow.keras</span> <span class="kn">import</span> <span class="n">layers</span><span class="p">,</span> <span class="n">losses</span>
+<span class="kn">from</span> <span class="nn">tensorflow.keras.models</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">keras.regularizers</span> <span class="kn">import</span> <span class="n">l2</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="c1"># PARENT CLASS - STRUCTURE AND UTILS</span>
+<div class="viewcode-block" id="AE"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.AE">[docs]</a><span class="k">class</span> <span class="nc">AE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    AE parent class, containing initialization of parameters, encoder and decoder structure and common utils</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">AE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1"># AE parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s1">&#39;beta&#39;</span><span class="p">]</span>             <span class="c1"># CNN-VAE reg parameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s1">&#39;k_size&#39;</span><span class="p">]</span>         <span class="c1"># Kernel size of convolutional layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_size</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s1">&#39;p_size&#39;</span><span class="p">]</span>         <span class="c1"># Kernel size of pooling layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_pad</span> <span class="o">=</span> <span class="n">FLAGS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s1">&#39;p_pad&#39;</span><span class="p">]</span>            <span class="c1"># Type of pooling padding (same or valid)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s1">&#39;p_strides&#39;</span><span class="p">]</span>   <span class="c1"># Number of strides in pooling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">FLAGS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s1">&#39;activation&#39;</span><span class="p">]</span>  <span class="c1"># Activation function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s1">&#39;k_reg&#39;</span><span class="p">]</span>           <span class="c1"># Regularization kernel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_b</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s1">&#39;k_b&#39;</span><span class="p">]</span>               <span class="c1"># Regularization bias</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drp_rate</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s1">&#39;drp_rate&#39;</span><span class="p">]</span>     <span class="c1"># Dropout rate after dense layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s1">&#39;N_z&#39;</span><span class="p">]</span>               <span class="c1"># Latent space dimensions</span>
+
+        <span class="c1"># Data parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_x</span> <span class="o">=</span>  <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;FLOW&#39;</span><span class="p">][</span><span class="s1">&#39;N_x&#39;</span><span class="p">]</span> <span class="c1"># Columns in grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_y</span> <span class="o">=</span>  <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;FLOW&#39;</span><span class="p">][</span><span class="s1">&#39;N_y&#39;</span><span class="p">]</span> <span class="c1"># Rows in grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span>    <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;FLOW&#39;</span><span class="p">][</span><span class="s1">&#39;K&#39;</span><span class="p">]</span>   <span class="c1"># Number of dimensions</span>
+
+        <span class="c1"># FLAGS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_AE</span> <span class="o">=</span> <span class="n">FLAGS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>              <span class="c1"># AE type (C-CNN-AE, MD-CNN-AE, CNN-HAE, CNN-VAE)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_struct</span> <span class="o">=</span> <span class="n">FLAGS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s1">&#39;architecture&#39;</span><span class="p">]</span>  <span class="c1"># AE structure type (simple, medium, complex)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span> <span class="o">=</span> <span class="n">FLAGS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s1">&#39;control&#39;</span><span class="p">]</span>      <span class="c1"># With (1) or without (0) control embedded in the latent space</span>
+
+        <span class="c1"># Latent space at the end of encoder</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flag_AE</span><span class="o">==</span><span class="s1">&#39;CNN-HAE&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">N_e</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flag_AE</span><span class="o">==</span><span class="s1">&#39;C-CNN-AE&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flag_AE</span><span class="o">==</span><span class="s1">&#39;MD-CNN-AE&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">N_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flag_AE</span><span class="o">==</span><span class="s1">&#39;CNN-VAE&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">N_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span>
+
+        <span class="c1"># Define # filters in layer sequential</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flag_struct</span><span class="o">==</span><span class="s1">&#39;simple&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_e</span> <span class="o">=</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>   <span class="mi">4</span><span class="p">,</span>   <span class="mi">4</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_d</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">4</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>   <span class="mi">8</span><span class="p">,</span>  <span class="mi">16</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flag_struct</span><span class="o">==</span><span class="s1">&#39;medium&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_e</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">4</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span>  <span class="mi">32</span><span class="p">,</span>  <span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_d</span> <span class="o">=</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flag_struct</span><span class="o">==</span><span class="s1">&#39;complex&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_e</span> <span class="o">=</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">128</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_d</span> <span class="o">=</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">]</span>
+
+        <span class="c1"># Create encoder and decoder(s)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_encoder</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_AE</span> <span class="o">==</span> <span class="s1">&#39;MD-CNN-AE&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;decoder&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_decoder</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_decoder</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AE.create_encoder"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.AE.create_encoder">[docs]</a>    <span class="k">def</span> <span class="nf">create_encoder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">N_y_sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_y</span>
+        <span class="n">N_x_sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_x</span>
+        <span class="n">i_seq</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">encoder</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">)))</span>
+
+        <span class="c1"># 1st: conv &amp; max pooling (if m x n = 384 x 192)</span>
+        <span class="k">if</span> <span class="n">N_x_sub</span> <span class="o">==</span> <span class="mi">384</span><span class="p">:</span>
+            <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_e</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+            <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_pad</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span><span class="p">))</span>
+            <span class="n">N_x_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">N_x_sub</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span>
+            <span class="n">N_y_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">N_y_sub</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span>
+        <span class="n">i_seq</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 2nd: conv &amp; max pooling</span>
+        <span class="k">if</span> <span class="n">N_x_sub</span> <span class="o">==</span> <span class="mi">192</span><span class="p">:</span>
+            <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_e</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+            <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_pad</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span><span class="p">))</span>
+            <span class="n">N_x_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">N_x_sub</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span>
+            <span class="n">N_y_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">N_y_sub</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span>
+        <span class="n">i_seq</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 3rd: conv &amp; max pooling</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_e</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_pad</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span><span class="p">))</span>
+        <span class="n">N_x_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">N_x_sub</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span>
+        <span class="n">N_y_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">N_y_sub</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span>
+        <span class="n">i_seq</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 4th: conv &amp; max pooling</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_e</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_pad</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span><span class="p">))</span>
+        <span class="n">N_x_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">N_x_sub</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span>
+        <span class="n">N_y_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">N_y_sub</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span>
+        <span class="n">i_seq</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 5th: conv &amp; max pooling</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_e</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_pad</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span><span class="p">))</span>
+        <span class="n">N_x_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">N_x_sub</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span>
+        <span class="n">N_y_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">N_y_sub</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span>
+        <span class="n">i_seq</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 6th: conv &amp; max pooling</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_e</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_pad</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span><span class="p">))</span>
+        <span class="n">N_x_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">N_x_sub</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span>
+        <span class="n">N_y_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">N_y_sub</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_strides</span>
+
+        <span class="c1"># fully connected</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">([</span><span class="n">N_y_sub</span> <span class="o">*</span> <span class="n">N_x_sub</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_e</span><span class="p">[</span><span class="n">i_seq</span><span class="p">]]))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">drp_rate</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drp_rate</span><span class="p">))</span>
+        <span class="n">i_seq</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_struct</span> <span class="o">!=</span> <span class="s1">&#39;simple&#39;</span><span class="p">:</span>
+            <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_e</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+
+        <span class="n">encoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_e</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_y_sub</span> <span class="o">=</span> <span class="n">N_y_sub</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_x_sub</span> <span class="o">=</span> <span class="n">N_x_sub</span>
+
+        <span class="k">return</span> <span class="n">encoder</span></div>
+<div class="viewcode-block" id="AE.create_decoder"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.AE.create_decoder">[docs]</a>    <span class="k">def</span> <span class="nf">create_decoder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">N_y_sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_y_sub</span>
+        <span class="n">N_x_sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_x_sub</span>
+        <span class="n">i_seq</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">decoder</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+
+        <span class="c1"># fully connected</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_struct</span> <span class="o">!=</span> <span class="s1">&#39;simple&#39;</span><span class="p">:</span>
+            <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_d</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+            <span class="n">i_seq</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">N_y_sub</span> <span class="o">*</span> <span class="n">N_x_sub</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_d</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">drp_rate</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drp_rate</span><span class="p">))</span>
+        <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">([</span><span class="n">N_x_sub</span><span class="p">,</span> <span class="n">N_y_sub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_d</span><span class="p">[</span><span class="n">i_seq</span><span class="p">]]))</span>
+        <span class="n">i_seq</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 1st: upsampling &amp; (7th) conv</span>
+        <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">UpSampling2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_size</span><span class="p">))</span>
+        <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_d</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+        <span class="n">i_seq</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 2nd: upsampling &amp; (8th) conv</span>
+        <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">UpSampling2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_size</span><span class="p">))</span>
+        <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_d</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+        <span class="n">i_seq</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 3rd: upsampling &amp; (9th) conv</span>
+        <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">UpSampling2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_size</span><span class="p">))</span>
+        <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_d</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+        <span class="n">i_seq</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 4th: upsampling &amp; (10th) conv</span>
+        <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">UpSampling2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_size</span><span class="p">))</span>
+        <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_d</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+        <span class="n">i_seq</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 5th: upsampling &amp; (11th) conv</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flag_struct</span> <span class="o">!=</span> <span class="s1">&#39;simple&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_x</span> <span class="o">==</span> <span class="mi">192</span><span class="p">):</span>
+            <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">UpSampling2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_size</span><span class="p">))</span>
+            <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_d</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+            <span class="n">i_seq</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 6th: upsampling &amp; (12th) conv  (if m x n = 392 x 196)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_x</span> <span class="o">==</span> <span class="mi">384</span><span class="p">:</span>
+            <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">UpSampling2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_size</span><span class="p">))</span>
+            <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_seq_d</span><span class="p">[</span><span class="n">i_seq</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">),</span> <span class="n">bias_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_b</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_struct</span> <span class="o">==</span> <span class="s1">&#39;simple&#39;</span><span class="p">:</span>
+            <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">UpSampling2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_size</span><span class="p">))</span>
+
+        <span class="n">decoder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">decoder</span></div></div>
+
+
+<div class="viewcode-block" id="MD_CNN_AE"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.MD_CNN_AE">[docs]</a><span class="k">class</span> <span class="nc">MD_CNN_AE</span><span class="p">(</span><span class="n">AE</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Modal CNN-AE (linear summation of modes)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="p">):</span>
+
+        <span class="c1"># Call parent constructor</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MD_CNN_AE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">PARAMS</span><span class="o">=</span><span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="o">=</span><span class="n">FLAGS</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MD_CNN_AE.extract_mode"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.MD_CNN_AE.extract_mode">[docs]</a>    <span class="k">def</span> <span class="nf">extract_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_img</span><span class="p">,</span> <span class="n">ni</span><span class="p">):</span>
+
+        <span class="n">encoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">input_img</span><span class="p">)</span>
+        <span class="n">lat_vector</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">ni</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">ni</span><span class="p">])(</span><span class="n">encoded</span><span class="p">)</span>
+        <span class="n">decoded</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;decoder&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ni</span><span class="p">))(</span><span class="n">lat_vector</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">decoded</span></div>
+
+<div class="viewcode-block" id="MD_CNN_AE.get_latent_vector"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.MD_CNN_AE.get_latent_vector">[docs]</a>    <span class="k">def</span> <span class="nf">get_latent_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_img</span><span class="p">):</span>
+
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">input_img</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">z</span></div>
+
+<div class="viewcode-block" id="MD_CNN_AE.call"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.MD_CNN_AE.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_img</span><span class="p">):</span>
+
+        <span class="n">encoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">input_img</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">):</span>
+            <span class="n">lat_vector</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])(</span><span class="n">encoded</span><span class="p">)</span>
+            <span class="n">decoded_sub</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;decoder&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))(</span><span class="n">lat_vector</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">decoded</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Add</span><span class="p">()([</span><span class="n">decoded_sub</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">decoded</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Add</span><span class="p">()([</span><span class="n">decoded</span><span class="p">,</span> <span class="n">decoded_sub</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">decoded</span></div></div>
+
+<div class="viewcode-block" id="CNN_HAE"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.CNN_HAE">[docs]</a><span class="k">class</span> <span class="nc">CNN_HAE</span><span class="p">(</span><span class="n">AE</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hierarchical convolutional AE</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="p">):</span>
+
+        <span class="c1"># Call parent constructor</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CNN_HAE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">PARAMS</span><span class="o">=</span><span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="o">=</span><span class="n">FLAGS</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CNN_HAE.get_latent_vector"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.CNN_HAE.get_latent_vector">[docs]</a>    <span class="k">def</span> <span class="nf">get_latent_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_img</span><span class="p">):</span>
+
+        <span class="n">encoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">input_img</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">encoded</span></div>
+
+<div class="viewcode-block" id="CNN_HAE.call"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.CNN_HAE.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+
+        <span class="n">input_img</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">latent_vector</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">encoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">input_img</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">decoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Concatenate</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)([</span><span class="n">latent_vector</span><span class="p">,</span> <span class="n">encoded</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">decoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="n">encoded</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">decoded</span></div></div>
+
+<div class="viewcode-block" id="CNN_VAE"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.CNN_VAE">[docs]</a><span class="k">class</span> <span class="nc">CNN_VAE</span><span class="p">(</span><span class="n">AE</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Variational convolutional AE</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="p">):</span>
+
+        <span class="c1"># Call parent constructor</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CNN_VAE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">PARAMS</span><span class="o">=</span><span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="o">=</span><span class="n">FLAGS</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="CNN_VAE.get_latent_vector"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.CNN_VAE.get_latent_vector">[docs]</a>    <span class="k">def</span> <span class="nf">get_latent_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_img</span><span class="p">):</span>
+
+        <span class="n">encoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">input_img</span><span class="p">)</span>
+        <span class="n">z_mean</span><span class="p">,</span> <span class="n">z_logvar</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">encoded</span><span class="p">,</span> <span class="n">num_or_size_splits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># z = self.sampling(z_mean, z_logvar)</span>
+        <span class="k">return</span> <span class="n">z_mean</span></div>
+<div class="viewcode-block" id="CNN_VAE.sampling"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.CNN_VAE.sampling">[docs]</a>    <span class="k">def</span> <span class="nf">sampling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_mean</span><span class="p">,</span> <span class="n">z_log_sigma</span><span class="p">):</span>
+
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">z_mean</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">),</span>
+                                  <span class="n">mean</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">stddev</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z_mean</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z_log_sigma</span><span class="p">)</span> <span class="o">*</span> <span class="n">epsilon</span></div>
+
+<div class="viewcode-block" id="CNN_VAE.loss_fn"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.CNN_VAE.loss_fn">[docs]</a>    <span class="k">def</span> <span class="nf">loss_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_img</span><span class="p">,</span> <span class="n">decoded</span><span class="p">,</span> <span class="n">z_logvar</span><span class="p">,</span> <span class="n">z_mean</span><span class="p">):</span>
+        <span class="n">rec_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">mse</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)),</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">decoded</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)))</span>
+        <span class="n">kl_loss</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">z_logvar</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">z_mean</span><span class="p">)</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z_logvar</span><span class="p">)</span>
+        <span class="n">kl_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">kl_loss</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">kl_loss</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">0.5</span>
+        <span class="n">vae_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rec_loss</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">*</span> <span class="n">kl_loss</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">vae_loss</span></div>
+
+<div class="viewcode-block" id="CNN_VAE.call"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.CNN_VAE.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span><span class="p">:</span>
+            <span class="n">input_img</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">input_img</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">control_vector</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">encoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">input_img</span><span class="p">)</span>
+        <span class="n">z_mean</span><span class="p">,</span> <span class="n">z_logvar</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">encoded</span><span class="p">,</span> <span class="n">num_or_size_splits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">z_mean</span><span class="p">,</span> <span class="n">z_logvar</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span><span class="p">:</span>
+            <span class="n">decoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">decoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Concatenate</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)([</span><span class="n">z</span><span class="p">,</span> <span class="n">control_vector</span><span class="p">]))</span>
+
+        <span class="n">vae_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_fn</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">decoded</span><span class="p">,</span> <span class="n">z_logvar</span><span class="p">,</span> <span class="n">z_mean</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">vae_loss</span><span class="p">)</span>
+        <span class="c1">#self.add_metric(rec_loss)</span>
+        <span class="c1">#self.add_metric(kl_loss)</span>
+
+        <span class="k">return</span> <span class="n">decoded</span></div></div>
+
+<div class="viewcode-block" id="C_CNN_AE"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.C_CNN_AE">[docs]</a><span class="k">class</span> <span class="nc">C_CNN_AE</span><span class="p">(</span><span class="n">AE</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Basic convolutional AE</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="p">):</span>
+
+        <span class="c1"># Call parent constructor</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">C_CNN_AE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">PARAMS</span><span class="o">=</span><span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="o">=</span><span class="n">FLAGS</span><span class="p">)</span>
+
+<div class="viewcode-block" id="C_CNN_AE.get_latent_vector"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.C_CNN_AE.get_latent_vector">[docs]</a>    <span class="k">def</span> <span class="nf">get_latent_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_img</span><span class="p">):</span>
+
+        <span class="n">encoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">input_img</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">encoded</span></div>
+
+
+<div class="viewcode-block" id="C_CNN_AE.call"><a class="viewcode-back" href="../../../utils.AEs.html#utils.AEs.classes.C_CNN_AE.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span><span class="p">:</span>
+            <span class="n">decoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="nb">input</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">input_img</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">control_vector</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">encoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">input_img</span><span class="p">)</span>
+            <span class="n">decoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Concatenate</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)([</span><span class="n">encoded</span><span class="p">,</span> <span class="n">control_vector</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">decoded</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Patricía Garcia-Caspueñas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

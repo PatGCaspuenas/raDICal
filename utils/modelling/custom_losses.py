@@ -3,7 +3,6 @@ import tensorflow as tf
 
 class MeanSquaredError(tf.keras.losses.MeanSquaredError):
     """Provides mean squared error metrics: loss / residuals.
-
     Use mean squared error for regression problems with one or more outputs.
     """
 
@@ -15,6 +14,7 @@ class MeanSquaredError(tf.keras.losses.MeanSquaredError):
 def energy_loss(input_img, decoded):
     """
     Computes Cumulative Energetic Accuracy
+
     :param input_img: ground truth
     :param decoded: reconstructed
     :return: CEA
@@ -24,6 +24,7 @@ def energy_loss(input_img, decoded):
 def null_loss(input_img, decoded):
     """
     Null loss
+
     :param input_img: ground truth
     :param decoded: reconstructed
     :return: 0

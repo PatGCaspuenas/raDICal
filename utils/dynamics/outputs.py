@@ -9,6 +9,7 @@ from utils.data.loader import load_model_AE
 def get_predicted_z(PARAMS, FLAGS, DYN, z, t, b=0):
     """
     Predicts latent space
+
     :param PARAMS: dictionary of parameters
     :param FLAGS: dictionary of flags
     :param DYN: dynamical predictor model
@@ -45,6 +46,7 @@ def get_predicted_z(PARAMS, FLAGS, DYN, z, t, b=0):
 def get_predicted_flow(PARAMS, FLAGS, PATHS, zy, zy_dyn, by=0):
     """
     Decodes predicted latent space
+
     :param PARAMS: dictionary of parameters
     :param FLAGS: dictionary of flags
     :param PATHS: dictionary of paths

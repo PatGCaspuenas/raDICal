@@ -8,6 +8,7 @@ from utils.data.transformer import window2flow
 def get_RMSE(Dtrue, D, B, flag_type):
     """
     Estimates Root Mean Square Error (normalized with standard deviation of ground truth flow) for snapshot matrix
+
     :param Dtrue: ground truth of snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)
     :param D: reconstructed snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)
     :param B: mask grid (1 if body, 0 otherwise)
@@ -51,6 +52,7 @@ def get_RMSE(Dtrue, D, B, flag_type):
 def get_CEA(Dtrue, D, B):
     """
     Estimates Cumulative Energetic Accuracy (similar to CE) for snapshot matrix
+
     :param Dtrue: ground truth of snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)
     :param D: reconstructed snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)
     :param B: mask grid (1 if body, 0 otherwise)
@@ -85,6 +87,7 @@ def get_CEA(Dtrue, D, B):
 def get_cos_similarity(Dtrue, D, B):
     """
     Estimates temporal cosine similarity Sc for snapshot matrix
+
     :param Dtrue: ground truth of snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)
     :param D: reconstructed snapshot matrix (N_v, N_t) or (N_w, N_v, N_t)
     :param B: mask grid (1 if body, 0 otherwise)

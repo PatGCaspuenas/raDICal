@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils.dynamics.classes &mdash; raDICal 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=af2ce170"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            raDICal
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">AEs_wControl_user</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">raDICal</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">utils.dynamics.classes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for utils.dynamics.classes</h1><div class="highlight"><pre>
+<span></span><span class="c1"># PACKAGES</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">tensorflow.keras</span> <span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span> <span class="nn">tensorflow.keras.models</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">keras.regularizers</span> <span class="kn">import</span> <span class="n">l2</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="c1"># LOCAL FUNCTIONS</span>
+<span class="kn">from</span> <span class="nn">utils.dynamics.optimizers</span> <span class="kn">import</span> <span class="n">LM_Trainer</span>
+<span class="kn">from</span> <span class="nn">utils.dynamics.config</span> <span class="kn">import</span> <span class="n">cond_lm</span>
+
+<div class="viewcode-block" id="DYN"><a class="viewcode-back" href="../../../utils.dynamics.html#utils.dynamics.classes.DYN">[docs]</a><span class="k">class</span> <span class="nc">DYN</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dynamical predictor parent class, containing initialization of parameters, NN structure and common utils</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">DYN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_dyn</span> <span class="o">=</span> <span class="n">FLAGS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>            <span class="c1"># Type of dynamical predictor (LSTM, NARX)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span> <span class="o">=</span> <span class="n">FLAGS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;control&#39;</span><span class="p">]</span>     <span class="c1"># 1 if control embedded in NN, 0 otherwise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_recurrent</span> <span class="o">=</span> <span class="n">FLAGS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;recurrent&#39;</span><span class="p">]</span> <span class="c1"># 1 if NARX follows a recurrent training pattern, 0 otherwise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_optimizer</span> <span class="o">=</span> <span class="n">FLAGS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;optimizer&#39;</span><span class="p">]</span> <span class="c1"># Type of optimzer (LM, Adam)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">][</span><span class="s1">&#39;N_z&#39;</span><span class="p">]</span>                  <span class="c1"># Number of latent coordinates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;flow&#39;</span><span class="p">][</span><span class="s1">&#39;N_c&#39;</span><span class="p">]</span>                <span class="c1"># Number of control coordinates</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;w_p&#39;</span><span class="p">]</span>                 <span class="c1"># Number of trained prediction time instants</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;w_d&#39;</span><span class="p">]</span>                 <span class="c1"># Number of delay time instants</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;activation&#39;</span><span class="p">]</span>   <span class="c1"># Type of activation function</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">DT</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;DT&#39;</span><span class="p">]</span>                   <span class="c1"># Delta time</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;k_reg&#39;</span><span class="p">]</span>             <span class="c1"># l2 regularization of dense layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drp_rate</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;drp_rate&#39;</span><span class="p">]</span>       <span class="c1"># dropout rate of dense layers</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_units</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;hidden_units&#39;</span><span class="p">]</span> <span class="c1"># Number of units in LSTM cells (only LSTM)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dense_units</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;dense_units&#39;</span><span class="p">]</span>   <span class="c1"># Number of units in dense layers (LSTM &amp; NARX)</span>
+
+        <span class="c1"># Create NNs depending on type</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_dyn</span> <span class="o">==</span> <span class="s1">&#39;LSTM&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LSTMs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LSTM_layers</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MLPs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MLP_layers</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_dyn</span> <span class="o">==</span> <span class="s1">&#39;NARX&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MLP</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MLP_cell</span><span class="p">()</span>
+
+        <span class="c1"># Only for LEVENBERG-MARQUADT OPTIMIZER</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_optimizer</span> <span class="o">==</span> <span class="s1">&#39;LM&#39;</span><span class="p">:</span>
+            <span class="c1"># Used to backup and restore model variables.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_backup_variables</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># Since training updates are computed with shape (num_variables, 1),</span>
+            <span class="c1"># self._splits and self._shapes are needed to split and reshape the</span>
+            <span class="c1"># updates so that they can be applied to the model trainable_variables.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_splits</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_shapes</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">:</span>
+                <span class="n">variable_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+                <span class="n">variable_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_prod</span><span class="p">(</span><span class="n">variable_shape</span><span class="p">)</span>
+                <span class="n">backup_variable</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                    <span class="n">tf</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">variable</span><span class="p">),</span>
+                    <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_backup_variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">backup_variable</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_splits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variable_size</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variable_shape</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_num_variables</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_splits</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_num_outputs</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="DYN.MLP_cell"><a class="viewcode-back" href="../../../utils.dynamics.html#utils.dynamics.classes.DYN.MLP_cell">[docs]</a>    <span class="k">def</span> <span class="nf">MLP_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">MLP</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_recurrent</span><span class="p">:</span>
+            <span class="n">MLP</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">w_d</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">MLP</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">w_d</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">)))</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">units</span><span class="p">,</span> <span class="n">drop</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dense_units</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">drp_rate</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">MLP</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">MLP</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">drop</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">MLP</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">drop</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_recurrent</span><span class="p">:</span>
+            <span class="n">MLP</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">))</span>
+            <span class="n">MLP</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">MLP</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">))</span>
+            <span class="n">MLP</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">MLP</span></div>
+
+<div class="viewcode-block" id="DYN.LSTM_layers"><a class="viewcode-back" href="../../../utils.dynamics.html#utils.dynamics.classes.DYN.LSTM_layers">[docs]</a>    <span class="k">def</span> <span class="nf">LSTM_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">LSTMs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+        <span class="n">LSTMs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_input</span><span class="p">)))</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">units</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_units</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_units</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">LSTMs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">return_sequences</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">)))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">LSTMs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">return_sequences</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">LSTMs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">return_sequences</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_reg</span><span class="p">)))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">LSTMs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">return_sequences</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">LSTMs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">units</span><span class="p">,</span> <span class="n">drop</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dense_units</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">drp_rate</span><span class="p">):</span>
+            <span class="n">LSTMs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">drop</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">LSTMs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">drop</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">LSTMs</span></div>
+<div class="viewcode-block" id="DYN.MLP_layers"><a class="viewcode-back" href="../../../utils.dynamics.html#utils.dynamics.classes.DYN.MLP_layers">[docs]</a>    <span class="k">def</span> <span class="nf">MLP_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">MLPs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+
+        <span class="n">MLPs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_output</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">))</span>
+        <span class="n">MLPs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_output</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">MLPs</span></div></div>
+
+<div class="viewcode-block" id="LSTM"><a class="viewcode-back" href="../../../utils.dynamics.html#utils.dynamics.classes.LSTM">[docs]</a><span class="k">class</span> <span class="nc">LSTM</span><span class="p">(</span><span class="n">DYN</span><span class="p">,</span> <span class="n">LM_Trainer</span> <span class="k">if</span> <span class="n">cond_lm</span> <span class="k">else</span> <span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    LSTM method</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">LSTM</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">PARAMS</span><span class="o">=</span><span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="o">=</span><span class="n">FLAGS</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LSTM.predict"><a class="viewcode-back" href="../../../utils.dynamics.html#utils.dynamics.classes.LSTM.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">w_prop</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span><span class="p">:</span>
+            <span class="n">n_batch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_batch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">N_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">w_prop</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">))</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_batch</span><span class="p">,</span> <span class="n">w_prop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_output</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span><span class="p">:</span>
+            <span class="n">input_state</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">input_control</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">output_control</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+            <span class="n">input_feature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">input_state</span><span class="p">,</span> <span class="n">input_control</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">input_feature</span> <span class="o">=</span> <span class="nb">input</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_steps</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span><span class="p">:</span>
+
+                <span class="n">output_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MLPs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LSTMs</span><span class="p">(</span><span class="n">input_feature</span><span class="p">))</span>
+
+                <span class="n">prediction_step</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">input_feature</span><span class="p">,</span> <span class="n">output_step</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">control_step</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">output_control</span><span class="p">[:,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="n">t</span><span class="p">):(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">)),</span> <span class="p">:],(</span><span class="n">n_batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">))</span>
+
+                <span class="n">encoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LSTMs</span><span class="p">(</span><span class="n">input_feature</span><span class="p">)</span>
+
+                <span class="n">output_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MLPs</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Concatenate</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)([</span><span class="n">encoded</span><span class="p">,</span> <span class="n">control_step</span><span class="p">]))</span>
+
+                <span class="n">prediction_step</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">input_feature</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">output_step</span><span class="p">,</span> <span class="n">output_control</span><span class="p">[:,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="n">t</span><span class="p">):(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">)),</span> <span class="p">:]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="p">(</span><span class="n">N_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">w_prop</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">N_steps</span><span class="p">):</span>
+                <span class="n">N_last</span> <span class="o">=</span> <span class="n">w_prop</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">w_prop</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span>
+                <span class="n">output</span><span class="p">[:,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="n">t</span><span class="p">):,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">output_step</span><span class="p">[:,</span> <span class="p">:</span><span class="n">N_last</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">output</span><span class="p">[:,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="n">t</span><span class="p">):(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">output_step</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]</span>
+
+            <span class="n">input_feature</span> <span class="o">=</span> <span class="n">prediction_step</span><span class="p">[:,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">:,</span> <span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="LSTM.call"><a class="viewcode-back" href="../../../utils.dynamics.html#utils.dynamics.classes.LSTM.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MLPs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LSTMs</span><span class="p">(</span><span class="nb">input</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">input_state</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">input_control</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">output_control</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+            <span class="n">input_feature</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">input_state</span><span class="p">,</span> <span class="n">input_control</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="n">output_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">,))(</span><span class="n">output_control</span><span class="p">)</span>
+
+            <span class="n">encoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LSTMs</span><span class="p">(</span><span class="n">input_feature</span><span class="p">)</span>
+
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MLPs</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Concatenate</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)([</span><span class="n">encoded</span><span class="p">,</span> <span class="n">output_control</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">output</span></div></div>
+
+<div class="viewcode-block" id="NARX"><a class="viewcode-back" href="../../../utils.dynamics.html#utils.dynamics.classes.NARX">[docs]</a><span class="k">class</span> <span class="nc">NARX</span><span class="p">(</span><span class="n">DYN</span><span class="p">,</span> <span class="n">LM_Trainer</span> <span class="k">if</span> <span class="n">cond_lm</span> <span class="k">else</span> <span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    NARX method</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">NARX</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">PARAMS</span><span class="o">=</span><span class="n">PARAMS</span><span class="p">,</span> <span class="n">FLAGS</span><span class="o">=</span><span class="n">FLAGS</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NARX.predict"><a class="viewcode-back" href="../../../utils.dynamics.html#utils.dynamics.classes.NARX.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">w_prop</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span><span class="p">:</span>
+            <span class="n">n_batch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_batch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_batch</span><span class="p">,</span> <span class="n">w_prop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span><span class="p">:</span>
+
+            <span class="n">TDL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">input_feature</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">input_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="nb">input</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_recurrent</span><span class="p">:</span>
+                <span class="n">output_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">,))(</span><span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">][:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">output_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span><span class="p">,))(</span><span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+
+            <span class="n">input_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">input_feature</span><span class="p">,</span> <span class="n">input_control</span><span class="p">,</span> <span class="n">output_control</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">TDL</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+            <span class="n">input_t</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="n">TDL</span><span class="p">)</span>
+
+        <span class="n">output_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MLP</span><span class="p">(</span><span class="n">input_t</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_recurrent</span><span class="p">:</span>
+            <span class="n">output</span><span class="p">[:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">output_t</span><span class="p">[:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">output_t</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_recurrent</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">w_prop</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span><span class="p">:</span>
+
+                    <span class="n">TDL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">TDL</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">output_t</span><span class="p">,</span> <span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">][:,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span><span class="n">n</span><span class="p">,</span> <span class="p">:]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">input_feature</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="n">TDL</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">])</span>
+                    <span class="n">input_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="n">TDL</span><span class="p">[:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">:])</span>
+
+                    <span class="n">output_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span><span class="p">,))(</span><span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">][:,</span> <span class="n">n</span><span class="p">,</span> <span class="p">:])</span>
+
+                    <span class="n">input_t</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">input_feature</span><span class="p">,</span> <span class="n">input_control</span><span class="p">,</span> <span class="n">output_control</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">TDL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">TDL</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:,</span> <span class="p">:],</span> <span class="n">output_t</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">input_t</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="n">TDL</span><span class="p">)</span>
+
+                <span class="n">output_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MLP</span><span class="p">(</span><span class="n">input_t</span><span class="p">)</span>
+                <span class="n">output</span><span class="p">[:,</span> <span class="n">n</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">output_t</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">N_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">w_prop</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_steps</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span><span class="p">:</span>
+                    <span class="n">TDL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">TDL</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">:,</span> <span class="p">:],</span>
+                                          <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">output_t</span><span class="p">,</span> <span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">][:,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="n">t</span><span class="p">),</span> <span class="p">:]),</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                    <span class="n">input_feature</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="n">TDL</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">])</span>
+                    <span class="n">input_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="n">TDL</span><span class="p">[:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">:])</span>
+
+                    <span class="k">if</span> <span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="p">(</span><span class="n">N_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">w_prop</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">N_steps</span><span class="p">):</span>
+                        <span class="n">N_last</span> <span class="o">=</span> <span class="n">w_prop</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">w_prop</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span>
+                        <span class="n">output_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">,))(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                            <span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">][:,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="n">t</span><span class="p">):,</span> <span class="p">:],</span> <span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">][:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">-</span> <span class="n">N_last</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">output_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">,))(</span>
+                            <span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">][:,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="n">t</span><span class="p">):(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="p">:])</span>
+
+                    <span class="n">input_t</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">input_feature</span><span class="p">,</span> <span class="n">input_control</span><span class="p">,</span> <span class="n">output_control</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+
+                    <span class="n">TDL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">TDL</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">:,</span> <span class="p">:],</span> <span class="n">output_t</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">input_t</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="n">TDL</span><span class="p">)</span>
+
+                <span class="n">output_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MLP</span><span class="p">(</span><span class="n">input_t</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="p">(</span><span class="n">N_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">w_prop</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">N_steps</span><span class="p">):</span>
+                    <span class="n">N_last</span> <span class="o">=</span> <span class="n">w_prop</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">w_prop</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span>
+                    <span class="n">output</span><span class="p">[:,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="n">t</span><span class="p">):,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">output_t</span><span class="p">[:,</span> <span class="p">:</span><span class="n">N_last</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">output</span><span class="p">[:,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="n">t</span><span class="p">):(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">output_t</span><span class="p">[:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="NARX.call"><a class="viewcode-back" href="../../../utils.dynamics.html#utils.dynamics.classes.NARX.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span><span class="p">:</span>
+
+            <span class="n">TDL</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">input_feature</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">input_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="nb">input</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_recurrent</span><span class="p">:</span>
+                <span class="n">output_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">,))(</span><span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">][:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">output_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span><span class="p">,))(</span><span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+
+            <span class="n">input_t</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">input_feature</span><span class="p">,</span> <span class="n">input_control</span><span class="p">,</span> <span class="n">output_control</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">TDL</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+            <span class="n">input_t</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="n">TDL</span><span class="p">)</span>
+
+        <span class="n">output_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MLP</span><span class="p">(</span><span class="n">input_t</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">output_t</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_recurrent</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_p</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_control</span><span class="p">:</span>
+
+                    <span class="n">TDL</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">TDL</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:,</span> <span class="p">:],</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">output_t</span><span class="p">,</span> <span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">][:,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span><span class="n">n</span><span class="p">,</span> <span class="p">:]],</span> <span class="mi">2</span><span class="p">)],</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">input_feature</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="n">TDL</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">])</span>
+                    <span class="n">input_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="n">TDL</span><span class="p">[:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_z</span><span class="p">:])</span>
+
+                    <span class="n">output_control</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_c</span><span class="p">,))(</span><span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">][:,</span> <span class="n">n</span><span class="p">,</span> <span class="p">:])</span>
+
+                    <span class="n">input_t</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">input_feature</span><span class="p">,</span> <span class="n">input_control</span><span class="p">,</span> <span class="n">output_control</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">TDL</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">TDL</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:,</span> <span class="p">:],</span> <span class="n">output_t</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">input_t</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_d</span><span class="p">,))(</span><span class="n">TDL</span><span class="p">)</span>
+
+                <span class="n">output_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MLP</span><span class="p">(</span><span class="n">input_t</span><span class="p">)</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">output</span><span class="p">,</span> <span class="n">output_t</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Patricía Garcia-Caspueñas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

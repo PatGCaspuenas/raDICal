@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils.data package &mdash; raDICal 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=af2ce170"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="utils.data.pre-processing package" href="utils.data.pre-processing.html" />
+    <link rel="prev" title="utils.POD package" href="utils.POD.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            raDICal
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">AEs_wControl_user</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="utils.html">utils package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="utils.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="utils.AEs.html">utils.AEs package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils.POD.html">utils.POD package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">utils.data package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils.dynamics.html">utils.dynamics package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils.modelling.html">utils.modelling package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#module-utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">raDICal</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">AEs_wControl_user</a></li>
+          <li class="breadcrumb-item"><a href="utils.html">utils package</a></li>
+      <li class="breadcrumb-item active">utils.data package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/utils.data.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="utils-data-package">
+<h1>utils.data package<a class="headerlink" href="#utils-data-package" title="Permalink to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="utils.data.pre-processing.html">utils.data.pre-processing package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils.data.pre-processing.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.data.pre-processing.html#utils-data-pre-processing-formatters-module">utils.data.pre-processing.formatters module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.data.pre-processing.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-utils.data.loader">
+<span id="utils-data-loader-module"></span><h2>utils.data.loader module<a class="headerlink" href="#module-utils.data.loader" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.loader.load_model_AE">
+<span class="sig-prename descclassname"><span class="pre">utils.data.loader.</span></span><span class="sig-name descname"><span class="pre">load_model_AE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PARAMS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FLAGS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PATHS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/loader.html#load_model_AE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.loader.load_model_AE" title="Permalink to this definition"></a></dt>
+<dd><p>Loads weigths for AE model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>PARAMS</strong> – dictionary of parameters</p></li>
+<li><p><strong>FLAGS</strong> – dictionary of flags</p></li>
+<li><p><strong>PATHS</strong> – dictionary of paths</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>AE class model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.loader.load_model_dyn">
+<span class="sig-prename descclassname"><span class="pre">utils.data.loader.</span></span><span class="sig-name descname"><span class="pre">load_model_dyn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PARAMS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FLAGS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PATHS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/loader.html#load_model_dyn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.loader.load_model_dyn" title="Permalink to this definition"></a></dt>
+<dd><p>Loads weigths for DYN model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>PARAMS</strong> – dictionary of parameters</p></li>
+<li><p><strong>FLAGS</strong> – dictionary of flags</p></li>
+<li><p><strong>PATHS</strong> – dictionary of paths</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dynamical predictor class model</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-utils.data.logger">
+<span id="utils-data-logger-module"></span><h2>utils.data.logger module<a class="headerlink" href="#module-utils.data.logger" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="utils.data.logger.MyLogger">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">utils.data.logger.</span></span><span class="sig-name descname"><span class="pre">MyLogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/logger.html#MyLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.logger.MyLogger" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Callback</span></code></p>
+<p>Integration of logging of each epoch on existent logger</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="utils.data.logger.MyLogger.on_epoch_begin">
+<span class="sig-name descname"><span class="pre">on_epoch_begin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/logger.html#MyLogger.on_epoch_begin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.logger.MyLogger.on_epoch_begin" title="Permalink to this definition"></a></dt>
+<dd><p>Called at the start of an epoch.</p>
+<p>Subclasses should override for any actions to run. This function should
+only be called during TRAIN mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epoch</strong> – Integer, index of epoch.</p></li>
+<li><p><strong>logs</strong> – Dict. Currently no data is passed to this argument for this
+method but that may change in the future.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="utils.data.logger.MyLogger.on_epoch_end">
+<span class="sig-name descname"><span class="pre">on_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/logger.html#MyLogger.on_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.logger.MyLogger.on_epoch_end" title="Permalink to this definition"></a></dt>
+<dd><p>Called at the end of an epoch.</p>
+<p>Subclasses should override for any actions to run. This function should
+only be called during TRAIN mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epoch</strong> – Integer, index of epoch.</p></li>
+<li><p><strong>logs</strong> – Dict, metric results for this training epoch, and for the
+validation epoch if validation is performed. Validation result
+keys are prefixed with <cite>val_</cite>. For training epoch, the values of
+the <cite>Model</cite>’s metrics are returned. Example:
+<cite>{‘loss’: 0.2, ‘accuracy’: 0.7}</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="utils.data.logger.MyLogger.on_train_batch_end">
+<span class="sig-name descname"><span class="pre">on_train_batch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/logger.html#MyLogger.on_train_batch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.logger.MyLogger.on_train_batch_end" title="Permalink to this definition"></a></dt>
+<dd><p>Called at the end of a training batch in <cite>fit</cite> methods.</p>
+<p>Subclasses should override for any actions to run.</p>
+<p>Note that if the <cite>steps_per_execution</cite> argument to <cite>compile</cite> in
+<cite>tf.keras.Model</cite> is set to <cite>N</cite>, this method will only be called every
+<cite>N</cite> batches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch</strong> – Integer, index of batch within the current epoch.</p></li>
+<li><p><strong>logs</strong> – Dict. Aggregated metric results up until this batch.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.logger.log_initial_params">
+<span class="sig-prename descclassname"><span class="pre">utils.data.logger.</span></span><span class="sig-name descname"><span class="pre">log_initial_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PATHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FLAGS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PARAMS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/logger.html#log_initial_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.logger.log_initial_params" title="Permalink to this definition"></a></dt>
+<dd><p>Log parameters (default and user input)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>log</strong> – logger object</p></li>
+<li><p><strong>PATHS</strong> – dictionary with paths</p></li>
+<li><p><strong>FLAGS</strong> – dictionary with flags</p></li>
+<li><p><strong>PARAMS</strong> – dictionary with params</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.logger.logger_initialize">
+<span class="sig-prename descclassname"><span class="pre">utils.data.logger.</span></span><span class="sig-name descname"><span class="pre">logger_initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PATHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/logger.html#logger_initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.logger.logger_initialize" title="Permalink to this definition"></a></dt>
+<dd><p>Create logger</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>PATHS</strong> – dictionary with paths</p></li>
+<li><p><strong>i</strong> – iteration index in user defined list</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>logger and handler object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-utils.data.reader">
+<span id="utils-data-reader-module"></span><h2>utils.data.reader module<a class="headerlink" href="#module-utils.data.reader" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.reader.prepare_snapshot">
+<span class="sig-prename descclassname"><span class="pre">utils.data.reader.</span></span><span class="sig-name descname"><span class="pre">prepare_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_control</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/reader.html#prepare_snapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.reader.prepare_snapshot" title="Permalink to this definition"></a></dt>
+<dd><p>Prepares snapshot matrix for runner</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flow</strong> – dictionary containing velocity snapshots, time array and Re</p></li>
+<li><p><strong>flag_control</strong> – 1 if control is included in flow, 0 otherwise</p></li>
+<li><p><strong>flag_type</strong> – type of flow</p></li>
+<li><p><strong>path_mean</strong> – path of mean flow</p></li>
+<li><p><strong>N_t</strong> – number of snapshots to use from snapshot matrix</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>snapshot matrix, time array and control vector</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.reader.read_csv">
+<span class="sig-prename descclassname"><span class="pre">utils.data.reader.</span></span><span class="sig-name descname"><span class="pre">read_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PATHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FLAGS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PARAMS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/reader.html#read_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.reader.read_csv" title="Permalink to this definition"></a></dt>
+<dd><p>Reads input list with variables selected from the user that are not to be maintained at default values from json files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>PATHS</strong> – dictionary with default paths</p></li>
+<li><p><strong>FLAGS</strong> – dictionary with default flags</p></li>
+<li><p><strong>PARAMS</strong> – dictionary with default parameters</p></li>
+<li><p><strong>i</strong> – index of list that is to be evaluated for this iteration of the code</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>updated PATHS, FLAGS and PARAMS</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.reader.read_flow">
+<span class="sig-prename descclassname"><span class="pre">utils.data.reader.</span></span><span class="sig-name descname"><span class="pre">read_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_flow</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/reader.html#read_flow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.reader.read_flow" title="Permalink to this definition"></a></dt>
+<dd><p>Loads flow and grid .h5 data into different dictionaries. Flow contains velocity components in snapshot matrix form
+(rows spatial points, columns time instants), time and Re; grid contains X, Y and mask B matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_grid</strong> – relative path of grid</p></li>
+<li><p><strong>path_flow</strong> – relative path of flow dataset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>grid and flow dictionaries</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.reader.read_json">
+<span class="sig-prename descclassname"><span class="pre">utils.data.reader.</span></span><span class="sig-name descname"><span class="pre">read_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/reader.html#read_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.reader.read_json" title="Permalink to this definition"></a></dt>
+<dd><p>Reads default variables from several json files. Their PATH is hard-coded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PATHS, FLAGS and PARAMS dictionaries containing all user-defined variables required for the code to run</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.reader.read_latent_space">
+<span class="sig-prename descclassname"><span class="pre">utils.data.reader.</span></span><span class="sig-name descname"><span class="pre">read_latent_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_latent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/reader.html#read_latent_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.reader.read_latent_space" title="Permalink to this definition"></a></dt>
+<dd><p>Reads latent space data into dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_latent</strong> – path of latent dataset</p></li>
+<li><p><strong>flag_control</strong> – 1 if control is included in flow, 0 otherwise</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dictionary containing latent space, time array and control vector</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.reader.update_user_vars">
+<span class="sig-prename descclassname"><span class="pre">utils.data.reader.</span></span><span class="sig-name descname"><span class="pre">update_user_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_flow</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FLAGS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PARAMS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/reader.html#update_user_vars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.reader.update_user_vars" title="Permalink to this definition"></a></dt>
+<dd><p>Include in FLAGS and PARAMS dictionaries variables about flow dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_flow</strong> – relative path of flow dataset or latent space</p></li>
+<li><p><strong>grid</strong> – dictionary containing X, Y and body mask grids</p></li>
+<li><p><strong>flow</strong> – dictionary containing velocity snapshots, time and Re</p></li>
+<li><p><strong>FLAGS</strong> – dictionary with flags</p></li>
+<li><p><strong>PARAMS</strong> – dictionary with parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>FLAGS, PARAMS</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-utils.data.saver">
+<span id="utils-data-saver-module"></span><h2>utils.data.saver module<a class="headerlink" href="#module-utils.data.saver" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.saver.save_dictionary">
+<span class="sig-prename descclassname"><span class="pre">utils.data.saver.</span></span><span class="sig-name descname"><span class="pre">save_dictionary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">it</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OUT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/saver.html#save_dictionary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.saver.save_dictionary" title="Permalink to this definition"></a></dt>
+<dd><p>Saves any dictionary in .mat format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_out</strong> – output folder path</p></li>
+<li><p><strong>it</strong> – iteration number in csv list</p></li>
+<li><p><strong>OUT</strong> – dictionary</p></li>
+<li><p><strong>flag_name</strong> – name to save dictionary</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.saver.save_flow_latent">
+<span class="sig-prename descclassname"><span class="pre">utils.data.saver.</span></span><span class="sig-name descname"><span class="pre">save_flow_latent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">it</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OUT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_AE_DYN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_flow_lat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/saver.html#save_flow_latent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.saver.save_flow_latent" title="Permalink to this definition"></a></dt>
+<dd><p>Saves any dictionary in .h5 format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_out</strong> – output folder path</p></li>
+<li><p><strong>it</strong> – iteration number in csv list</p></li>
+<li><p><strong>OUT</strong> – dictionary</p></li>
+<li><p><strong>flag_AE_DYN</strong> – AE or DYN flag</p></li>
+<li><p><strong>flag_flow_lat</strong> – FLOW or LATENT flag:return: None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.saver.save_model_AE">
+<span class="sig-prename descclassname"><span class="pre">utils.data.saver.</span></span><span class="sig-name descname"><span class="pre">save_model_AE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">it</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AE</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/saver.html#save_model_AE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.saver.save_model_AE" title="Permalink to this definition"></a></dt>
+<dd><p>Saves AE model with pickle</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_out</strong> – output folder path</p></li>
+<li><p><strong>it</strong> – iteration number in csv list</p></li>
+<li><p><strong>AE</strong> – AE model class</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.saver.save_model_DYN">
+<span class="sig-prename descclassname"><span class="pre">utils.data.saver.</span></span><span class="sig-name descname"><span class="pre">save_model_DYN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">it</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DYN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_DYN</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/saver.html#save_model_DYN"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.saver.save_model_DYN" title="Permalink to this definition"></a></dt>
+<dd><p>Saves dynamica predictor model with pickle</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_out</strong> – output folder path</p></li>
+<li><p><strong>it</strong> – iteration number in csv list</p></li>
+<li><p><strong>DYN</strong> – dynamical predictor model class</p></li>
+<li><p><strong>flag_DYN</strong> – type of dynamical predictor (LSTM or NARX)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-utils.data.transformer">
+<span id="utils-data-transformer-module"></span><h2>utils.data.transformer module<a class="headerlink" href="#module-utils.data.transformer" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.transformer.CNNAE2raw">
+<span class="sig-prename descclassname"><span class="pre">utils.data.transformer.</span></span><span class="sig-name descname"><span class="pre">CNNAE2raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/transformer.html#CNNAE2raw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.transformer.CNNAE2raw" title="Permalink to this definition"></a></dt>
+<dd><p>Transforms dataset from AE shape (Nt,Nx,Ny,K) to snapshot matrix shape (NxNyK,Nt)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>U</strong> – dataset in AE shape</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dataset in snapshot matrix shape</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.transformer.flow2window">
+<span class="sig-prename descclassname"><span class="pre">utils.data.transformer.</span></span><span class="sig-name descname"><span class="pre">flow2window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_PW</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/transformer.html#flow2window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.transformer.flow2window" title="Permalink to this definition"></a></dt>
+<dd><p>Re-shapes snapshot matrix (N_v, N_t) into PW format (N_w, N_v, w_prop). w_prop can also be interchanged for w_p
+:param D: snapshot matrix (N_v, N_t)
+:param t: time sequence of snapshot matrix D (N_t, 1)
+:param t_PW: time sequence of PW (N_w, w_prop)
+:return: snapshot matrix in window shape</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.transformer.get_control_vector">
+<span class="sig-prename descclassname"><span class="pre">utils.data.transformer.</span></span><span class="sig-name descname"><span class="pre">get_control_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_flow</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_control</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/transformer.html#get_control_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.transformer.get_control_vector" title="Permalink to this definition"></a></dt>
+<dd><p>Reshape control vector depending on flow configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flow</strong> – dictionary containing control coordinates, among others</p></li>
+<li><p><strong>flag_flow</strong> – type of flow flag</p></li>
+<li><p><strong>flag_contro</strong> – 1 if flow configuration is controlled, 0 otherwise</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>control vector (N_t, N_c)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.transformer.get_mask_boundaries">
+<span class="sig-prename descclassname"><span class="pre">utils.data.transformer.</span></span><span class="sig-name descname"><span class="pre">get_mask_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/transformer.html#get_mask_boundaries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.transformer.get_mask_boundaries" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves 2D indices of mask at body boundary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Mask</strong> – (N_y, N_x) grid containing 1s on body and 0 otherwise</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>indices to the right, top, left and bottom of the body boundary</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.transformer.raw2CNNAE">
+<span class="sig-prename descclassname"><span class="pre">utils.data.transformer.</span></span><span class="sig-name descname"><span class="pre">raw2CNNAE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/transformer.html#raw2CNNAE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.transformer.raw2CNNAE" title="Permalink to this definition"></a></dt>
+<dd><p>Transforms dataset from snapshot matrix shape (NxNyK,Nt) to AE shape (Nt,Nx,Ny,K)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> – dictionary containing X,Y grids and body mask</p></li>
+<li><p><strong>D</strong> – snapshot matrix</p></li>
+<li><p><strong>flag_train</strong> – True if 70/30 splitting is to be done, False otherwise</p></li>
+<li><p><strong>flag_control</strong> – True if control parameters are to be considered, False otherwise</p></li>
+<li><p><strong>b</strong> – control vector, if required</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>transformed snapshot matrix and control vector</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.transformer.raw2dyn">
+<span class="sig-prename descclassname"><span class="pre">utils.data.transformer.</span></span><span class="sig-name descname"><span class="pre">raw2dyn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PARAMS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_control</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[0.]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/transformer.html#raw2dyn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.transformer.raw2dyn" title="Permalink to this definition"></a></dt>
+<dd><p>Converts state vector (and control vector) into shape required by dynamical predictors (tapped delay and prediction windows)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> – time vector (N_t, 1)</p></li>
+<li><p><strong>z</strong> – state vector (N_t, N_z)</p></li>
+<li><p><strong>PARAMS</strong> – dictionary containing parameters</p></li>
+<li><p><strong>flag_control</strong> – 1 if control should be considered, 0 otherwise</p></li>
+<li><p><strong>b</strong> – control vector (N_t, N_c)</p></li>
+<li><p><strong>flag_train</strong> – 1 if train-val splitting is to be done, 0 otherwise</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tapped delay line and prediction window for both state vector and control vector (if any)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.transformer.window2flow">
+<span class="sig-prename descclassname"><span class="pre">utils.data.transformer.</span></span><span class="sig-name descname"><span class="pre">window2flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Dw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/transformer.html#window2flow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.transformer.window2flow" title="Permalink to this definition"></a></dt>
+<dd><p>Re-shapes snapshot matrix in PW format (N_w, N_v, w_prop) into raw format (N_v, N_t). w_prop can also be interchanged for w_p
+:param Dw: snapshot matrix in window shape
+:return: snapshot matrix in raw shape</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.data.transformer.window2zcat">
+<span class="sig-prename descclassname"><span class="pre">utils.data.transformer.</span></span><span class="sig-name descname"><span class="pre">window2zcat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_pe</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/data/transformer.html#window2zcat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.data.transformer.window2zcat" title="Permalink to this definition"></a></dt>
+<dd><p>Re-shapes state vector from PW approach (N_w, N_t, N_z) to concatenated format (N_w * N_t,N_z). Required for error estimation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> – state vector in PW shape</p></li>
+<li><p><strong>n_p</strong> – number of time instants in PW to consider</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>state vector in concatenated shape</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-utils.data">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-utils.data" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="utils.POD.html" class="btn btn-neutral float-left" title="utils.POD package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="utils.data.pre-processing.html" class="btn btn-neutral float-right" title="utils.data.pre-processing package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Patricía Garcia-Caspueñas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

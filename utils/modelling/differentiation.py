@@ -7,6 +7,7 @@ from utils.data.transformer import get_mask_boundaries
 def diff_time(D,t):
     """
     Differentiation in time
+
     :param D: snapshot matrix (N_v, N_t)
     :param t: time array
     :return: time derivative of D
@@ -31,6 +32,7 @@ def diff_time(D,t):
 def diff_1st_2D(grid,D):
     """
     1st order differentiation in space
+
     :param grid: dictionary containing X, Y grids
     :param D: 2D snapshot matrix (N_v, N_t)
     :return: 1st order gradient of D (Dx, Dy)
@@ -96,6 +98,7 @@ def diff_1st_2D(grid,D):
 def get_2Dvorticity(grid,D):
     """
     Planar vorticity
+
     :param grid: dictionary containing X, Y grids
     :param D: snapshot matrix (N_v, N_t)
     :return: vorticity out-of-plane component
@@ -120,6 +123,7 @@ def get_2Dvorticity(grid,D):
 def get_laplacian_2D(grid,D):
     """
     Laplacian of 2D flow
+
     :param grid: dictionary containing X, Y grids
     :param D: 2D snapshot matrix (N_v, N_t)
     :return: Dxx + Dyy
@@ -189,6 +193,7 @@ def get_laplacian_2D(grid,D):
 def get_divergence_2D(grid,D):
     """
     Divergence of 2D flow
+
     :param grid: dictionary containing X, Y grids
     :param D: 2D snapshot matrix (N_v, N_t)
     :return: Ux + Vy
@@ -241,6 +246,7 @@ def get_divergence_2D(grid,D):
 def diff_2nd_2D(grid,D):
     """
     2nd order differentiation in space
+
     :param grid: dictionary containing X, Y grids
     :param D: 2D snapshot matrix (N_v, N_t)
     :return: 2nd order gradient of D (Dxx, Dyy, Dxy)
@@ -330,6 +336,7 @@ def diff_2nd_2D(grid,D):
 def diff_1st_1D(grid,D):
     """
     1st order differentiation in space
+
     :param grid: dictionary containing X, Y grids
     :param U: 1D snapshot matrix (N_v, N_t)
     :return: 1st order gradient of U (Ux, Uy)

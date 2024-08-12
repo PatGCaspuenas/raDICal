@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils.data.transformer &mdash; raDICal 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=af2ce170"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            raDICal
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">AEs_wControl_user</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">raDICal</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">utils.data.transformer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for utils.data.transformer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># PACKAGES</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<div class="viewcode-block" id="raw2CNNAE"><a class="viewcode-back" href="../../../utils.data.html#utils.data.transformer.raw2CNNAE">[docs]</a><span class="k">def</span> <span class="nf">raw2CNNAE</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">flag_train</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">flag_control</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transforms dataset from snapshot matrix shape (NxNyK,Nt) to AE shape (Nt,Nx,Ny,K)</span>
+
+<span class="sd">    :param grid: dictionary containing X,Y grids and body mask</span>
+<span class="sd">    :param D: snapshot matrix</span>
+<span class="sd">    :param flag_train: True if 70/30 splitting is to be done, False otherwise</span>
+<span class="sd">    :param flag_control: True if control parameters are to be considered, False otherwise</span>
+<span class="sd">    :param b: control vector, if required</span>
+<span class="sd">    :return: transformed snapshot matrix and control vector</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># FLOW PARAMETERS</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">]</span>
+
+    <span class="n">N_y</span><span class="p">,</span> <span class="n">N_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">N_v</span><span class="p">,</span> <span class="n">N_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">N_v</span> <span class="o">//</span> <span class="p">(</span><span class="n">N_y</span> <span class="o">*</span> <span class="n">N_x</span><span class="p">)</span>
+
+    <span class="c1"># CONTROL PARAMETERS</span>
+    <span class="k">if</span> <span class="n">flag_control</span><span class="p">:</span>
+        <span class="n">N_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">b</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># RESHAPE FLOW (control is already reshaped)</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N_t</span><span class="p">,</span> <span class="n">N_x</span><span class="p">,</span> <span class="n">N_y</span><span class="p">,</span> <span class="n">K</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+        <span class="n">U</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">D</span><span class="p">[(</span> <span class="p">(</span><span class="n">N_y</span> <span class="o">*</span> <span class="n">N_x</span><span class="p">)</span><span class="o">*</span><span class="n">i</span> <span class="p">):(</span> <span class="p">(</span><span class="n">N_y</span> <span class="o">*</span> <span class="n">N_x</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="p">),</span> <span class="p">:],</span> <span class="p">(</span><span class="n">N_y</span><span class="p">,</span> <span class="n">N_x</span><span class="p">,</span> <span class="n">N_t</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># SPLIT AND RETURN</span>
+    <span class="k">if</span> <span class="n">flag_train</span> <span class="ow">and</span> <span class="n">flag_control</span><span class="p">:</span>
+        <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">u_train</span><span class="p">,</span> <span class="n">u_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">u_train</span><span class="p">,</span> <span class="n">u_test</span>
+    <span class="k">elif</span> <span class="n">flag_train</span> <span class="ow">and</span> <span class="o">~</span><span class="n">flag_control</span><span class="p">:</span>
+        <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">U</span></div>
+
+<div class="viewcode-block" id="CNNAE2raw"><a class="viewcode-back" href="../../../utils.data.html#utils.data.transformer.CNNAE2raw">[docs]</a><span class="k">def</span> <span class="nf">CNNAE2raw</span><span class="p">(</span><span class="n">U</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transforms dataset from AE shape (Nt,Nx,Ny,K) to snapshot matrix shape (NxNyK,Nt)</span>
+
+<span class="sd">    :param U: dataset in AE shape</span>
+<span class="sd">    :return: dataset in snapshot matrix shape</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># PARAMETERS</span>
+    <span class="n">N_t</span><span class="p">,</span> <span class="n">N_x</span><span class="p">,</span> <span class="n">N_y</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">U</span><span class="p">)</span>
+
+    <span class="c1"># INITIALIZATION</span>
+    <span class="n">UT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">U</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">K</span> <span class="o">*</span> <span class="n">N_x</span> <span class="o">*</span> <span class="n">N_y</span><span class="p">,</span> <span class="n">N_t</span><span class="p">))</span>
+
+    <span class="c1"># RESHAPE</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+
+        <span class="n">D</span><span class="p">[(</span> <span class="p">(</span><span class="n">N_x</span> <span class="o">*</span> <span class="n">N_y</span><span class="p">)</span><span class="o">*</span><span class="n">i</span> <span class="p">):(</span> <span class="p">(</span><span class="n">N_x</span> <span class="o">*</span> <span class="n">N_y</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="p">),</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">UT</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="p">(</span><span class="n">N_x</span> <span class="o">*</span> <span class="n">N_y</span><span class="p">,</span> <span class="n">N_t</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">D</span></div>
+
+<div class="viewcode-block" id="get_control_vector"><a class="viewcode-back" href="../../../utils.data.html#utils.data.transformer.get_control_vector">[docs]</a><span class="k">def</span> <span class="nf">get_control_vector</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">flag_flow</span><span class="p">,</span> <span class="n">flag_control</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reshape control vector depending on flow configuration</span>
+
+<span class="sd">    :param flow: dictionary containing control coordinates, among others</span>
+<span class="sd">    :param flag_flow: type of flow flag</span>
+<span class="sd">    :param flag_contro: 1 if flow configuration is controlled, 0 otherwise</span>
+<span class="sd">    :return: control vector (N_t, N_c)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">flag_flow</span><span class="o">==</span><span class="s1">&#39;FP&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">flag_control</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">flow</span><span class="p">[</span><span class="s1">&#39;vF&#39;</span><span class="p">],</span> <span class="n">flow</span><span class="p">[</span><span class="s1">&#39;vT&#39;</span><span class="p">],</span> <span class="n">flow</span><span class="p">[</span><span class="s1">&#39;vB&#39;</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">elif</span> <span class="n">flag_flow</span><span class="o">==</span><span class="s1">&#39;SC&#39;</span><span class="p">:</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">b</span></div>
+
+<div class="viewcode-block" id="get_mask_boundaries"><a class="viewcode-back" href="../../../utils.data.html#utils.data.transformer.get_mask_boundaries">[docs]</a><span class="k">def</span> <span class="nf">get_mask_boundaries</span><span class="p">(</span><span class="n">Mask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves 2D indices of mask at body boundary</span>
+
+<span class="sd">    :param Mask: (N_y, N_x) grid containing 1s on body and 0 otherwise</span>
+<span class="sd">    :return: indices to the right, top, left and bottom of the body boundary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Mask</span><span class="p">)</span>
+    <span class="n">B</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">Mask</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">B</span><span class="p">[</span><span class="n">Mask</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># RIGHT BOUNDARY</span>
+    <span class="n">BaBx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+    <span class="n">BaBx</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">i_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">BaBx</span><span class="o">-</span><span class="n">B</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># TOP BOUNDARY</span>
+    <span class="n">BaBx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+    <span class="n">BaBx</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">i_top</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">BaBx</span> <span class="o">-</span> <span class="n">B</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># LEFT BOUNDARY</span>
+    <span class="n">BaBx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+    <span class="n">BaBx</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+    <span class="n">i_left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">BaBx</span> <span class="o">-</span> <span class="n">B</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># BOTTOM BOUNDARY</span>
+    <span class="n">BaBx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+    <span class="n">BaBx</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span>
+    <span class="n">i_bottom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">BaBx</span> <span class="o">-</span> <span class="n">B</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">i_right</span><span class="p">,</span> <span class="n">i_top</span><span class="p">,</span> <span class="n">i_left</span><span class="p">,</span> <span class="n">i_bottom</span></div>
+
+<div class="viewcode-block" id="raw2dyn"><a class="viewcode-back" href="../../../utils.data.html#utils.data.transformer.raw2dyn">[docs]</a><span class="k">def</span> <span class="nf">raw2dyn</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">PARAMS</span><span class="p">,</span> <span class="n">flag_control</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span> <span class="n">flag_train</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts state vector (and control vector) into shape required by dynamical predictors (tapped delay and prediction windows)</span>
+
+<span class="sd">    :param t: time vector (N_t, 1)</span>
+<span class="sd">    :param z: state vector (N_t, N_z)</span>
+<span class="sd">    :param PARAMS: dictionary containing parameters</span>
+<span class="sd">    :param flag_control: 1 if control should be considered, 0 otherwise</span>
+<span class="sd">    :param b: control vector (N_t, N_c)</span>
+<span class="sd">    :param flag_train: 1 if train-val splitting is to be done, 0 otherwise</span>
+<span class="sd">    :return: tapped delay line and prediction window for both state vector and control vector (if any)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Read parameters</span>
+    <span class="n">DT</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;DT&#39;</span><span class="p">]</span> <span class="c1"># Delta time of the system in c.b</span>
+    <span class="n">tol</span> <span class="o">=</span> <span class="mf">1e-5</span>
+
+    <span class="n">w_o</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;w_o&#39;</span><span class="p">]</span> <span class="c1"># Offset in number of instants</span>
+    <span class="n">w_p</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;w_p&#39;</span><span class="p">]</span> <span class="c1"># Trained prediction window in number of instants</span>
+    <span class="n">w_prop</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;w_prop&#39;</span><span class="p">]</span> <span class="c1"># Propagation prediction window in number of instants</span>
+    <span class="n">w_d</span> <span class="o">=</span> <span class="n">PARAMS</span><span class="p">[</span><span class="s1">&#39;DYN&#39;</span><span class="p">][</span><span class="s1">&#39;w_d&#39;</span><span class="p">]</span> <span class="c1"># Tapped delay line in number of instants</span>
+
+    <span class="n">N_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">z</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># Number of state coordinates</span>
+    <span class="n">N_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">b</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">flag_control</span> <span class="k">else</span> <span class="mi">0</span> <span class="c1"># Number of control coordinates</span>
+
+    <span class="c1"># Split datasets (if needed)</span>
+    <span class="k">if</span> <span class="n">flag_train</span><span class="p">:</span>
+        <span class="n">t_train</span><span class="p">,</span> <span class="n">t_val</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">flags_set</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">,</span><span class="s1">&#39;val&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">flags_set</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">flag_set</span> <span class="ow">in</span> <span class="n">flags_set</span><span class="p">:</span>
+
+        <span class="n">T</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;TDL&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;PW&#39;</span><span class="p">:</span> <span class="p">[]}</span> <span class="c1"># Tapped Delay Line // Prediction Window</span>
+
+        <span class="n">stop</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Determine time bounds for TDL and PW (t_w corresponds to final time of TDL, t_f is the final time of the whole dataset)</span>
+        <span class="k">if</span> <span class="n">flag_set</span><span class="o">==</span><span class="s1">&#39;train&#39;</span><span class="p">:</span>
+            <span class="n">t_w</span> <span class="o">=</span> <span class="n">t_train</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">DT</span> <span class="o">*</span> <span class="p">(</span><span class="n">w_d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">t_f</span> <span class="o">=</span> <span class="n">t_train</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">flag_set</span> <span class="o">==</span> <span class="s1">&#39;val&#39;</span><span class="p">:</span>
+            <span class="n">t_w</span> <span class="o">=</span> <span class="n">t_val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">DT</span> <span class="o">*</span> <span class="p">(</span><span class="n">w_d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">t_f</span> <span class="o">=</span> <span class="n">t_val</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">flag_set</span><span class="o">==</span><span class="s1">&#39;test&#39;</span><span class="p">:</span>
+            <span class="n">t_w</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">DT</span> <span class="o">*</span> <span class="p">(</span><span class="n">w_d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">t_f</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Create time vectors for each TDL-PW</span>
+        <span class="k">while</span> <span class="p">(</span><span class="ow">not</span> <span class="n">stop</span><span class="p">):</span>
+
+            <span class="c1"># Update the current TDL-PW</span>
+            <span class="n">T</span><span class="p">[</span><span class="s1">&#39;TDL&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t_w</span> <span class="o">-</span> <span class="n">DT</span> <span class="o">*</span> <span class="p">(</span><span class="n">w_d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">t_w</span><span class="p">,</span> <span class="n">w_d</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">flag_set</span><span class="o">==</span><span class="s1">&#39;test&#39;</span><span class="p">:</span>
+                <span class="n">T</span><span class="p">[</span><span class="s1">&#39;PW&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t_w</span> <span class="o">+</span> <span class="n">DT</span><span class="p">,</span> <span class="n">t_w</span> <span class="o">+</span> <span class="n">DT</span> <span class="o">*</span> <span class="n">w_prop</span><span class="p">,</span> <span class="n">w_prop</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">T</span><span class="p">[</span><span class="s1">&#39;PW&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t_w</span> <span class="o">+</span> <span class="n">DT</span><span class="p">,</span> <span class="n">t_w</span> <span class="o">+</span> <span class="n">DT</span> <span class="o">*</span> <span class="n">w_p</span><span class="p">,</span> <span class="n">w_p</span><span class="p">))</span>
+
+            <span class="c1"># Update next TDL-PW and stop next iteration if reached t_f</span>
+            <span class="n">t_w</span> <span class="o">=</span> <span class="n">t_w</span> <span class="o">+</span> <span class="n">DT</span> <span class="o">*</span> <span class="n">w_o</span>
+
+            <span class="k">if</span> <span class="n">flag_set</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">t_w</span> <span class="o">+</span> <span class="n">DT</span> <span class="o">*</span> <span class="n">w_prop</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">t_f</span><span class="p">:</span>
+                    <span class="n">stop</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">t_w</span> <span class="o">+</span> <span class="n">DT</span> <span class="o">*</span> <span class="n">w_p</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">t_f</span><span class="p">:</span>
+                    <span class="n">stop</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c1"># Initialize state and control vector (x is TDL (input of dynamical predictors), y is PW (output of dynamical predictors)</span>
+        <span class="n">N_w</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;PW&#39;</span><span class="p">])</span> <span class="c1"># Number of windows</span>
+        <span class="n">Zx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N_w</span><span class="p">,</span> <span class="n">w_d</span><span class="p">,</span> <span class="n">N_z</span><span class="p">))</span>
+        <span class="n">Zy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N_w</span><span class="p">,</span> <span class="n">w_prop</span><span class="p">,</span> <span class="n">N_z</span><span class="p">))</span> <span class="k">if</span> <span class="p">(</span><span class="n">flag_set</span><span class="o">==</span><span class="s1">&#39;test&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N_w</span><span class="p">,</span> <span class="n">w_p</span><span class="p">,</span> <span class="n">N_z</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">flag_control</span><span class="p">:</span>
+            <span class="n">Bx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N_w</span><span class="p">,</span> <span class="n">w_d</span><span class="p">,</span> <span class="n">N_c</span><span class="p">))</span>
+            <span class="n">By</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N_w</span><span class="p">,</span> <span class="n">w_prop</span><span class="p">,</span> <span class="n">N_c</span><span class="p">))</span> <span class="k">if</span> <span class="p">(</span><span class="n">flag_set</span><span class="o">==</span><span class="s1">&#39;test&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N_w</span><span class="p">,</span> <span class="n">w_p</span><span class="p">,</span> <span class="n">N_c</span><span class="p">))</span>
+
+        <span class="c1"># Re-order state and control vector according to time vector</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_w</span><span class="p">):</span>
+
+            <span class="c1"># Indices</span>
+            <span class="n">iTDL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;TDL&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;TDL&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">iPW</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;PW&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;PW&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">Zx</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">iTDL</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">Zy</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">iPW</span><span class="p">,</span> <span class="p">:]</span>
+
+            <span class="k">if</span> <span class="n">flag_control</span><span class="p">:</span>
+                <span class="n">Bx</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">iTDL</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">By</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">iPW</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="c1"># Save different outputs depending on dataset type and control flag</span>
+        <span class="k">if</span> <span class="n">flag_set</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+            <span class="n">zx_train</span><span class="p">,</span> <span class="n">zy_train</span> <span class="o">=</span> <span class="n">Zx</span><span class="p">,</span> <span class="n">Zy</span>
+            <span class="k">if</span> <span class="n">flag_control</span><span class="p">:</span>
+                <span class="n">bx_train</span><span class="p">,</span> <span class="n">by_train</span> <span class="o">=</span> <span class="n">Bx</span><span class="p">,</span> <span class="n">By</span>
+        <span class="k">elif</span> <span class="n">flag_set</span> <span class="o">==</span> <span class="s1">&#39;val&#39;</span><span class="p">:</span>
+            <span class="n">zx_val</span><span class="p">,</span> <span class="n">zy_val</span> <span class="o">=</span> <span class="n">Zx</span><span class="p">,</span> <span class="n">Zy</span>
+            <span class="k">if</span> <span class="n">flag_control</span><span class="p">:</span>
+                <span class="n">bx_val</span><span class="p">,</span> <span class="n">by_val</span> <span class="o">=</span> <span class="n">Bx</span><span class="p">,</span> <span class="n">By</span>
+        <span class="k">elif</span> <span class="n">flag_set</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
+            <span class="n">zx</span><span class="p">,</span> <span class="n">zy</span> <span class="o">=</span> <span class="n">Zx</span><span class="p">,</span> <span class="n">Zy</span>
+            <span class="k">if</span> <span class="n">flag_control</span><span class="p">:</span>
+                <span class="n">bx</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="n">Bx</span><span class="p">,</span> <span class="n">By</span>
+
+    <span class="c1"># Return outputs depending on dataset type and control flag</span>
+    <span class="k">if</span> <span class="n">flag_train</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">flag_control</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">zx_train</span><span class="p">,</span> <span class="n">zy_train</span><span class="p">,</span> <span class="n">zx_val</span><span class="p">,</span> <span class="n">zy_val</span><span class="p">,</span> <span class="n">bx_train</span><span class="p">,</span> <span class="n">by_train</span><span class="p">,</span> <span class="n">bx_val</span><span class="p">,</span> <span class="n">by_val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">zx_train</span><span class="p">,</span> <span class="n">zy_train</span><span class="p">,</span> <span class="n">zx_val</span><span class="p">,</span> <span class="n">zy_val</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">flag_control</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">zx</span><span class="p">,</span> <span class="n">zy</span><span class="p">,</span> <span class="n">bx</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="n">T</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">zx</span><span class="p">,</span> <span class="n">zy</span><span class="p">,</span> <span class="n">T</span></div>
+
+<div class="viewcode-block" id="window2zcat"><a class="viewcode-back" href="../../../utils.data.html#utils.data.transformer.window2zcat">[docs]</a><span class="k">def</span> <span class="nf">window2zcat</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">w_pe</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Re-shapes state vector from PW approach (N_w, N_t, N_z) to concatenated format (N_w * N_t,N_z). Required for error estimation</span>
+
+<span class="sd">    :param X: state vector in PW shape</span>
+<span class="sd">    :param n_p: number of time instants in PW to consider</span>
+<span class="sd">    :return: state vector in concatenated shape</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">N_w</span><span class="p">,</span> <span class="n">N_t</span><span class="p">,</span> <span class="n">N_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="n">w_pe</span><span class="p">,</span> <span class="p">:])</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="n">w_pe</span><span class="p">,</span> <span class="p">:],</span> <span class="p">(</span><span class="n">N_w</span> <span class="o">*</span> <span class="n">N_t</span><span class="p">,</span> <span class="n">N_z</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">X</span></div>
+
+<div class="viewcode-block" id="flow2window"><a class="viewcode-back" href="../../../utils.data.html#utils.data.transformer.flow2window">[docs]</a><span class="k">def</span> <span class="nf">flow2window</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">t_PW</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Re-shapes snapshot matrix (N_v, N_t) into PW format (N_w, N_v, w_prop). w_prop can also be interchanged for w_p</span>
+<span class="sd">    :param D: snapshot matrix (N_v, N_t)</span>
+<span class="sd">    :param t: time sequence of snapshot matrix D (N_t, 1)</span>
+<span class="sd">    :param t_PW: time sequence of PW (N_w, w_prop)</span>
+<span class="sd">    :return: snapshot matrix in window shape</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Parameters</span>
+    <span class="n">N_w</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_PW</span><span class="p">)</span>
+    <span class="n">w_prop</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_PW</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">tol</span> <span class="o">=</span> <span class="mf">1e-5</span>
+
+    <span class="n">N_v</span><span class="p">,</span> <span class="n">N_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+
+    <span class="c1"># Convert snapshot matrix into PW format</span>
+    <span class="n">Dw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N_w</span><span class="p">,</span> <span class="n">N_v</span><span class="p">,</span> <span class="n">w_prop</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_w</span><span class="p">):</span>
+
+        <span class="n">i0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">t_PW</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ifin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">t_PW</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="n">Dw</span><span class="p">[</span><span class="n">w</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">D</span><span class="p">[:,</span> <span class="n">i0</span><span class="p">:</span><span class="n">ifin</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">Dw</span></div>
+
+<div class="viewcode-block" id="window2flow"><a class="viewcode-back" href="../../../utils.data.html#utils.data.transformer.window2flow">[docs]</a><span class="k">def</span> <span class="nf">window2flow</span><span class="p">(</span><span class="n">Dw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Re-shapes snapshot matrix in PW format (N_w, N_v, w_prop) into raw format (N_v, N_t). w_prop can also be interchanged for w_p</span>
+<span class="sd">    :param Dw: snapshot matrix in window shape</span>
+<span class="sd">    :return: snapshot matrix in raw shape</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">N_w</span><span class="p">,</span> <span class="n">N_v</span><span class="p">,</span> <span class="n">N_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">Dw</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_w</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">w</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">D</span> <span class="o">=</span> <span class="n">Dw</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">D</span><span class="p">,</span> <span class="n">Dw</span><span class="p">[</span><span class="n">w</span><span class="p">,:,:]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">D</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Patricía Garcia-Caspueñas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

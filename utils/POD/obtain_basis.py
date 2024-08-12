@@ -18,6 +18,7 @@ def prepare_POD_snapshot(D, N_t_POD):
 def get_ROM(D, r_method, r_threshold, dDdt=[]):
     """
     Retrieves POD complete and truncated basis
+
     :param D: snapshot matrix
     :param r_method: flag to select truncation method
     :param r_threshold: corresponding threshold value for given truncation method

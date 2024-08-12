@@ -8,6 +8,7 @@ from utils.data.transformer import raw2CNNAE, CNNAE2raw
 def get_AE_z(N_z, flag_AE, AE, grid, D):
     """
     Gets latent space from AE
+
     :param N_z: number of latent coordinates
     :param flag_AE: AE type
     :param AE: AE class model
@@ -47,6 +48,7 @@ def get_AE_z(N_z, flag_AE, AE, grid, D):
 def get_AE_reconstruction(N_z, flag_AE, flag_control, AE, grid, D, b):
     """
     Reconstructs flow field through AE (complete encoding-decoding process)
+
     :param N_z: number of latent coordinates
     :param flag_AE: AE type
     :param flag_control: 1 if control is embedded in AE, 0 otherwise

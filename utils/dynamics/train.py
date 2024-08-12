@@ -12,6 +12,7 @@ from utils.modelling.custom_losses import MeanSquaredError
 def train_dyn(PARAMS, FLAGS, z, t, logging, b=0):
     """
     Trains dynamical predictor model
+
     :param PARAMS: dictionary of parameters
     :param FLAGS: dictionary of flags
     :param z: latent space (N_t, N_z)

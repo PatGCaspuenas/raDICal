@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 def raw2CNNAE(grid, D, flag_train=0, flag_control=0, b=0):
     """
     Transforms dataset from snapshot matrix shape (NxNyK,Nt) to AE shape (Nt,Nx,Ny,K)
+
     :param grid: dictionary containing X,Y grids and body mask
     :param D: snapshot matrix
     :param flag_train: True if 70/30 splitting is to be done, False otherwise
@@ -42,6 +43,7 @@ def raw2CNNAE(grid, D, flag_train=0, flag_control=0, b=0):
 def CNNAE2raw(U):
     """
     Transforms dataset from AE shape (Nt,Nx,Ny,K) to snapshot matrix shape (NxNyK,Nt)
+
     :param U: dataset in AE shape
     :return: dataset in snapshot matrix shape
     """
@@ -63,6 +65,7 @@ def CNNAE2raw(U):
 def get_control_vector(flow, flag_flow, flag_control):
     """
     Reshape control vector depending on flow configuration
+
     :param flow: dictionary containing control coordinates, among others
     :param flag_flow: type of flow flag
     :param flag_contro: 1 if flow configuration is controlled, 0 otherwise
@@ -82,6 +85,7 @@ def get_control_vector(flow, flag_flow, flag_control):
 def get_mask_boundaries(Mask):
     """
     Retrieves 2D indices of mask at body boundary
+
     :param Mask: (N_y, N_x) grid containing 1s on body and 0 otherwise
     :return: indices to the right, top, left and bottom of the body boundary
     """
@@ -115,6 +119,7 @@ def get_mask_boundaries(Mask):
 def raw2dyn(t, z, PARAMS, flag_control, b = np.zeros((1,1)), flag_train = 1):
     """
     Converts state vector (and control vector) into shape required by dynamical predictors (tapped delay and prediction windows)
+
     :param t: time vector (N_t, 1)
     :param z: state vector (N_t, N_z)
     :param PARAMS: dictionary containing parameters
@@ -232,6 +237,7 @@ def raw2dyn(t, z, PARAMS, flag_control, b = np.zeros((1,1)), flag_train = 1):
 def window2zcat(X, w_pe):
     """
     Re-shapes state vector from PW approach (N_w, N_t, N_z) to concatenated format (N_w * N_t,N_z). Required for error estimation
+
     :param X: state vector in PW shape
     :param n_p: number of time instants in PW to consider
     :return: state vector in concatenated shape

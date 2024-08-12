@@ -7,10 +7,12 @@ import h5py
 def save_dictionary(path_out, it, OUT, flag_name):
     """
     Saves any dictionary in .mat format
+
     :param path_out: output folder path
     :param it: iteration number in csv list
     :param OUT: dictionary
     :param flag_name: name to save dictionary
+    :return: None
     """
 
     path_save = os.path.join(path_out, flag_name + '_' + str(it) + '.mat')
@@ -19,9 +21,11 @@ def save_dictionary(path_out, it, OUT, flag_name):
 def save_model_AE(path_out, it, AE):
     """
     Saves AE model with pickle
+
     :param path_out: output folder path
     :param it: iteration number in csv list
     :param AE: AE model class
+    :return: None
     """
 
     path_encoder = os.path.join(path_out, 'MODEL_AE_enc_' + str(it))
@@ -35,10 +39,12 @@ def save_model_AE(path_out, it, AE):
 def save_model_DYN(path_out, it, DYN, flag_DYN):
     """
     Saves dynamica predictor model with pickle
+
     :param path_out: output folder path
     :param it: iteration number in csv list
     :param DYN: dynamical predictor model class
     :param flag_DYN: type of dynamical predictor (LSTM or NARX)
+    :return: None
     """
 
     if flag_DYN == 'LSTM':
@@ -57,11 +63,12 @@ def save_model_DYN(path_out, it, DYN, flag_DYN):
 def save_flow_latent(path_out, it, OUT, flag_AE_DYN, flag_flow_lat):
     """
     Saves any dictionary in .h5 format
+
     :param path_out: output folder path
     :param it: iteration number in csv list
     :param OUT: dictionary
     :param flag_AE_DYN: AE or DYN flag
-    :param flag_flow_lat: FLOW or LATENT flag
+    :param flag_flow_lat: FLOW or LATENT flag:return: None
     """
 
     path_save = os.path.join(path_out, flag_flow_lat + '_' + flag_AE_DYN + '_' + str(it) + '.h5')

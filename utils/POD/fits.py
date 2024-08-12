@@ -4,6 +4,7 @@ import numpy as np
 def energy_truncation(S, E):
     """
     Retrieves number of modes reaching a certain cumulative energy level
+
     :param S: array of singular values (N_r)
     :param E: energy threshold
     :return: number of modes (not index)
@@ -19,6 +20,7 @@ def energy_truncation(S, E):
 def elbow_fit(x, y):
     """
     Retrieves number of modes following the elbow criteria
+
     :param x: array of mode index
     :param y: array of cumulative energies for each mode index
     :return: number of modes (not index)

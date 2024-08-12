@@ -4,6 +4,7 @@ import numpy as np
 def get_reyn_stresses_2D(grid, Ddt):
     """
     Retrieves Reynold stresses for 2D flow
+
     :param grid: dictionary containing X, Y grids
     :param Ddt: snapshot matrix of fluctuations of velocity
     :return: dictionary containing TKE and Reynolds stresses
@@ -27,6 +28,7 @@ def get_reyn_stresses_2D(grid, Ddt):
 def get_energy_fluctuations(D):
     """
     Retrieves energy fluctuations in time
+
     :param D: snapshot matrix of velocity (or fluctuations)
     :return: energy in time
     """

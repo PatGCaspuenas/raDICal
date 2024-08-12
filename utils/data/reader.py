@@ -100,6 +100,7 @@ def read_flow(path_grid, path_flow):
 def read_latent_space(path_latent):
     """
     Reads latent space data into dictionary
+
     :param path_latent: path of latent dataset
     :param flag_control: 1 if control is included in flow, 0 otherwise
     :return: dictionary containing latent space, time array and control vector
@@ -129,7 +130,7 @@ def update_user_vars(path_flow, FLAGS, PARAMS, grid=[], flow=[]):
     :param flow: dictionary containing velocity snapshots, time and Re
     :param FLAGS: dictionary with flags
     :param PARAMS: dictionary with parameters
-    :return:
+    :return: FLAGS, PARAMS
     """
 
     FLAGS["FLOW"]["type"] = path_flow[0:2]
@@ -151,6 +152,7 @@ def update_user_vars(path_flow, FLAGS, PARAMS, grid=[], flow=[]):
 def prepare_snapshot(flow, path_mean, flag_control, flag_type, N_t):
     """
     Prepares snapshot matrix for runner
+
     :param flow: dictionary containing velocity snapshots, time array and Re
     :param flag_control: 1 if control is included in flow, 0 otherwise
     :param flag_type: type of flow

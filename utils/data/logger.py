@@ -23,10 +23,12 @@ def log_initial_params(log, PATHS, FLAGS, PARAMS):
 
     """
     Log parameters (default and user input)
+
     :param log: logger object
     :param PATHS: dictionary with paths
     :param FLAGS: dictionary with flags
     :param PARAMS: dictionary with params
+    :return: None
     """
 
     # PATHS
@@ -49,6 +51,7 @@ def log_initial_params(log, PATHS, FLAGS, PARAMS):
 def logger_initialize(PATHS, i):
     """
     Create logger
+
     :param PATHS: dictionary with paths
     :param i: iteration index in user defined list
     :return: logger and handler object

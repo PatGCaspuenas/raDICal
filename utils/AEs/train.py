@@ -14,6 +14,7 @@ from utils.modelling.custom_losses import null_loss, energy_loss
 def train_AE(PARAMS, FLAGS, grid, D, logging, b=0):
     """
     Trains and compiles AE
+
     :param PARAMS: dictionary of parameters
     :param FLAGS: dictionary of flags
     :param grid: dictionary containing X,Y and mask grids

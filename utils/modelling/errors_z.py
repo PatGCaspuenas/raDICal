@@ -10,6 +10,7 @@ def get_RMSE_z(Xtrue, X, w_prop=0):
     """
     Estimation of Root Mean Square Error (normalized with standard deviation of ground truth latent coordinate)
     for latent space up to a certain length of the PW
+
     :param Xtrue: ground truth of latent space (N_t, N_z) or (N_w, N_t, N_z)
     :param X: reconstructed latent space (N_t, N_z) or (N_w, N_t, N_z)
     :param w_prop: PW window to evaluate RMSE
@@ -35,6 +36,7 @@ def get_RMSE_z(Xtrue, X, w_prop=0):
 def get_max_w_prop(Xtrue, X, w_p):
     """
     Estimation of number of time instants where prediction is above a certain R2 threshold
+
     :param Xtrue: ground truth of latent space (N_w, N_t, N_z)
     :param X: reconstructed latent space (N_w, N_t, N_z)
     :param w_p: PW window to evaluate RMSE
@@ -63,6 +65,7 @@ def get_max_w_prop(Xtrue, X, w_p):
 def get_R2factor(Xtrue, X, flag_R2method, w_prop =0):
     """
     Estimates R2 factor for latent space up to a certain length of the PW
+
     :param Xtrue: ground truth of latent space (N_t, N_z) or (N_w, N_t, N_z)
     :param X: reconstructed latent space (N_t, N_z) or (N_w, N_t, N_z)
     :param w_prop: PW window to evaluate RMSE
@@ -103,6 +106,7 @@ def get_R2factor(Xtrue, X, flag_R2method, w_prop =0):
 def get_latent_correlation_matrix(z):
     """
     Obtains correlation matrix for latent space
+
     :param z: latent space (N_t, N_z)
     :return: determinant of correlation matrix, mean of corr matrix and correlation matrx
     """
@@ -136,6 +140,7 @@ def get_latent_correlation_matrix(z):
 def get_latent_MI(z):
     """
     Estimation of Mutual Information (nonlinear correlation) for latent space
+
     :param z: latent space (N_t, N_z)
     :return: Mutual information matrix
     """
@@ -155,6 +160,7 @@ def get_latent_MI(z):
 def get_frequencies(z):
     """
     Estimation of most relevant frequencies for each latent coordinate
+
     :param z: latent space (N_t, N_z)
     :return: frequency array
     """

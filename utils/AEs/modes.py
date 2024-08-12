@@ -9,6 +9,7 @@ from utils.data.transformer import CNNAE2raw, raw2CNNAE
 def get_modes_AE(AE, grid, D, N_z, flag_AE, flag_control, flag_static, z=0, b=0):
     """
     Retrives equivalent AE modes, depending on AE type
+
     :param AE: AE model class
     :param grid: dictionary containing X, Y grids with mask
     :param D: snapshot matrix (N_v, N_t)
@@ -76,6 +77,7 @@ def get_modes_AE(AE, grid, D, N_z, flag_AE, flag_control, flag_static, z=0, b=0)
 def get_correlation_matrix(Phi):
     """
     Obtains correlation matrix for AE modes
+
     :param Phi: AE modes (N_v, N_t, N_z)
     :return: determinant of correlation matrix and correlation matrx
     """
