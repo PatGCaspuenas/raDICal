@@ -6,7 +6,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/PatGCaspuenas/raDICal">
-    <img src="Images/raDICal.svg" alt="Logo" width="100" height="200">
+    <img src="Images/raDICal.svg" alt="Logo" width="150" height="300">
   </a>
 
   <h3 align="center">raDICal</h3>
