@@ -6,7 +6,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/PatGCaspuenas/raDICal">
-    <img src="Images/raDICal.svg" alt="Logo" width="150" height="200">
+    <img src="Images/raDICal.svg" alt="Logo" width="150">
   </a>
 
   <h3 align="center">raDICal</h3>
@@ -14,7 +14,7 @@
   <p align="center">
     Embedding and prediction pipeline of forced velocity flowfields
     <br />
-    <a href="https://github.com/PatGCaspuenas/raDICal/docs/_build/html/index.html"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/PatGCaspuenas/raDICal/blob/master/docs/_build/html/index.html"><strong>Explore the docs »</strong></a>
     <br />
     <br />
   </p>
