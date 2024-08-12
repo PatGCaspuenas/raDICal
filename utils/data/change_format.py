@@ -98,5 +98,12 @@ def mat2hdf5_FP_grid(path, path_save):
         for key, item in grid.items():
             h5file.create_dataset(key, data=item)
 
+path_flow = r'F:\AEs_wControl\DATA\FP_00k_10k.mat'
+path_save = r'F:\AEs_wControl\DATA\FP_00k_10k.h5'
 
+mat2hdf5_FP_flow(path_flow, 0, path_save)
 
+path_flow = r'F:\AEs_wControl\DATA\FP_00k_20k.mat'
+path_save = r'F:\AEs_wControl\DATA\FP_00k_20k.h5'
+
+mat2hdf5_FP_flow(path_flow, 0, path_save)

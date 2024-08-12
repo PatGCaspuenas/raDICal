@@ -1,0 +1,6 @@
+﻿n_epochs,beta,nr,nt,AE,save,load,train,lr,batch_size,reg,drop,struct,Val
+500,0,25,10000,C-CNN-AE,0,0,1,5.00E-04,128,0.00E+00,0.00E+00,complex,1
+500,0,25,10000,C-CNN-AE,0,0,1,5.00E-04,256,0.00E+00,0.00E+00,complex,1
+500,0,25,10000,C-CNN-AE,0,0,1,1.00E-05,64,0.00E+00,0.00E+00,complex,1
+500,0,25,10000,C-CNN-AE,0,0,1,1.00E-05,128,0.00E+00,0.00E+00,complex,1
+500,0,25,10000,C-CNN-AE,0,0,1,1.00E-05,256,0.00E+00,0.00E+00,complex,1

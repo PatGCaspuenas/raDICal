@@ -3,8 +3,8 @@ import os
 
 import numpy as np
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '1,2,3'
-os.environ["TF_CPP_MIN_LOG_LEVEL"]='1'
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'
+os.environ["TF_CPP_MIN_LOG_LEVEL"]='0'
 import tensorflow as tf
 physical_devices = tf.config.list_physical_devices('GPU')
 available_GPUs = len(physical_devices)
@@ -112,7 +112,7 @@ def ROM(params, flags, paths):
         log.info(f'Obtained POD energy: RMSE = {err_POD:.2E}, CE = {CE:.2E}, CEA = {CEA:.2E}')
 
         del CE, CEA, nt_POD
-
+    flags['control'] = 1
     # TRAIN AE
     if flags['load']:
         AE = load_model_AE(params, flags, paths)

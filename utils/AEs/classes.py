@@ -51,9 +51,12 @@ class AE(object):
         if (self.flag_struct=='simple'):
             self.filter_seq_e = [16,  8,  8,  8,   4,   4]
             self.filter_seq_d = [ 4,  4,  8,  8,   8,  16]
-        elif (self.flag_struct=='medium'):
+        elif (self.flag_struct=='medium1'):
             self.filter_seq_e = [ 4,  4,  8, 16,  32,  64, 32]
             self.filter_seq_d = [32, 64, 32, 16, 8, 4, 4]
+        elif (self.flag_struct == 'medium2'):
+            self.filter_seq_e = [8, 8, 16, 32, 64, 128, 64]
+            self.filter_seq_d = [64, 128, 64, 32, 16, 8, 8]
         elif (self.flag_struct=='complex'):
             self.filter_seq_e = [16, 16, 32, 64, 128, 256, 128]
             self.filter_seq_d = [128, 256, 256, 128, 64, 32, 16, 16]

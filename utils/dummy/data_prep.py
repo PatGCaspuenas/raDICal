@@ -418,3 +418,45 @@ def merge_latent():
     with h5py.File(path_out, 'w') as h5file:
         for key, item in out.items():
             h5file.create_dataset(key, data=item)
+
+def merge_datasets():
+    import os
+    import random
+    import h5py
+    import numpy as np
+
+    path_folder = r'F:\AEs_wControl\DATA'
+    paths_flow = ['FPc_00k_50k.h5', 'FPc_50k_60k.h5']
+
+    N_paths = 2
+    N = 6
+    Nmax = 10000
+    Nt = [Nmax // N * (N - 1), Nmax - Nmax // N * (N - 1)]
+    path_save = 'FPc_00k_60k.h5'
+
+    FLOW = {}
+
+    for j in range(N_paths):
+
+        FLOW[j] = {}
+        with h5py.File(os.path.join(path_folder, paths_flow[j]), 'r') as f:
+            for i in f.keys():
+                FLOW[j][i] = f[i][()]
+
+    i0 = np.sort(random.sample(range(10000), Nt[0]))
+    i1 = np.sort(random.sample(range(10000), Nt[1]))
+
+    flow = {}
+    flow['U'] = np.concatenate((FLOW[0]['U'][:, i0], FLOW[1]['U'][:, i1]), axis=1)
+    flow['V'] = np.concatenate((FLOW[0]['V'][:, i0], FLOW[1]['V'][:, i1]), axis=1)
+    flow['vF'] = np.concatenate((FLOW[0]['vF'][i0, :], FLOW[1]['vF'][i1, :]), axis=0)
+    flow['vT'] = np.concatenate((FLOW[0]['vT'][i0, :], FLOW[1]['vT'][i1, :]), axis=0)
+    flow['vB'] = np.concatenate((FLOW[0]['vB'][i0, :], FLOW[1]['vB'][i1, :]), axis=0)
+    flow['t'] = np.concatenate((FLOW[0]['t'][i0, :], FLOW[1]['t'][i1, :]), axis=0)
+    flow['Re'] = 150
+
+    del FLOW
+
+    with h5py.File(os.path.join(path_folder, path_save), 'w') as h5file:
+        for key, item in flow.items():
+            h5file.create_dataset(key, data=item)

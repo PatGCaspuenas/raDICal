@@ -4,11 +4,11 @@ import os
 import pandas as pd
 
 # LOCAL FUNCTIONS
-from autoencoderc import ROM
+from autoencoder import ROM
 
 # ITERABLES
 cwd = os.getcwd()
-IT = pd.read_csv(cwd+r'/OUTPUT/manual_tuning.csv')
+IT = pd.read_csv(cwd+r'/OUTPUT/latent_size_CCNNAE.csv')
 
 for i in range(len(IT)):
     # FLAGS
@@ -16,7 +16,7 @@ for i in range(len(IT)):
     flags['save'] = {}
 
     flags['AE'] = IT['AE'][i]          # AE type (C-CNN-AE, MD-CNN-AE, CNN-HAE, CNN-VAE)
-    flags['struct'] = IT['struct'][i]      # AE structure type (simple, medium, complex)
+    flags['struct'] = 'complex'    # AE structure type (simple, medium, complex)
     flags['flow'] = 'FP'            # Flow type (SC, FP)
     flags['control'] = 1            # With (1) or without (0) control
     flags['POD'] = 0                # Gets POD basis (1) or not (0)
@@ -59,8 +59,7 @@ for i in range(len(IT)):
                              '_beta_' + str(IT['beta'][i] ) + \
                              '_nr_' + str(IT['nr'][i] ) + \
                              '_nt_' + str(IT['nt'][i] ) + '_val_' + str(IT['Val'][i]) +\
-                             '_train_' + str(IT['train'][i] ) + 'reg' + str(IT['reg'][i] ) + \
-                             '_struct_' + str(IT['struct'][i] ) + '_drop_' + str(IT['drop'][i] )# Logger name
+                             '_train_' + str(IT['train'][i])  # Logger name
 
     params['AE']['n_epochs'] = int(IT['n_epochs'][i])    # Number of epochs
     params['AE']['batch_size'] = int(IT['batch_size'][i]) # Batch size when training AE
@@ -71,9 +70,9 @@ for i in range(len(IT)):
     params['AE']['ptypepool'] = 'valid'              # Type of pooling padding (same or valid)
     params['AE']['nstrides'] = 2                     # Number of strides in pooling
     params['AE']['act'] = 'tanh'                     # Activation function
-    params['AE']['reg_k'] = IT['reg'][i]                         # Regularization kernel
-    params['AE']['reg_b'] = IT['reg'][i]                      # Regularization bias
-    params['AE']['drop'] = IT['drop'][i]
+    params['AE']['reg_k'] = 0                       # Regularization kernel
+    params['AE']['reg_b'] = 0                    # Regularization bias
+    params['AE']['drop'] = 0
     params['AE']['nr'] = int(IT['nr'][i])            # AE latent space dimensions
 
     params['flow']['k'] = 2                          # Number of dimensions
